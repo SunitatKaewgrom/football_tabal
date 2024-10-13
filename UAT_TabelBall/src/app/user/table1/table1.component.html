@@ -1,0 +1,261 @@
+<html lang="th">
+ <head>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <style>
+      body {
+          font-family: 'Poppins', sans-serif;
+          background-color: #f3f4f6; /* พื้นหลังสีเทาอ่อน */
+          color: #1f2937; /* สีข้อความที่สบายตา */
+      }
+      .header-section {
+          background-color: #e5e7eb; /* พื้นหลังโทนสีอ่อน */
+          padding: 2rem;
+          border-radius: 12px;
+          text-align: center;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* เงาบางๆ */
+      }
+      .header-section img {
+          border-radius: 9999px;
+      }
+      .header-section h1 {
+          font-size: 2rem;
+          font-weight: 700;
+          color: #111827; /* สีเข้มเพื่อให้อ่านง่าย */
+      }
+      .header-section p {
+          font-size: 1.1rem;
+          color: #4b5563; /* สีข้อความที่สบายตา */
+      }
+      .score {
+          background-color: #10b981; /* สีเขียวอ่อน */
+          color: #ffffff;
+          padding: 0.5rem 1rem;
+          border-radius: 9999px;
+          font-size: 1.1rem;
+          font-weight: 600;
+      }
+      .btn-analysis {
+          background-color: #2563eb; /* สีฟ้าสบายตา */
+          color: #ffffff;
+          padding: 0.5rem 1rem;
+          border-radius: 9999px;
+          transition: background-color 0.3s;
+      }
+      .btn-analysis:hover {
+          background-color: #1d4ed8; /* เปลี่ยนสีเล็กน้อยเมื่อ hover */
+      }
+      .expert-card {
+          padding: 1rem;
+          text-align: center;
+          background-color: #f9fafb; /* พื้นหลังสีอ่อน */
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03); /* เงาบางๆ */
+      }
+      .lose {
+          color: #ef4444;
+          font-weight: 700;
+      }
+      .win {
+          color: #10b981;
+          font-weight: 700;
+      }
+  </style>
+ </head>
+ <body class="bg-gray-100 text-gray-800 font-sans">
+  <div class="container mx-auto p-4">
+   <!-- Section: Header -->
+   <div class="header-section mb-6">
+    <img alt="Logo" class="mx-auto mb-4" height="100" src="https://storage.googleapis.com/a1aa/image/kWso4CkwfnRFJKOj1pplE389p2QyTlKWyxlUE3QFWIeCsUmTA.jpg" width="100"/>
+    <h1 class="text-2xl font-bold">
+     กลุ่ม VIP ยอดเซียนทีเด็ดบอลเต็ง +บวกกันยับๆ ให้บอล สด เต็ง สเต็ป ตลอด 24 ชม.
+    </h1>
+    <p class="text-lg">
+     การันตีกำไร จากสมาชิก 20 กลุ่ม 10,000 คน เข้ากลุ่ม VIP ID LINE :: BALLDED789
+    </p>
+   </div>
+
+
+   <!-- Section: Table -->
+   <div class="overflow-x-auto">
+    <table class="min-w-full bg-white text-center rounded-lg shadow-lg">
+     <thead>
+      <tr class="bg-gray-200">
+       <th class="py-2 px-4"></th>
+       <th class="py-2 px-4"></th>
+       <th class="py-2 px-4"></th>
+       <th class="py-2 px-4"></th>
+       <th class="py-2 px-4"></th>
+       <th class="py-2 px-4"></th>
+       <th class="py-2 px-4"></th>
+      </tr>
+     </thead>
+     <tbody>
+      <!-- Row 1 -->
+      <tr class="border-b border-gray-300">
+       <td class="py-4 px-6">
+        <img alt="Finland Flag" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/8eGnfDS2HqjPXE3w4fp3OHLpmfC8v7Yl1WryqxPONOfVhlycC.jpg" width="50"/>
+        <p>ฟินแลนด์</p>
+       </td>
+       <td class="py-4 px-6">
+        <div class="score">1.5</div>
+       </td>
+       <td class="py-4 px-6">
+        <img alt="England Flag" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/t6mg3bsSRy5YEhVbeCmEgjxUeybHic1rTqwMPSUnL9mTsUmTA.jpg" width="50"/>
+        <p>อังกฤษ</p>
+       </td>
+       <td class="py-4 px-6 expert-card">
+        <img alt="Expert 1" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/bHKUMJjXREYDC194j4pUd2dVOvVtoWU1BAN6XLiw2caBLl5E.jpg" width="50"/>
+        <p>เฮียหลา</p>
+        <p>รอง ฟินแลนด์</p>
+        <button class="btn-analysis mt-2">ดูวิเคราะห์</button>
+       </td>
+       <td class="py-4 px-6 expert-card">
+        <img alt="Expert 2" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/MrIOlOWg6MZeDSeK9xfJCZneAeFC55SgFyxF2jeHJrspBLl5E.jpg" width="50"/>
+        <p>โค้ชอ๊อด</p>
+        <p>ต่อ อังกฤษ</p>
+        <button class="btn-analysis mt-2">ดูวิเคราะห์</button>
+       </td>
+       <td class="py-4 px-6 expert-card">
+        <img alt="Expert 3" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/mtHDO4nPvkZsCRXeAXPyOBvZdVhG0NoK9lz6XJZE2w9DWKzJA.jpg" width="50"/>
+        <p>เฮียฮาร์ม</p>
+        <p>ต่อ อังกฤษ</p>
+        <button class="btn-analysis mt-2">ดูวิเคราะห์</button>
+       </td>
+       <td class="py-4 px-6 expert-card">
+        <img alt="Expert 4" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/h86YPfhCudxcJaC6lJWy47npRPbM5Pc6XtGbfeApnTUSYpMnA.jpg" width="50"/>
+        <p>เฟอร์กี้</p>
+        <p>ต่อ อังกฤษ</p>
+        <button class="btn-analysis mt-2">ดูวิเคราะห์</button>
+       </td>
+      </tr>
+
+      <!-- Row 2 -->
+      <tr class="border-b border-gray-300">
+       <td class="py-4 px-6">
+        <img alt="Spain Flag" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/LcsUoTU7XDJ0AVvH4HQhnB9Afdv24mnPrZccxSlu2RCIWKzJA.jpg" width="50"/>
+        <p>สเปน</p>
+       </td>
+       <td class="py-4 px-6">
+        <div class="score">1 - 0</div>
+       </td>
+       <td class="py-4 px-6">
+        <img alt="Denmark Flag" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/hRjGecVyJxxUTypicVk2Zpzg1QXKbuaKXsVyKH65u76BWKzJA.jpg" width="50"/>
+        <p>เดนมาร์ก</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>ต่อ สเปน</p>
+        <p class="lose">LOSE</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>รอง เดนมาร์ก</p>
+        <p class="win">WIN</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>ต่อ สเปน</p>
+        <p class="lose">LOSE</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>รอง เดนมาร์ก</p>
+        <p class="win">WIN</p>
+       </td>
+      </tr>
+
+      <!-- Row 3 -->
+      <tr class="border-b border-gray-300">
+       <td class="py-4 px-6">
+        <img alt="Thailand Flag" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/tk5irbcuNw6fFa4PEZSaefLmDnyfiOfkXZtL92aCyOGnilycC.jpg" width="50"/>
+        <p>ทีมชาติไทย</p>
+       </td>
+       <td class="py-4 px-6">
+        <div class="score">3 - 1</div>
+       </td>
+       <td class="py-4 px-6">
+        <img alt="Philippines Flag" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/AfZ4F8yNZuxUYCc1TRFhJcCkyqmmwrOMlCN0TN3ccfZWsUmTA.jpg" width="50"/>
+        <p>ฟิลิปปินส์</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>ต่อ ทีมชาติไทย</p>
+        <p class="win">WIN</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>ต่อ ทีมชาติไทย</p>
+        <p class="win">WIN</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>รอง ฟิลิปปินส์</p>
+        <p class="lose">LOSE</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>รอง ฟิลิปปินส์</p>
+        <p class="lose">LOSE</p>
+       </td>
+      </tr>
+
+      <!-- Row 4 -->
+      <tr class="border-b border-gray-300">
+       <td class="py-4 px-6">
+        <img alt="Italy Flag" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/f0bkj49SeGueRJTbT6sde6eqhrszPjrfq7hbn5maTsgZDLl5E.jpg" width="50"/>
+        <p>อิตาลี</p>
+       </td>
+       <td class="py-4 px-6">
+        <div class="score">2 - 2</div>
+       </td>
+       <td class="py-4 px-6">
+        <img alt="Belgium Flag" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/i71OT4VRyEYYIRuP4je7z7JV5HKJQm1pkrpOHq5zKlKHWKzJA.jpg" width="50"/>
+        <p>เบลเยียม</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>ต่อ อิตาลี</p>
+        <p class="lose">LOSE</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>รอง เบลเยียม</p>
+        <p class="win">WIN</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>รอง เบลเยียม</p>
+        <p class="win">WIN</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>ต่อ อิตาลี</p>
+        <p class="lose">LOSE</p>
+       </td>
+      </tr>
+
+      <!-- Row 5 -->
+      <tr>
+       <td class="py-4 px-6">
+        <img alt="Team 1 Flag" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/WY7caQ7eeRvcYEoJy1sPoRDzTjfshaAN38eCfMvfo8IfLWKzJA.jpg" width="50"/>
+        <p>เดอะ นิว เซนต์</p>
+       </td>
+       <td class="py-4 px-6">
+        <div class="score">1 - 2</div>
+       </td>
+       <td class="py-4 px-6">
+        <img alt="Team 2 Flag" class="mx-auto mb-2" height="50" src="https://storage.googleapis.com/a1aa/image/nmGL80KBcSZpPhtFfSStUB6gQBAfnIELccGv5WeYNWfHxSZOB.jpg" width="50"/>
+        <p>แกลร์นาร์ฟอน</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>ต่อ เดอะ นิว เซนต์</p>
+        <p class="lose">LOSE</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>รอง แกลร์นาร์ฟอน</p>
+        <p class="win">WIN</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>รอง แกลร์นาร์ฟอน</p>
+        <p class="win">WIN</p>
+       </td>
+       <td class="py-4 px-6">
+        <p>ต่อ เดอะ นิว เซนต์</p>
+        <p class="lose">LOSE</p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </body>
+</html>
