@@ -1,0 +1,61 @@
+/* Tailwind CSS ใช้ใน Angular */
+/* Custom Tailwind CSS classes */
+
+/* ให้ navbar มีความนุ่มนวล */
+.navbar-link {
+    transition: color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .navbar-link:hover {
+    color: #1a202c; /* dark mode */
+    background-color: #f7fafc; /* light gray */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* ปุ่ม Hamburger */
+  .hamburger-btn {
+    transition: transform 0.3s ease;
+  }
+  
+  .hamburger-btn:hover {
+    transform: rotate(90deg); /* ทำให้ปุ่มหมุนเมื่อ hover */
+  }
+  
+  /* Mobile menu การแสดงผลนุ่มนวล */
+  .mobile-menu {
+    transition: all 0.5s ease-in-out;
+  }
+  
+  .mobile-menu.open {
+    display: flex;
+    opacity: 1;
+  }
+  
+  .mobile-menu.hidden {
+    opacity: 0;
+    display: none;
+  }
+  
+  /* ปุ่ม Logout */
+  .logout-btn {
+    background-color: #1a202c;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 9999px; /* Full rounded button */
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+  
+  .logout-btn:hover {
+    background-color: #2d3748; /* Darker background on hover */
+  }
+  
+  /* โลโก้ */
+  .logo {
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .logo:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  }
+  

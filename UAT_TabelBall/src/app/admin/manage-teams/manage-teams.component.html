@@ -1,0 +1,220 @@
+<html>
+ <head>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+ </head>
+ <body class="bg-gray-100 p-6">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+   <h2 class="text-2xl font-bold mb-4">
+    เพิ่มข้อมูลทีม
+   </h2>
+   <form class="space-y-4">
+    <div>
+     <label class="block text-sm font-medium text-gray-700">
+      ชื่อทีม
+     </label>
+     <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" type="text"/>
+    </div>
+    <div>
+     <label class="block text-sm font-medium text-gray-700">
+      เลือกลีก
+     </label>
+     <select class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+      <option>
+       เลือกลีก
+      </option>
+     </select>
+    </div>
+    <div>
+     <label class="block text-sm font-medium text-gray-700">
+      เลือกรูปทีม
+     </label>
+     <div class="flex items-center space-x-4">
+      <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md" type="button">
+       เลือกไฟล์
+      </button>
+      <span>
+       ไม่ได้เลือกไฟล์ใด
+      </span>
+     </div>
+    </div>
+    <button class="bg-blue-500 text-white px-4 py-2 rounded-md" type="submit">
+     บันทึก
+    </button>
+   </form>
+  </div>
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-6">
+   <h2 class="text-2xl font-bold mb-4">
+    ข้อมูลทีม
+   </h2>
+   <div class="mb-4">
+    <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ค้นหา" type="text"/>
+   </div>
+   <table class="min-w-full bg-white">
+    <thead>
+     <tr>
+      <th class="py-2 px-4 border-b">
+       ลำดับ
+      </th>
+      <th class="py-2 px-4 border-b">
+       ID
+      </th>
+      <th class="py-2 px-4 border-b">
+       ชื่อ
+      </th>
+      <th class="py-2 px-4 border-b">
+       ลีก
+      </th>
+      <th class="py-2 px-4 border-b">
+       รูป
+      </th>
+      <th class="py-2 px-4 border-b">
+       แก้ไข
+      </th>
+      <th class="py-2 px-4 border-b">
+       ลบ
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr class="bg-gray-100">
+      <td class="py-2 px-4 border-b">
+       1
+      </td>
+      <td class="py-2 px-4 border-b">
+       1028
+      </td>
+      <td class="py-2 px-4 border-b">
+       ฟิลิปปินส์
+      </td>
+      <td class="py-2 px-4 border-b">
+       ฟุตบอลคิงส์ คัพ
+      </td>
+      <td class="py-2 px-4 border-b">
+       <img alt="Flag of the Philippines" class="w-10 h-10 rounded-full" height="50" src="https://storage.googleapis.com/a1aa/image/JijGrtOfrpQqNijfURP6VTHdIJGiWTn1STnUYB4WOfBqehaOB.jpg" width="50"/>
+      </td>
+      <td class="py-2 px-4 border-b">
+       <button class="bg-yellow-500 text-white px-4 py-2 rounded-md">
+        แก้ไข
+       </button>
+      </td>
+      <td class="py-2 px-4 border-b">
+       <button class="bg-red-500 text-white px-4 py-2 rounded-md">
+        ลบ
+       </button>
+      </td>
+     </tr>
+     <tr>
+      <td class="py-2 px-4 border-b">
+       2
+      </td>
+      <td class="py-2 px-4 border-b">
+       1080
+      </td>
+      <td class="py-2 px-4 border-b">
+       ทีมชาติไทย
+      </td>
+      <td class="py-2 px-4 border-b">
+       ฟุตบอลคิงส์ คัพ
+      </td>
+      <td class="py-2 px-4 border-b">
+       <img alt="Flag of Thailand" class="w-10 h-10 rounded-full" height="50" src="https://storage.googleapis.com/a1aa/image/OovxIHI6J57GDhxZHN9MreDnDLA6A4XJXHb3krzZU6yrPUzJA.jpg" width="50"/>
+      </td>
+      <td class="py-2 px-4 border-b">
+       <button class="bg-yellow-500 text-white px-4 py-2 rounded-md">
+        แก้ไข
+       </button>
+      </td>
+      <td class="py-2 px-4 border-b">
+       <button class="bg-red-500 text-white px-4 py-2 rounded-md">
+        ลบ
+       </button>
+      </td>
+     </tr>
+     <tr class="bg-gray-100">
+      <td class="py-2 px-4 border-b">
+       3
+      </td>
+      <td class="py-2 px-4 border-b">
+       1293
+      </td>
+      <td class="py-2 px-4 border-b">
+       ซีเรีย
+      </td>
+      <td class="py-2 px-4 border-b">
+       ฟุตบอลคิงส์ คัพ
+      </td>
+      <td class="py-2 px-4 border-b">
+       <img alt="Flag of Syria" class="w-10 h-10 rounded-full" height="50" src="https://storage.googleapis.com/a1aa/image/TSlf87V60U3GBazqljuYKx0950faIc9NaiOSPMOq8QhYfQNnA.jpg" width="50"/>
+      </td>
+      <td class="py-2 px-4 border-b">
+       <button class="bg-yellow-500 text-white px-4 py-2 rounded-md">
+        แก้ไข
+       </button>
+      </td>
+      <td class="py-2 px-4 border-b">
+       <button class="bg-red-500 text-white px-4 py-2 rounded-md">
+        ลบ
+       </button>
+      </td>
+     </tr>
+     <tr>
+      <td class="py-2 px-4 border-b">
+       4
+      </td>
+      <td class="py-2 px-4 border-b">
+       1578
+      </td>
+      <td class="py-2 px-4 border-b">
+       ทาจิกิสถาน
+      </td>
+      <td class="py-2 px-4 border-b">
+       ฟุตบอลคิงส์ คัพ
+      </td>
+      <td class="py-2 px-4 border-b">
+       ไม่มี
+      </td>
+      <td class="py-2 px-4 border-b">
+       <button class="bg-yellow-500 text-white px-4 py-2 rounded-md">
+        แก้ไข
+       </button>
+      </td>
+      <td class="py-2 px-4 border-b">
+       <button class="bg-red-500 text-white px-4 py-2 rounded-md">
+        ลบ
+       </button>
+      </td>
+     </tr>
+     <tr class="bg-gray-100">
+      <td class="py-2 px-4 border-b">
+       5
+      </td>
+      <td class="py-2 px-4 border-b">
+       1576
+      </td>
+      <td class="py-2 px-4 border-b">
+       เปอร์โต มอนต์
+      </td>
+      <td class="py-2 px-4 border-b">
+       ชิลี คัพ 2024
+      </td>
+      <td class="py-2 px-4 border-b">
+       ไม่มี
+      </td>
+      <td class="py-2 px-4 border-b">
+       <button class="bg-yellow-500 text-white px-4 py-2 rounded-md">
+        แก้ไข
+       </button>
+      </td>
+      <td class="py-2 px-4 border-b">
+       <button class="bg-red-500 text-white px-4 py-2 rounded-md">
+        ลบ
+       </button>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </body>
+</html>

@@ -1,0 +1,102 @@
+<nav class="bg-white dark:bg-gray-900 shadow-md">
+  <div class="container mx-auto flex justify-between items-center py-4 px-6">
+    <!-- Logo Section -->
+    <div class="flex items-center space-x-4">
+      <img
+        src="https://placehold.co/40x40"
+        alt="Logo"
+        class="h-10 w-10 rounded-full shadow-md logo"
+      />
+      <span class="text-xl font-semibold text-gray-900 dark:text-white"
+        >Admin Panel</span
+      >
+    </div>
+
+    <!-- Navbar Links (Visible on large screens) -->
+    <div class="hidden md:flex space-x-6">
+      <a
+        routerLink="header-message"
+        class="navbar-link text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+        >ข้อความหัวตาราง</a
+      >
+      <a
+        routerLink="tips-table"
+        class="navbar-link text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+        >ตารางทีเด็ดบอลวันนี้</a
+      >
+      <a
+        routerLink="selected-table"
+        class="navbar-link text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+        >ตารางบอลเด็ดวันนี้</a
+      >
+      <a
+        routerLink="community-experts"
+        class="navbar-link text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+        >เซียนบอลทางบ้าน</a
+      >
+      <a
+        routerLink="manage-experts"
+        class="navbar-link text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+        >จัดการเซียนบอล</a
+      >
+      <a
+        routerLink="manage-admins"
+        class="navbar-link text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+        >จัดการแอดมิน</a
+      >
+      <a
+        routerLink="manage-leagues"
+        class="navbar-link text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+        >จัดการลีค</a
+      >
+      <a
+        routerLink="manage-teams"
+        class="navbar-link text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+        >จัดการทีม</a
+      >
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <div class="md:hidden">
+      <button
+        (click)="toggleMenu()"
+        class="hamburger-btn text-gray-900 dark:text-gray-300 focus:outline-none"
+      >
+        <i class="fas fa-bars text-2xl"></i>
+      </button>
+    </div>
+
+    <!-- Logout Button (Always visible on large screens) -->
+    <div class="hidden md:flex">
+      <button class="logout-btn">Logout</button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu (Hidden by Default, toggled by button click) -->
+  <div
+    [ngClass]="{ hidden: !isMenuOpen, flex: isMenuOpen }"
+    class="mobile-menu flex-col space-y-4 p-4 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 md:hidden transition-all duration-500 ease-in-out"
+  >
+    <a routerLink="header-message" class="navbar-link text-lg"
+      >ข้อความหัวตาราง</a
+    >
+    <a routerLink="tips-table" class="navbar-link text-lg"
+      >ตารางทีเด็ดบอลวันนี้</a
+    >
+    <a routerLink="selected-table" class="navbar-link text-lg"
+      >ตารางบอลเด็ดวันนี้</a
+    >
+    <a routerLink="community-experts" class="navbar-link text-lg"
+      >เซียนบอลทางบ้าน</a
+    >
+    <a routerLink="manage-experts" class="navbar-link text-lg"
+      >จัดการเซียนบอล</a
+    >
+    <a routerLink="manage-admins" class="navbar-link text-lg">จัดการแอดมิน</a>
+    <a routerLink="manage-leagues" class="navbar-link text-lg">จัดการลีค</a>
+    <a routerLink="manage-teams" class="navbar-link text-lg">จัดการทีม</a>
+
+    <!-- Logout Button for mobile -->
+    <button class="logout-btn">Logout</button>
+  </div>
+</nav>

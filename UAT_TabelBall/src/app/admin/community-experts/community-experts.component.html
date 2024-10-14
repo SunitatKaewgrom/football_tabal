@@ -1,0 +1,272 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Form and Table
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+ </head>
+ <body class="bg-gray-100 p-6">
+  <div class="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-md">
+   <h1 class="text-2xl font-bold mb-4">
+    เพิ่มเซียนบอลทางบ้าน
+   </h1>
+   <form class="space-y-4">
+    <div>
+     <label class="block text-sm font-medium text-gray-700">
+      ชื่อเซียนบอล:
+     </label>
+     <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ชื่อเซียนบอลทางบ้าน" type="text"/>
+    </div>
+    <div class="grid grid-cols-6 gap-4">
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       ครั้งที่ 1
+      </label>
+      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       ครั้งที่ 2
+      </label>
+      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       ครั้งที่ 3
+      </label>
+      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       ครั้งที่ 4
+      </label>
+      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       ครั้งที่ 5
+      </label>
+      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       ครั้งที่ 6
+      </label>
+      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       ครั้งที่ 7
+      </label>
+      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       ครั้งที่ 8
+      </label>
+      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       ครั้งที่ 9
+      </label>
+      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       ครั้งที่ 10
+      </label>
+      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
+     </div>
+    </div>
+    <div>
+     <label class="block text-sm font-medium text-gray-700">
+      สถิติ (%):
+     </label>
+     <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="0" type="text"/>
+    </div>
+    <div>
+     <label class="block text-sm font-medium text-gray-700">
+      ข้อความ:
+     </label>
+     <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="เช่น อิตาลี ซีเรียอา | อินเตอร์ มิลาน vs เจนัว" type="text"/>
+    </div>
+    <div>
+     <label class="block text-sm font-medium text-gray-700">
+      ข้อความต่อ/รอง:
+     </label>
+     <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="เช่น ต่อ อินเตอร์ มิลาน" type="text"/>
+    </div>
+    <div class="flex items-center space-x-4">
+     <button class="bg-blue-500 text-white px-4 py-2 rounded-md" type="button">
+      เลือกไฟล์
+     </button>
+     <span>
+      ไม่ได้เลือกไฟล์ใด
+     </span>
+    </div>
+    <button class="bg-blue-500 text-white px-4 py-2 rounded-md" type="submit">
+     บันทึก
+    </button>
+   </form>
+   <div class="mt-6">
+    <table class="min-w-full bg-white border border-gray-300">
+     <thead>
+      <tr>
+       <th class="border border-gray-300 px-4 py-2">
+        ชื่อ
+       </th>
+       <th class="border border-gray-300 px-4 py-2">
+        รูป
+       </th>
+       <th class="border border-gray-300 px-4 py-2">
+        สถิติ
+       </th>
+       <th class="border border-gray-300 px-4 py-2">
+        สถิติ (%)
+       </th>
+       <th class="border border-gray-300 px-4 py-2">
+        ข้อความ
+       </th>
+       <th class="border border-gray-300 px-4 py-2">
+        ข้อความต่อ/รอง
+       </th>
+       <th class="border border-gray-300 px-4 py-2">
+        แก้ไข/ลบ
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="border border-gray-300 px-4 py-2">
+        ทัตธน ปภินวิทย์
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        <img alt="Image of a person in a blue outfit with a soccer ball" height="50" src="https://storage.googleapis.com/a1aa/image/6IZWoxsEG47wCBj375PbhR4DdZR8aAUNb3bVf1r6GbzCLUzJA.jpg" width="50"/>
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        <div class="flex space-x-1">
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-times-circle text-red-500">
+         </i>
+         <i class="fas fa-times-circle text-red-500">
+         </i>
+        </div>
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        74
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        ยูฟ่า เนชั่นส์ ลีก หนุ่มเกาะแฟโร vs ลัตเวีย
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        รอง ลัตเวีย
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        <button class="bg-yellow-500 text-white px-2 py-1 rounded-md">
+         แก้ไข
+        </button>
+        <button class="bg-red-500 text-white px-2 py-1 rounded-md">
+         ลบ
+        </button>
+       </td>
+      </tr>
+      <tr>
+       <td class="border border-gray-300 px-4 py-2">
+        เขมินทร์ ครองขวัญ
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        <img alt="Image of a person in a red and white outfit with a soccer ball" height="50" src="https://storage.googleapis.com/a1aa/image/yfhYcsVNgv3mcSwZ2kedmT59zFydln68g4Kyepj8Z6GNsQNnA.jpg" width="50"/>
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        <div class="flex space-x-1">
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-times-circle text-red-500">
+         </i>
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-times-circle text-red-500">
+         </i>
+         <i class="fas fa-times-circle text-red-500">
+         </i>
+        </div>
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        64
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        ยูฟ่า เนชั่นส์ ลีก กาซัคสถาน vs สโลวีเนีย
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        ต่อ สโลวีเนีย
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        <button class="bg-yellow-500 text-white px-2 py-1 rounded-md">
+         แก้ไข
+        </button>
+        <button class="bg-red-500 text-white px-2 py-1 rounded-md">
+         ลบ
+        </button>
+       </td>
+      </tr>
+      <tr>
+       <td class="border border-gray-300 px-4 py-2">
+        กษมน เกริกวิทย์
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        <img alt="Image of a person in a green outfit with a soccer ball" height="50" src="https://storage.googleapis.com/a1aa/image/INUcfm3geElQBkPzOsL2WnjfS0IYI4lorRz1fxNetJrdwC1cC.jpg" width="50"/>
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        <div class="flex space-x-1">
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-check-circle text-green-500">
+         </i>
+         <i class="fas fa-times-circle text-red-500">
+         </i>
+        </div>
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        87
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        ลาลีก้า สเปน 2 เรอัล โอเบียโด้ vs อัลเมเรีย
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        รอง อัลเมเรีย
+       </td>
+       <td class="border border-gray-300 px-4 py-2">
+        <button class="bg-yellow-500 text-white px-2 py-1 rounded-md">
+         แก้ไข
+        </button>
+        <button class="bg-red-500 text-white px-2 py-1 rounded-md">
+         ลบ
+        </button>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </body>
+</html>
