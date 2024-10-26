@@ -13,17 +13,22 @@ import { ManageExpertsComponent } from './admin/manage-experts/manage-experts.co
 import { ManageAdminsComponent } from './admin/manage-admins/manage-admins.component';
 import { ManageLeaguesComponent } from './admin/manage-leagues/manage-leagues.component';
 import { ManageTeamsComponent } from './admin/manage-teams/manage-teams.component';
-
 import { Table1Component } from './user/table1/table1.component';
 import { Table2Component } from './user/table2/table2.component';
 import { Table3Component } from './user/table3/table3.component';
+import { LoginComponent } from './login/login.component';  // Import Login Component
+import { AuthGuard } from './auth.guard';  // Import AuthGuard
 
 // กำหนดเส้นทาง (Routing)
 export const routes: Routes = [
-  // เส้นทางสำหรับ Admin
+  // เส้นทางสำหรับหน้า login
+  { path: 'login', component: LoginComponent },  // เส้นทางสำหรับหน้า login
+
+  // เส้นทางสำหรับ Admin พร้อม AuthGuard
   {
-    path: 'admin',  // เส้นทางหลักของ Admin
+    path: 'admin',
     component: AdminComponent,
+    canActivate: [AuthGuard],  // ใช้ AuthGuard สำหรับหน้า Admin
     children: [
       { path: 'header-message', component: HeaderMessageComponent },  // เส้นทางสำหรับ Header message
       { path: 'tips-table', component: TipsTableComponent },  // เส้นทางสำหรับ ตารางทีเด็ดบอลวันนี้

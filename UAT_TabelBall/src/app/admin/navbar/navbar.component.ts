@@ -1,20 +1,29 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';  // Import RouterModule สำหรับใช้งาน router-outlet
-import { CommonModule } from '@angular/common'; // ต้องเพิ่มเพื่อนำ directive พื้นฐานของ Angular มาใช้
+import { RouterModule, Router } from '@angular/router';  // Import Router สำหรับการนำทาง
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../../auth.service'; // Import AuthService สำหรับฟังก์ชัน Logout
+
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterModule,CommonModule],
+  imports: [RouterModule, CommonModule],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css'
+  styleUrls: ['./navbar.component.css']  // แก้จาก styleUrl เป็น styleUrls (ใช้ array)
 })
 export class NavbarComponent {
   isMenuOpen = false; // State to track whether the mobile menu is open or not
 
+  constructor(private authService: AuthService, private router: Router) {}
+
   // Function to toggle menu state
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
-    console.log('Hamburger button clicked! Menu state:', this.isMenuOpen); // Debugging log
+  }
+
+  // Function to logout and navigate to login page
+  onLogout() {
+    this.authService.logout();  // ลบ token และออกจากระบบ
+    this.router.navigate(['/login']);  // นำทางไปหน้า login หลังจาก logout
   }
 }

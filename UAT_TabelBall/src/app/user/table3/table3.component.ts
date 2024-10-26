@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-table3',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './table3.component.html',
   styleUrl: './table3.component.css'
 })

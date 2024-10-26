@@ -68,7 +68,9 @@
 
     <!-- Logout Button (Always visible on large screens) -->
     <div class="hidden md:flex">
-      <button class="logout-btn">Logout</button>
+      <button (click)="onLogout()" class="logout-btn px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-300">
+        Logout
+      </button>
     </div>
   </div>
 
@@ -97,6 +99,8 @@
     <a routerLink="manage-teams" class="navbar-link text-lg">จัดการทีม</a>
 
     <!-- Logout Button for mobile -->
-    <button class="logout-btn">Logout</button>
+    <button (click)="onLogout()" class="logout-btn px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-300">
+      Logout
+    </button>
   </div>
 </nav>
