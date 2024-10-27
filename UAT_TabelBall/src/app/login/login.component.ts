@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../core/service/auth/auth.service';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   standalone: true,
-  imports: [FormsModule]  // เพิ่ม FormsModule ใน imports
+  imports: [FormsModule,CommonModule]  // เพิ่ม FormsModule ใน imports
 })
 export class LoginComponent {
   username = '';

@@ -17,7 +17,7 @@ import { Table1Component } from './user/table1/table1.component';
 import { Table2Component } from './user/table2/table2.component';
 import { Table3Component } from './user/table3/table3.component';
 import { LoginComponent } from './login/login.component';  // Import Login Component
-import { AuthGuard } from './auth.guard';  // Import AuthGuard
+import { AuthGuard } from './core/service/auth/auth.guard';  // Import AuthGuard
 
 // กำหนดเส้นทาง (Routing)
 export const routes: Routes = [

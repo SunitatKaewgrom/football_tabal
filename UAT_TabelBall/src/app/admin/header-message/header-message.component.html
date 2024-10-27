@@ -1,64 +1,11 @@
-<html>
- <head>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
- </head>
- <body class="bg-gray-100">
-  <div class="max-w-4xl mx-auto p-4 sm:p-8 bg-white shadow-md rounded-lg mt-10">
-   <!-- Header -->
-   <h1 class="text-2xl sm:text-4xl font-bold mb-4 sm:mb-6 text-center text-gray-800">
-    ข้อความหัวตาราง
-   </h1>
-   
-   <!-- Description -->
-   <p class="mb-4 sm:mb-6 text-base sm:text-lg text-center text-gray-600 leading-relaxed">
-    กลุ่ม VIP ยอดเซียนทีเด็ดบอลเต็ง +บวกกันยับๆ ให้บอลสด เต็ง สเต็ป ตลอด 24 ชม.
-    <br/>
-    การันตีกำไร จากสมาชิก 20 กลุ่ม 10,000 คน เข้ากลุ่ม VIP ID LINE :: BALLDED789
-   </p>
-   
-   <!-- Text Area -->
-   <div class="mb-6 sm:mb-8">
-    <textarea class="w-full h-32 p-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300" placeholder="ข้อความ..." readonly></textarea>
-   </div>
-   
-   <!-- Image Upload Section -->
-   <div class="mb-6 sm:mb-8">
-    <!-- First Image -->
-    <div class="flex flex-col sm:flex-row items-center mb-4">
-     <img alt="Image of a person with a crown and laurel wreath" class="w-20 h-20 sm:w-28 sm:h-28 mr-0 sm:mr-6 mb-4 sm:mb-0 rounded-lg shadow-md" src="https://storage.googleapis.com/a1aa/image/nnYlKRTH1n48DxvpCzE5lFKkWkugMghoV9IHdmRFWyfC1TzJA.jpg"/>
-     <div class="w-full">
-      <label class="block mb-2 text-gray-700 font-semibold">
-       เลือกรูปหน้าข้อความ:
-      </label>
-      <div class="flex flex-col sm:flex-row">
-        <input class="border border-gray-300 p-2 rounded-lg w-full" type="file"/>
-        <span class="ml-0 sm:ml-4 text-gray-500 self-center mt-2 sm:mt-0">ไม่ได้เลือกไฟล์ใด</span>
-      </div>
-     </div>
-    </div>
-    
-    <!-- Second Image -->
-    <div class="flex flex-col sm:flex-row items-center">
-     <img alt="Image of a green sign with text" class="w-20 h-20 sm:w-28 sm:h-28 mr-0 sm:mr-6 mb-4 sm:mb-0 rounded-lg shadow-md" src="https://storage.googleapis.com/a1aa/image/AYBEcHyVUL67MZpFPPkeiXexm866DNe4hc8aaLTB6Pedoe0cC.jpg"/>
-     <div class="w-full">
-      <label class="block mb-2 text-gray-700 font-semibold">
-       เลือกรูปไลน์:
-      </label>
-      <div class="flex flex-col sm:flex-row">
-        <input class="border border-gray-300 p-2 rounded-lg w-full" type="file"/>
-        <span class="ml-0 sm:ml-4 text-gray-500 self-center mt-2 sm:mt-0">ไม่ได้เลือกไฟล์ใด</span>
-      </div>
-     </div>
-    </div>
-   </div>
-   
-   <!-- Save Button -->
-   <div class="text-center">
-    <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 sm:px-8 py-3 rounded-full shadow-lg transition duration-300">
-     บันทึก
-    </button>
-   </div>
-  </div>
- </body>
-</html>
+<div class="max-w-2xl mx-auto p-6 sm:p-8 bg-white shadow-md rounded-lg mt-10">
+  <!-- Header -->
+  <h1 class="text-2xl sm:text-3xl font-bold mb-4 text-center text-gray-800">ข้อความหัวตาราง</h1>
+  <form enctype="multipart/form-data" (submit)="onSubmit()">
+      <input type="text" [(ngModel)]="description" name="description" placeholder="เพิ่มข้อความ..." class="w-full mb-4 p-2 border border-gray-300 rounded-lg" />
+      <input type="text" [(ngModel)]="linkUrl" name="link_url" placeholder="ลิงก์ URL" class="w-full mb-4 p-2 border border-gray-300 rounded-lg" />
+      <label class="block mb-2 text-gray-700">เลือก รูปภาพ:</label>
+      <input type="file" (change)="onFileSelected($event)" name="image" class="mb-4 border border-gray-300 rounded-lg" />
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg w-full">บันทึก</button>
+  </form>
+</div>

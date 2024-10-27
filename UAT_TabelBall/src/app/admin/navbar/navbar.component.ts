@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';  // Import Router สำหรับการนำทาง
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../auth.service'; // Import AuthService สำหรับฟังก์ชัน Logout
+import { AuthService } from '../../core/service/auth/auth.service'; // Import AuthService สำหรับฟังก์ชัน Logout
 
 
 @Component({
