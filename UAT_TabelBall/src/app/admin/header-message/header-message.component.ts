@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HeaderMessageService } from 'src/app/core/service/api/header-message.service';
@@ -10,28 +10,55 @@ import { HeaderMessageService } from 'src/app/core/service/api/header-message.se
   standalone: true,
   imports: [CommonModule, FormsModule]
 })
-export class HeaderMessageComponent {
+export class HeaderMessageComponent implements OnInit {
   description = '';
   linkUrl = '';
+  fileName = 'ไม่ได้เลือกไฟล์ใด';
   selectedFile: File | null = null;
-  fileName = '';  // เพิ่มตัวแปร fileName
+
+  exampleDescription: string = '';
+  exampleLinkUrl: string = '';
+  exampleImageUrl: string = '';
 
   constructor(private headerMessageService: HeaderMessageService) {}
 
-  onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0];
+  ngOnInit(): void {
+    this.loadExampleMessage();
   }
 
-  onSubmit() {
+  loadExampleMessage(): void {
+    this.headerMessageService.getMessages().subscribe((data) => {
+        if (data && data.description) {
+            this.exampleDescription = data.description;
+            this.exampleLinkUrl = data.link_url;
+            this.exampleImageUrl = `http://localhost:5000/static/uploads/${data.image_url}`;
+        }
+    });
+}
+
+
+  onSubmit(): void {
     const formData = new FormData();
     formData.append('description', this.description);
     formData.append('link_url', this.linkUrl);
     if (this.selectedFile) {
-      formData.append('image', this.selectedFile);
+      formData.append('image', this.selectedFile, this.selectedFile.name);
     }
 
-    this.headerMessageService.addMessage(formData).subscribe(response => {
-      console.log(response);  // ตรวจสอบผลลัพธ์ที่ส่งกลับ
+    this.headerMessageService.addMessage(formData).subscribe(() => {
+      this.loadExampleMessage();
+      this.description = '';
+      this.linkUrl = '';
+      this.fileName = 'ไม่ได้เลือกไฟล์ใด';
+      this.selectedFile = null;
     });
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.fileName = file.name;
+      this.selectedFile = file;
+    }
   }
 }

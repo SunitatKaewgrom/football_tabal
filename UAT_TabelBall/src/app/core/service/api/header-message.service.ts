@@ -3,18 +3,18 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class HeaderMessageService {
-  private apiUrl = 'http://localhost:5000/api/header-message';  // URL ของ API
+  private apiUrl = 'http://localhost:5000/api/header-message';
 
   constructor(private http: HttpClient) {}
 
-  getMessages(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);  // ดึงข้อมูลข้อความทั้งหมดจาก backend
+  getMessages(): Observable<any> {
+    return this.http.get<any>(this.apiUrl);
   }
 
-  addMessage(formData: FormData): Observable<any> {
-    return this.http.post<any>(this.apiUrl, formData);  // ส่งข้อมูล form data ไปยัง backend
+  addMessage(payload: FormData): Observable<any> {
+    return this.http.post<any>(this.apiUrl, payload);
   }
 }
