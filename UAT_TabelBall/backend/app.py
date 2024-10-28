@@ -3,11 +3,53 @@ from flask_cors import CORS
 from config import get_db_connection
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from bcrypt import hashpw, gensalt
 import bcrypt
 import os
 
 app = Flask(__name__)
 CORS(app)  # เปิดใช้งาน CORS
+
+@app.route('/api/admins', methods=['GET'])
+def get_admins():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM admins")
+    admins = cursor.fetchall()
+    conn.close()
+    return jsonify(admins)
+
+@app.route('/api/admins', methods=['POST'])
+def add_admin():
+    data = request.json
+    hashed_password = hashpw(data['password'].encode('utf-8'), gensalt())
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO admins (username, password) VALUES (%s, %s)", (data['username'], hashed_password))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Admin added successfully'}), 201
+
+@app.route('/api/admins/<int:id>', methods=['PUT'])
+def update_admin(id):
+    data = request.json
+    hashed_password = hashpw(data['password'].encode('utf-8'), gensalt())
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE admins SET username=%s, password=%s WHERE id=%s", (data['username'], hashed_password, id))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Admin updated successfully'})
+
+@app.route('/api/admins/<int:id>', methods=['DELETE'])
+def delete_admin(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM admins WHERE id=%s", (id,))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Admin deleted successfully'})
+
 
 # ฟังก์ชันสำหรับตรวจสอบข้อมูลผู้ใช้
 @app.route('/api/login', methods=['POST'])

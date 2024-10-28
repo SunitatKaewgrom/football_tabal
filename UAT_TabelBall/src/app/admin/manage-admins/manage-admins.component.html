@@ -1,68 +1,58 @@
-<html>
-<head>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-</head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-4xl mx-auto">
-        <!-- Form Section -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-2xl font-bold mb-4">เพิ่มข้อมูล Admin</h2>
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-gray-700">Username:</label>
-                    <input type="text" class="w-full p-2 border border-gray-300 rounded">
-                </div>
-                <div>
-                    <label class="block text-gray-700">รหัสผ่าน:</label>
-                    <input type="password" class="w-full p-2 border border-gray-300 rounded">
-                </div>
-            </div>
-            <button class="bg-blue-500 text-white px-4 py-2 rounded">บันทึก</button>
+<div class="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h2 class="text-2xl font-bold mb-4">เพิ่มข้อมูล Admin</h2>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-gray-700">Username:</label>
+            <input type="text" [(ngModel)]="newAdmin.username" name="username" class="w-full p-2 border border-gray-300 rounded">
+          </div>
+          <div>
+            <label class="block text-gray-700">รหัสผ่าน:</label>
+            <input type="password" [(ngModel)]="newAdmin.password" name="password" class="w-full p-2 border border-gray-300 rounded">
+          </div>
         </div>
-
-        <!-- Table Section -->
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-bold mb-4">ข้อมูล Admin</h2>
-            <table class="w-full table-auto">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="px-4 py-2">ลำดับ</th>
-                        <th class="px-4 py-2">ID</th>
-                        <th class="px-4 py-2">Username</th>
-                        <th class="px-4 py-2">Password</th>
-                        <th class="px-4 py-2">แก้ไข</th>
-                        <th class="px-4 py-2">ลบ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="bg-gray-100">
-                        <td class="border px-4 py-2">1</td>
-                        <td class="border px-4 py-2">9</td>
-                        <td class="border px-4 py-2">Professor Paiboon</td>
-                        <td class="border px-4 py-2">789789</td>
-                        <td class="border px-4 py-2">
-                            <button class="bg-yellow-500 text-white px-4 py-2 rounded">แก้ไข</button>
-                        </td>
-                        <td class="border px-4 py-2">
-                            <button class="bg-red-500 text-white px-4 py-2 rounded">ลบ</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="border px-4 py-2">2</td>
-                        <td class="border px-4 py-2">1</td>
-                        <td class="border px-4 py-2">admin</td>
-                        <td class="border px-4 py-2">admin</td>
-                        <td class="border px-4 py-2">
-                            <button class="bg-yellow-500 text-white px-4 py-2 rounded">แก้ไข</button>
-                        </td>
-                        <td class="border px-4 py-2">
-                            <button class="bg-red-500 text-white px-4 py-2 rounded">ลบ</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</body>
-</html>
+        <button (click)="addAdmin()" class="bg-blue-500 text-white px-4 py-2 rounded">บันทึก</button>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold mb-4">ข้อมูล Admin</h2>
+        <table class="w-full table-auto">
+            <thead>
+              <tr>
+                <th class="px-4 py-2">ลำดับ</th>
+                <th class="px-4 py-2">Username</th>
+                <th class="px-4 py-2">Password</th>
+                <th class="px-4 py-2">แก้ไข</th>
+                <th class="px-4 py-2">ลบ</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let admin of admins; let i = index" class="bg-gray-100">
+                  <td class="border px-4 py-2">{{ i + 1 }}</td>
+                  <td class="border px-4 py-2">{{ admin.username }}</td>
+                  <td class="border px-4 py-2">
+                    <ng-container *ngIf="selectedAdmin?.id === admin.id; else passwordView">
+                      <input type="password" [(ngModel)]="selectedAdmin.password" class="w-full p-2 border rounded" />
+                    </ng-container>
+                    <ng-template #passwordView>******</ng-template>
+                  </td>
+                  <td class="border px-4 py-2 text-center">
+                    <ng-container *ngIf="selectedAdmin?.id === admin.id; else editButton">
+                      <button (click)="updatePassword()" class="bg-green-500 text-white px-4 py-2 rounded">บันทึก</button>
+                      <button (click)="cancelEdit()" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">ยกเลิก</button>
+                    </ng-container>
+                    <ng-template #editButton>
+                      <button (click)="editPassword(admin)" class="bg-yellow-500 text-white px-4 py-2 rounded">แก้ไข</button>
+                    </ng-template>
+                  </td>
+                  <td class="border px-4 py-2 text-center">
+                    <button (click)="deleteAdmin(admin.id)" class="bg-red-500 text-white px-4 py-2 rounded">ลบ</button>
+                  </td>
+                </tr>
+              </tbody>
+          </table>
+          
+      </div>
+      
+  </div>
+  
