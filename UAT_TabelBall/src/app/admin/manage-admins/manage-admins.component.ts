@@ -32,14 +32,15 @@ export class ManageAdminsComponent implements OnInit {
       this.admins = data.map((item: any) => ({
         id: item[0],
         username: item[1],
-        password: item[2]
+        password: '' // Do not store hashed password directly
       }));
     });
   }
 
   addAdmin(): void {
     if (this.newAdmin.username && this.newAdmin.password) {
-      this.adminService.addAdmin(this.newAdmin).subscribe(() => {
+      const adminToAdd = { ...this.newAdmin, password: this.newAdmin.password };
+      this.adminService.addAdmin(adminToAdd).subscribe(() => {
         this.loadAdmins();
         this.newAdmin = { id: 0, username: '', password: '' };
       });
