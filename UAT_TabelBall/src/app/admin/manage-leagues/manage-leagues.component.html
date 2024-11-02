@@ -1,121 +1,82 @@
-<html>
-<head>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-bold mb-4">เพิ่มข้อมูลลีก</h2>
-        <form class="mb-6">
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="league-name">ชื่อลีก:</label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="league-name" type="text" placeholder="">
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">เลือกรูปลีก:</label>
-                <div class="flex items-center">
-                    <button class="bg-gray-200 text-gray-700 py-2 px-4 rounded mr-2">เลือกไฟล์</button>
-                    <span class="text-gray-500">ไม่ได้เลือกไฟล์ใด</span>
-                </div>
-            </div>
-            <div>
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">บันทึก</button>
-            </div>
-        </form>
-        <h2 class="text-2xl font-bold mb-4">ข้อมูลลีก</h2>
-        <table class="min-w-full bg-white">
-            <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">ลำดับ</th>
-                    <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">ID</th>
-                    <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">ชื่อ</th>
-                    <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">รูป</th>
-                    <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">แก้ไข</th>
-                    <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">ลบ</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="bg-gray-50">
-                    <td class="py-2 px-4 border-b border-gray-200">1</td>
-                    <td class="py-2 px-4 border-b border-gray-200">142</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ฟุตบอลกิ๊งส์ คัพ</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ไม่มี</td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-yellow-500 text-white py-1 px-3 rounded">แก้ไข</button></td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-red-500 text-white py-1 px-3 rounded">ลบ</button></td>
-                </tr>
-                <tr>
-                    <td class="py-2 px-4 border-b border-gray-200">2</td>
-                    <td class="py-2 px-4 border-b border-gray-200">141</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ชิลี คัพ 2024</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ไม่มี</td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-yellow-500 text-white py-1 px-3 rounded">แก้ไข</button></td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-red-500 text-white py-1 px-3 rounded">ลบ</button></td>
-                </tr>
-                <tr class="bg-gray-50">
-                    <td class="py-2 px-4 border-b border-gray-200">3</td>
-                    <td class="py-2 px-4 border-b border-gray-200">140</td>
-                    <td class="py-2 px-4 border-b border-gray-200">เจแปน ลีก คัพ</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ไม่มี</td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-yellow-500 text-white py-1 px-3 rounded">แก้ไข</button></td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-red-500 text-white py-1 px-3 rounded">ลบ</button></td>
-                </tr>
-                <tr>
-                    <td class="py-2 px-4 border-b border-gray-200">4</td>
-                    <td class="py-2 px-4 border-b border-gray-200">139</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ฝรั่งเศส ดิวิชั่น 3</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ไม่มี</td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-yellow-500 text-white py-1 px-3 rounded">แก้ไข</button></td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-red-500 text-white py-1 px-3 rounded">ลบ</button></td>
-                </tr>
-                <tr class="bg-gray-50">
-                    <td class="py-2 px-4 border-b border-gray-200">5</td>
-                    <td class="py-2 px-4 border-b border-gray-200">138</td>
-                    <td class="py-2 px-4 border-b border-gray-200">กรีซ คัพ</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ไม่มี</td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-yellow-500 text-white py-1 px-3 rounded">แก้ไข</button></td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-red-500 text-white py-1 px-3 rounded">ลบ</button></td>
-                </tr>
-                <tr>
-                    <td class="py-2 px-4 border-b border-gray-200">6</td>
-                    <td class="py-2 px-4 border-b border-gray-200">137</td>
-                    <td class="py-2 px-4 border-b border-gray-200">อาร์เมเนีย พรีเมียร์ลีก</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ไม่มี</td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-yellow-500 text-white py-1 px-3 rounded">แก้ไข</button></td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-red-500 text-white py-1 px-3 rounded">ลบ</button></td>
-                </tr>
-                <tr class="bg-gray-50">
-                    <td class="py-2 px-4 border-b border-gray-200">7</td>
-                    <td class="py-2 px-4 border-b border-gray-200">136</td>
-                    <td class="py-2 px-4 border-b border-gray-200">อิตาลี CIA</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ไม่มี</td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-yellow-500 text-white py-1 px-3 rounded">แก้ไข</button></td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-red-500 text-white py-1 px-3 rounded">ลบ</button></td>
-                </tr>
-                <tr>
-                    <td class="py-2 px-4 border-b border-gray-200">8</td>
-                    <td class="py-2 px-4 border-b border-gray-200">135</td>
-                    <td class="py-2 px-4 border-b border-gray-200">เดนมาร์ก ดิวิชั่น1</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ไม่มี</td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-yellow-500 text-white py-1 px-3 rounded">แก้ไข</button></td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-red-500 text-white py-1 px-3 rounded">ลบ</button></td>
-                </tr>
-                <tr class="bg-gray-50">
-                    <td class="py-2 px-4 border-b border-gray-200">9</td>
-                    <td class="py-2 px-4 border-b border-gray-200">134</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ออสเตรเลีย เอฟเอ คัพ</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ไม่มี</td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-yellow-500 text-white py-1 px-3 rounded">แก้ไข</button></td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-red-500 text-white py-1 px-3 rounded">ลบ</button></td>
-                </tr>
-                <tr>
-                    <td class="py-2 px-4 border-b border-gray-200">10</td>
-                    <td class="py-2 px-4 border-b border-gray-200">133</td>
-                    <td class="py-2 px-4 border-b border-gray-200">เยอรมันรีเจินนอลลีก ตะวันออกเฉียงเหนือ</td>
-                    <td class="py-2 px-4 border-b border-gray-200">ไม่มี</td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-yellow-500 text-white py-1 px-3 rounded">แก้ไข</button></td>
-                    <td class="py-2 px-4 border-b border-gray-200"><button class="bg-red-500 text-white py-1 px-3 rounded">ลบ</button></td>
-                </tr>
-            </tbody>
-        </table>
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
+    <h2 class="text-2xl font-bold mb-4">เพิ่มข้อมูลลีก</h2>
+    <form (ngSubmit)="addLeague()" class="mb-6">
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="league-name">ชื่อลีก:</label>
+        <input
+          id="league-name"
+          type="text"
+          [(ngModel)]="newLeague.name"
+          name="name"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          placeholder="ชื่อของลีก"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="league-logo">เลือกรูปลีก:</label>
+        <input
+          id="league-logo"
+          type="file"
+          (change)="onFileSelected($event, 'new')"
+          class="w-full border border-gray-300 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        />
+      </div>
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        บันทึก
+      </button>
+    </form>
+  
+    <h2 class="text-2xl font-bold mb-4">ข้อมูลลีก</h2>
+    <table class="min-w-full bg-white rounded-lg shadow-md">
+      <thead>
+        <tr>
+          <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">ลำดับ</th>
+          <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">ID</th>
+          <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">ชื่อ</th>
+          <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">รูป</th>
+          <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">แก้ไข</th>
+          <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">ลบ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let league of leagues; let i = index" class="bg-gray-50 hover:bg-gray-100">
+          <td class="py-2 px-4 border-b border-gray-200 text-center">{{ i + 1 }}</td>
+          <td class="py-2 px-4 border-b border-gray-200 text-center">{{ league.id }}</td>
+          <td class="py-2 px-4 border-b border-gray-200">{{ league.name }}</td>
+          <td class="py-2 px-4 border-b border-gray-200 text-center">
+            <img *ngIf="league.logo_url" [src]="'http://127.0.0.1:5000/' + league.logo_url" alt="{{ league.name }}" class="w-12 h-12 object-cover rounded-full mx-auto" />
+            <span *ngIf="!league.logo_url">ไม่มี</span>
+          </td>
+          <td class="py-2 px-4 border-b border-gray-200 text-center">
+            <button (click)="editLeague(league)" class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded">แก้ไข</button>
+          </td>
+          <td class="py-2 px-4 border-b border-gray-200 text-center">
+            <button (click)="deleteLeague(league.id)" class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded">ลบ</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- Form แก้ไขข้อมูลลีก -->
+    <div *ngIf="selectedLeague" class="mt-6">
+      <h2 class="text-2xl font-bold mb-4">แก้ไขข้อมูลลีก</h2>
+      <form (ngSubmit)="updateLeague()">
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">ชื่อ:</label>
+          <input [(ngModel)]="selectedLeague.name" name="editName" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">เลือกรูปใหม่:</label>
+          <input type="file" (change)="onFileSelected($event, 'edit')" class="w-full border border-gray-300 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+        </div>
+        <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          อัปเดต
+        </button>
+        <button type="button" (click)="selectedLeague = null" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2">
+          ยกเลิก
+        </button>
+      </form>
     </div>
-</body>
-</html>
+  </div>
+  

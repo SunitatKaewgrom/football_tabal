@@ -24,28 +24,23 @@ export class ManageAdminsComponent implements OnInit {
   constructor(private adminService: AdminService) {}
 
   ngOnInit(): void {
-    console.log('Initializing ManageAdminsComponent...');
     this.loadAdmins();
   }
 
   loadAdmins(): void {
-    console.log('Loading admins...');
     this.adminService.getAdmins().subscribe((data) => {
-      console.log('Admins loaded:', data);
       this.admins = data.map((item: any) => ({
         id: item[0],
         username: item[1],
-        password: '' // Do not store hashed password directly
+        password: '' // ไม่เก็บรหัสผ่านจริงเพื่อความปลอดภัย
       }));
     });
   }
 
   addAdmin(): void {
     if (this.newAdmin.username && this.newAdmin.password) {
-      console.log('Adding new admin:', this.newAdmin);
-      const adminToAdd = { ...this.newAdmin, password: this.newAdmin.password };
+      const adminToAdd = { ...this.newAdmin };
       this.adminService.addAdmin(adminToAdd).subscribe(() => {
-        console.log('Admin added successfully.');
         this.loadAdmins();
         this.newAdmin = { id: 0, username: '', password: '' };
       });
@@ -53,15 +48,18 @@ export class ManageAdminsComponent implements OnInit {
   }
 
   editPassword(admin: Admin): void {
-    console.log('Editing password for admin:', admin);
-    this.selectedAdmin = { ...admin, password: admin.password || '' }; // Initialize selectedAdmin for editing
+    this.selectedAdmin = { ...admin };
+  }
+
+  confirmUpdate(): void {
+    if (confirm("คุณต้องการบันทึกการเปลี่ยนแปลงนี้ใช่หรือไม่?")) {
+      this.updatePassword();
+    }
   }
 
   updatePassword(): void {
     if (this.selectedAdmin && this.selectedAdmin.password) {
-      console.log('Updating password for admin:', this.selectedAdmin);
       this.adminService.updateAdmin(this.selectedAdmin).subscribe(() => {
-        console.log('Password updated successfully.');
         this.loadAdmins();
         this.cancelEdit();
       });
@@ -69,14 +67,17 @@ export class ManageAdminsComponent implements OnInit {
   }
 
   cancelEdit(): void {
-    console.log('Cancelling edit.');
     this.selectedAdmin = null;
   }
 
+  confirmDelete(id: number): void {
+    if (confirm("คุณต้องการลบข้อมูลนี้ใช่หรือไม่?")) {
+      this.deleteAdmin(id);
+    }
+  }
+
   deleteAdmin(id: number): void {
-    console.log('Deleting admin with ID:', id);
     this.adminService.deleteAdmin(id).subscribe(() => {
-      console.log('Admin deleted successfully.');
       this.loadAdmins();
     });
   }

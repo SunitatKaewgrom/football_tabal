@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from config import get_db_connection
+from models.league import get_all_leagues, get_league_by_id, create_league, update_league, delete_league
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from bcrypt import hashpw, gensalt
@@ -82,6 +83,51 @@ def login():
         # ปิดการเชื่อมต่อฐานข้อมูล
         cursor.close()
         connection.close()
+
+@app.route('/api/leagues', methods=['POST'])
+def create_league_route():
+    name = request.form.get('name')
+    logo_file = request.files.get('logo_file')
+
+    # พิมพ์ข้อมูลเพื่อดูใน console ว่าฟิลด์ name และ logo_file ได้รับข้อมูลถูกต้องหรือไม่
+    print("Received name:", name)
+    print("Received logo_file:", logo_file)
+
+    # ตรวจสอบว่า name มีค่าและไม่ใช่ NULL
+    if not name:
+        return jsonify({"error": "The 'name' field is required and cannot be null."}), 400
+
+    new_league = create_league(name, logo_file)
+    return jsonify(new_league), 201
+
+
+@app.route('/api/leagues', methods=['GET'])
+def get_leagues():
+    leagues = get_all_leagues()
+    return jsonify(leagues), 200
+
+@app.route('/api/leagues/<int:league_id>', methods=['GET'])
+def get_league(league_id):
+    league = get_league_by_id(league_id)
+    if league:
+        return jsonify(league), 200
+    return jsonify({"error": "League not found"}), 404
+
+@app.route('/api/leagues/<int:league_id>', methods=['PUT'])
+def update_league_route(league_id):
+    name = request.form.get('name')
+    logo_file = request.files.get('logo_file')
+    updated_league = update_league(league_id, name, logo_file)
+    if updated_league:
+        return jsonify(updated_league), 200
+    return jsonify({"error": "League not found"}), 404
+
+@app.route('/api/leagues/<int:league_id>', methods=['DELETE'])
+def delete_league_route(league_id):
+    success = delete_league(league_id)
+    if success:
+        return jsonify({"message": "League deleted"}), 200
+    return jsonify({"error": "League not found"}), 404
 
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
