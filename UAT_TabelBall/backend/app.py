@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from config import get_db_connection
 from models.league import get_all_leagues, get_league_by_id, create_league, update_league, delete_league
+from models.teams import get_all_teams, get_team_by_id, create_team, update_team, delete_team
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from bcrypt import hashpw, gensalt
@@ -84,50 +85,6 @@ def login():
         cursor.close()
         connection.close()
 
-@app.route('/api/leagues', methods=['POST'])
-def create_league_route():
-    name = request.form.get('name')
-    logo_file = request.files.get('logo_file')
-
-    # พิมพ์ข้อมูลเพื่อดูใน console ว่าฟิลด์ name และ logo_file ได้รับข้อมูลถูกต้องหรือไม่
-    print("Received name:", name)
-    print("Received logo_file:", logo_file)
-
-    # ตรวจสอบว่า name มีค่าและไม่ใช่ NULL
-    if not name:
-        return jsonify({"error": "The 'name' field is required and cannot be null."}), 400
-
-    new_league = create_league(name, logo_file)
-    return jsonify(new_league), 201
-
-
-@app.route('/api/leagues', methods=['GET'])
-def get_leagues():
-    leagues = get_all_leagues()
-    return jsonify(leagues), 200
-
-@app.route('/api/leagues/<int:league_id>', methods=['GET'])
-def get_league(league_id):
-    league = get_league_by_id(league_id)
-    if league:
-        return jsonify(league), 200
-    return jsonify({"error": "League not found"}), 404
-
-@app.route('/api/leagues/<int:league_id>', methods=['PUT'])
-def update_league_route(league_id):
-    name = request.form.get('name')
-    logo_file = request.files.get('logo_file')
-    updated_league = update_league(league_id, name, logo_file)
-    if updated_league:
-        return jsonify(updated_league), 200
-    return jsonify({"error": "League not found"}), 404
-
-@app.route('/api/leagues/<int:league_id>', methods=['DELETE'])
-def delete_league_route(league_id):
-    success = delete_league(league_id)
-    if success:
-        return jsonify({"message": "League deleted"}), 200
-    return jsonify({"error": "League not found"}), 404
 
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -200,6 +157,108 @@ def header_message():
         conn.commit()
         conn.close()
         return jsonify({'message': 'Record updated successfully.'}), 200
+
+
+@app.route('/api/leagues', methods=['POST'])
+def create_league_route():
+    name = request.form.get('name')
+    logo_file = request.files.get('logo_file')
+
+    # พิมพ์ข้อมูลเพื่อดูใน console ว่าฟิลด์ name และ logo_file ได้รับข้อมูลถูกต้องหรือไม่
+    print("Received name:", name)
+    print("Received logo_file:", logo_file)
+
+    # ตรวจสอบว่า name มีค่าและไม่ใช่ NULL
+    if not name:
+        return jsonify({"error": "The 'name' field is required and cannot be null."}), 400
+
+    new_league = create_league(name, logo_file)
+    return jsonify(new_league), 201
+
+
+@app.route('/api/leagues', methods=['GET'])
+def get_leagues():
+    leagues = get_all_leagues()
+    return jsonify(leagues), 200
+
+@app.route('/api/leagues/<int:league_id>', methods=['GET'])
+def get_league(league_id):
+    league = get_league_by_id(league_id)
+    if league:
+        return jsonify(league), 200
+    return jsonify({"error": "League not found"}), 404
+
+@app.route('/api/leagues/<int:league_id>', methods=['PUT'])
+def update_league_route(league_id):
+    name = request.form.get('name')
+    logo_file = request.files.get('logo_file')
+    updated_league = update_league(league_id, name, logo_file)
+    if updated_league:
+        return jsonify(updated_league), 200
+    return jsonify({"error": "League not found"}), 404
+
+@app.route('/api/leagues/<int:league_id>', methods=['DELETE'])
+def delete_league_route(league_id):
+    success = delete_league(league_id)
+    if success:
+        return jsonify({"message": "League deleted"}), 200
+    return jsonify({"error": "League not found"}), 404
+
+# Endpoint สำหรับดึงข้อมูลทีมทั้งหมด
+@app.route('/api/teams', methods=['GET'])
+def get_teams():
+    teams = get_all_teams()
+    return jsonify(teams)
+
+# Endpoint สำหรับดึงข้อมูลทีมตาม ID
+@app.route('/api/teams/<int:team_id>', methods=['GET'])
+def get_team(team_id):
+    team = get_team_by_id(team_id)
+    return jsonify(team) if team else ('Team not found', 404)
+
+# Endpoint สำหรับสร้างทีมใหม่
+@app.route('/api/teams', methods=['POST'])
+def add_team():
+    data = request.form
+    name = data.get('name')
+    league_id = data.get('league_id')
+    logo_file = request.files.get('logo_file')
+
+    if logo_file:
+        logo_path = f'static/uploads/img_team/{logo_file.filename}'
+        logo_file.save(logo_path)
+    else:
+        logo_path = None
+
+    # เรียกใช้ฟังก์ชันสร้างทีมใหม่จาก teams.py
+    create_team(name, league_id, logo_path)
+    return ('Team created', 201)
+
+# Endpoint สำหรับอัปเดตข้อมูลทีมที่มีอยู่
+@app.route('/api/teams/<int:team_id>', methods=['PUT'])
+def edit_team(team_id):
+    data = request.form
+    name = data.get('name')
+    league_id = data.get('league_id')
+    logo_file = request.files.get('logo_file')
+
+    if logo_file:
+        logo_path = f'static/uploads/img_team/{logo_file.filename}'
+        logo_file.save(logo_path)
+    else:
+        logo_path = None
+
+    # เรียกใช้ฟังก์ชันอัปเดตทีมจาก teams.py
+    update_team(team_id, name, league_id, logo_path)
+    return ('Team updated', 200)
+
+# Endpoint สำหรับลบทีมตาม ID
+@app.route('/api/teams/<int:team_id>', methods=['DELETE'])
+def remove_team(team_id):
+    # เรียกใช้ฟังก์ชันลบทีมจาก teams.py
+    delete_team(team_id)
+    return ('Team deleted', 200)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
