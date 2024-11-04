@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from config import get_db_connection
 from models.league import get_all_leagues, get_league_by_id, create_league, update_league, delete_league
-from models.teams import get_all_teams, get_team_by_id, create_team, update_team, delete_team
+from models.teams import create_team, update_team, delete_team, get_all_teams, get_team_by_id
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from bcrypt import hashpw, gensalt
@@ -204,61 +204,80 @@ def delete_league_route(league_id):
         return jsonify({"message": "League deleted"}), 200
     return jsonify({"error": "League not found"}), 404
 
-# Endpoint สำหรับดึงข้อมูลทีมทั้งหมด
+# เส้นทางสำหรับบันทึกรูปภาพของทีม
+UPLOAD_FOLDER = 'static/uploads/img_team'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# เปลี่ยนชื่อ endpoint เพื่อป้องกันการซ้ำซ้อน
 @app.route('/api/teams', methods=['GET'])
-def get_teams():
-    teams = get_all_teams()
-    return jsonify(teams)
+def fetch_all_teams():
+    try:
+        teams = get_all_teams()
+        return jsonify(teams), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-# Endpoint สำหรับดึงข้อมูลทีมตาม ID
-@app.route('/api/teams/<int:team_id>', methods=['GET'])
-def get_team(team_id):
-    team = get_team_by_id(team_id)
-    return jsonify(team) if team else ('Team not found', 404)
+# เปลี่ยนชื่อ endpoint เพื่อป้องกันการซ้ำซ้อน
+@app.route('/api/leagues', methods=['GET'])
+def fetch_all_leagues():
+    try:
+        leagues = get_all_leagues()
+        return jsonify(leagues), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-# Endpoint สำหรับสร้างทีมใหม่
+# Endpoint สำหรับเพิ่มทีมใหม่
 @app.route('/api/teams', methods=['POST'])
-def add_team():
-    data = request.form
-    name = data.get('name')
-    league_id = data.get('league_id')
-    logo_file = request.files.get('logo_file')
+def create_team_api():
+    try:
+        name = request.form.get('name')
+        league_id = request.form.get('leagueId')
+        logo_file = request.files.get('logoFile')
 
-    if logo_file:
-        logo_path = f'static/uploads/img_team/{logo_file.filename}'
-        logo_file.save(logo_path)
-    else:
-        logo_path = None
+        if not name or not league_id:
+            return jsonify({'error': 'กรุณาระบุชื่อทีมและลีก'}), 400
 
-    # เรียกใช้ฟังก์ชันสร้างทีมใหม่จาก teams.py
-    create_team(name, league_id, logo_path)
-    return ('Team created', 201)
+        logo_url = None
+        if logo_file:
+            filename = secure_filename(logo_file.filename)
+            logo_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            logo_file.save(logo_path)
+            logo_url = logo_path
 
-# Endpoint สำหรับอัปเดตข้อมูลทีมที่มีอยู่
+        create_team(name, league_id, logo_url)
+        return jsonify({'message': 'เพิ่มทีมสำเร็จ'}), 201
+    except Exception as e:
+        return jsonify({'error': 'เกิดข้อผิดพลาดในการเพิ่มทีม', 'details': str(e)}), 500
+
+# Endpoint สำหรับแก้ไขข้อมูลทีม
 @app.route('/api/teams/<int:team_id>', methods=['PUT'])
-def edit_team(team_id):
-    data = request.form
-    name = data.get('name')
-    league_id = data.get('league_id')
-    logo_file = request.files.get('logo_file')
+def update_team_api(team_id):
+    try:
+        name = request.form.get('name')
+        league_id = request.form.get('leagueId')
+        logo_file = request.files.get('logoFile')
 
-    if logo_file:
-        logo_path = f'static/uploads/img_team/{logo_file.filename}'
-        logo_file.save(logo_path)
-    else:
-        logo_path = None
+        logo_url = None
+        if logo_file:
+            filename = secure_filename(logo_file.filename)
+            logo_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            logo_file.save(logo_path)
+            logo_url = logo_path
 
-    # เรียกใช้ฟังก์ชันอัปเดตทีมจาก teams.py
-    update_team(team_id, name, league_id, logo_path)
-    return ('Team updated', 200)
+        update_team(team_id, name, league_id, logo_url)
+        return jsonify({'message': 'อัปเดตข้อมูลทีมสำเร็จ'}), 200
+    except Exception as e:
+        return jsonify({'error': 'เกิดข้อผิดพลาดในการอัปเดตทีม', 'details': str(e)}), 500
 
-# Endpoint สำหรับลบทีมตาม ID
+# Endpoint สำหรับลบทีม
 @app.route('/api/teams/<int:team_id>', methods=['DELETE'])
-def remove_team(team_id):
-    # เรียกใช้ฟังก์ชันลบทีมจาก teams.py
-    delete_team(team_id)
-    return ('Team deleted', 200)
-
+def delete_team_api(team_id):
+    try:
+        delete_team(team_id)
+        return jsonify({'message': 'ลบทีมสำเร็จ'}), 200
+    except Exception as e:
+        return jsonify({'error': 'เกิดข้อผิดพลาดในการลบทีม', 'details': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

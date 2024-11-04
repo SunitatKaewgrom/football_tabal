@@ -1,56 +1,94 @@
 <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
-    <h2 class="text-2xl font-bold mb-4">เพิ่มข้อมูลทีม</h2>
-    <form (ngSubmit)="addTeam()" class="space-y-4">
-        <div>
-            <label class="block text-sm font-medium text-gray-700">ชื่อทีม</label>
-            <input [(ngModel)]="newTeam.name" name="name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ชื่อทีม" required />
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">เลือกลีก</label>
-            <select [(ngModel)]="newTeam.leagueId" name="league" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required>
-                <option value="" disabled>เลือกลีก</option>
-                <option *ngFor="let league of leagues" [value]="league.id">{{ league.name }}</option>
-            </select>
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">เลือกรูปทีม</label>
-            <input type="file" (change)="onFileSelected($event, 'new')" class="w-full border border-gray-300 rounded-md py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-            <span *ngIf="newTeam.logoFile">{{ newTeam.logoFile.name }}</span>
-        </div>
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">บันทึก</button>
+  <h2 class="text-2xl font-bold mb-4">เพิ่มข้อมูลทีม</h2>
+  <form (ngSubmit)="addTeam()" class="space-y-6">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">ชื่อทีม</label>
+      <input [(ngModel)]="newTeam.name" name="name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500" placeholder="ชื่อทีม" required />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">เลือกลีก</label>
+      <select [(ngModel)]="newTeam.leagueId" name="league" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500" required>
+        <option value="" disabled>เลือกลีก</option>
+        <option *ngFor="let league of leagues" [value]="league.id">{{ league.name }}</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">เลือกรูปทีม</label>
+      <input type="file" (change)="onFileSelected($event, 'new')" class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-blue-500 focus:border-blue-500" />
+      <span *ngIf="logoFileName" class="text-gray-600 mt-2 block">{{ logoFileName }}</span>
+    </div>
+    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500">
+      บันทึก
+    </button>
+  </form>
+</div>
+
+<!-- ฟอร์มแก้ไขข้อมูลทีม -->
+<div *ngIf="selectedTeam" class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
+    <h2 class="text-2xl font-bold mb-4">แก้ไขข้อมูลทีม</h2>
+    <form (ngSubmit)="updateTeam()" class="space-y-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">ชื่อทีม</label>
+        <input [(ngModel)]="selectedTeam.name" name="editName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500" placeholder="ชื่อทีม" required />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">เลือกลีก</label>
+        <select [(ngModel)]="selectedTeam.leagueId" name="editLeague" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500" required>
+          <option value="" disabled>เลือกลีก</option>
+          <option *ngFor="let league of leagues" [value]="league.id">{{ league.name }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">เลือกรูปทีมใหม่ (ถ้ามี)</label>
+        <input type="file" (change)="onFileSelected($event, 'edit')" class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-blue-500 focus:border-blue-500" />
+        <span *ngIf="selectedLogoFileName" class="text-gray-600 mt-2 block">{{ selectedLogoFileName }}</span>
+      </div>
+      <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500">
+        บันทึกการแก้ไข
+      </button>
+      <button type="button" (click)="cancelEdit()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 ml-2">
+        ยกเลิก
+      </button>
     </form>
-</div>
+  </div>
+  
 
-<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-6">
-    <h2 class="text-2xl font-bold mb-4">ข้อมูลทีม</h2>
-    <table class="min-w-full bg-white">
-        <thead>
-            <tr>
-                <th class="py-2 px-4 border-b">ลำดับ</th>
-                <th class="py-2 px-4 border-b">ชื่อทีม</th>
-                <th class="py-2 px-4 border-b">ลีก</th>
-                <th class="py-2 px-4 border-b">รูปทีม</th>
-                <th class="py-2 px-4 border-b">แก้ไข</th>
-                <th class="py-2 px-4 border-b">ลบ</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let team of teams; let i = index" class="bg-gray-100 hover:bg-gray-200">
-                <td class="py-2 px-4 border-b">{{ i + 1 }}</td>
-                <td class="py-2 px-4 border-b">{{ team.name }}</td>
-                <td class="py-2 px-4 border-b">{{ team.league_name }}</td>
-                <td class="py-2 px-4 border-b text-center">
-                    <img *ngIf="team.logo_url" [src]="'http://127.0.0.1:5000/' + team.logo_url" alt="ทีม" class="w-10 h-10 object-cover rounded-full mx-auto" />
-                    <span *ngIf="!team.logo_url">ไม่มี</span>
-                </td>
-                <td class="py-2 px-4 border-b text-center">
-                    <button (click)="editTeam(team)" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md">แก้ไข</button>
-                </td>
-                <td class="py-2 px-4 border-b text-center">
-                    <button (click)="deleteTeam(team.id)" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">ลบ</button>
-                </td>
-            </tr>
-        </tbody>
+<!-- ตารางแสดงข้อมูลทีม -->
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
+  <h2 class="text-2xl font-bold mb-4">ข้อมูลทีม</h2>
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white border-collapse border border-gray-300 rounded-md shadow-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="py-3 px-5 border-b border-gray-300 text-left text-sm font-semibold text-gray-700">ลำดับ</th>
+          <th class="py-3 px-5 border-b border-gray-300 text-left text-sm font-semibold text-gray-700">ชื่อทีม</th>
+          <th class="py-3 px-5 border-b border-gray-300 text-left text-sm font-semibold text-gray-700">ลีก</th>
+          <th class="py-3 px-5 border-b border-gray-300 text-center text-sm font-semibold text-gray-700">รูปทีม</th>
+          <th class="py-3 px-5 border-b border-gray-300 text-center text-sm font-semibold text-gray-700">แก้ไข</th>
+          <th class="py-3 px-5 border-b border-gray-300 text-center text-sm font-semibold text-gray-700">ลบ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let team of teams; let i = index" class="hover:bg-gray-50 transition duration-200 ease-in-out">
+          <td class="py-3 px-5 border-b border-gray-300 text-center text-sm text-gray-800">{{ i + 1 }}</td>
+          <td class="py-3 px-5 border-b border-gray-300 text-sm text-gray-800">{{ team.team_name }}</td>
+          <td class="py-3 px-5 border-b border-gray-300 text-sm text-gray-800">{{ team.league_name }}</td>
+          <td class="py-3 px-5 border-b border-gray-300 text-center">
+            <img *ngIf="team.logo_url" [src]="'http://127.0.0.1:5000/' + team.logo_url" alt="ทีม" class="w-12 h-12 object-cover rounded-full mx-auto shadow-md border border-gray-300" />
+            <span *ngIf="!team.logo_url" class="text-gray-500 italic">ไม่มี</span>
+          </td>
+          <td class="py-3 px-5 border-b border-gray-300 text-center">
+            <button (click)="editTeam(team)" class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-4 rounded-md shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500">
+              แก้ไข
+            </button>
+          </td>
+          <td class="py-3 px-5 border-b border-gray-300 text-center">
+            <button (click)="deleteTeam(team.id)" class="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded-md shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500">
+              ลบ
+            </button>
+          </td>
+        </tr>
+      </tbody>
     </table>
+  </div>
 </div>
-

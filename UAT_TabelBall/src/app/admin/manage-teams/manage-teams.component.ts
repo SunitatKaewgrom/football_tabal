@@ -1,5 +1,3 @@
-// src/app/admin/manage-teams/manage-teams.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { TeamService } from 'src/app/core/service/api/team.service';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +15,8 @@ export class ManageTeamsComponent implements OnInit {
   leagues: any[] = [];
   newTeam = { name: '', leagueId: '', logoFile: null as File | null };
   selectedTeam: { id: number; name: string; leagueId: string; logoFile: File | null } | null = null;
+  logoFileName: string | null = null;
+  selectedLogoFileName: string | null = null;
 
   constructor(private teamService: TeamService) {}
 
@@ -25,56 +25,97 @@ export class ManageTeamsComponent implements OnInit {
     this.loadLeagues();
   }
 
-  // ฟังก์ชันดึงข้อมูลทีมทั้งหมด
+  // โหลดข้อมูลทีมทั้งหมด
   loadTeams(): void {
-    this.teamService.getTeams().subscribe(data => {
-      this.teams = data;
+    this.teamService.getTeams().subscribe({
+      next: (data) => {
+        this.teams = [...data];
+      },
+      error: (error) => {
+        console.error('Error loading teams:', error);
+      }
     });
   }
 
-  // ฟังก์ชันดึงข้อมูลลีกทั้งหมด
+  // โหลดข้อมูลลีกทั้งหมด
   loadLeagues(): void {
-    this.teamService.getLeagues().subscribe(data => {
-      this.leagues = data;
+    this.teamService.getLeagues().subscribe({
+      next: (data) => {
+        this.leagues = [...data];
+      },
+      error: (error) => {
+        console.error('Error loading leagues:', error);
+      }
     });
   }
 
-  // ฟังก์ชันเพิ่มทีมใหม่
+  // เพิ่มทีมใหม่
   addTeam(): void {
     if (this.newTeam.name && this.newTeam.leagueId) {
-      const leagueId = Number(this.newTeam.leagueId); // แปลง leagueId เป็นตัวเลข
-      this.teamService.createTeam(this.newTeam.name, leagueId, this.newTeam.logoFile || undefined).subscribe(() => {
-        this.loadTeams();
-        this.newTeam = { name: '', leagueId: '', logoFile: null };
+      const leagueId = Number(this.newTeam.leagueId);
+      this.teamService.createTeam(this.newTeam.name, leagueId, this.newTeam.logoFile || undefined).subscribe({
+        next: () => {
+          this.loadTeams();  // อัปเดตทีมทันทีหลังเพิ่ม
+          this.newTeam = { name: '', leagueId: '', logoFile: null };
+          this.logoFileName = null;
+        },
+        error: (error) => {
+          console.error('Error creating team:', error);
+        }
       });
     } else {
       alert("กรุณาใส่ชื่อทีมและเลือกลีก");
     }
   }
 
-  // ฟังก์ชันแก้ไขทีม
-  editTeam(team: any): void {
-    this.selectedTeam = { id: team.id, name: team.team_name, leagueId: team.league_id.toString(), logoFile: null };
-  }
+// ตรวจสอบให้แน่ใจว่า selectedTeam ถูกกำหนดค่าตามต้องการ
+editTeam(team: any): void {
+  console.log("Editing team:", team); // ตรวจสอบค่าในคอนโซล
+  this.selectedTeam = { 
+    id: team.id, 
+    name: team.team_name, 
+    leagueId: team.league_id ? team.league_id.toString() : '', 
+    logoFile: null 
+  };
+  this.selectedLogoFileName = null;
+}
 
-  // ฟังก์ชันอัปเดตข้อมูลทีม
+
+  // อัปเดตข้อมูลทีม
   updateTeam(): void {
     if (this.selectedTeam && this.selectedTeam.name && this.selectedTeam.leagueId) {
-      const leagueId = Number(this.selectedTeam.leagueId); // แปลง leagueId เป็นตัวเลข
-      this.teamService.updateTeam(this.selectedTeam.id, this.selectedTeam.name, leagueId, this.selectedTeam.logoFile || undefined).subscribe(() => {
-        this.loadTeams();
-        this.selectedTeam = null;
+      const leagueId = Number(this.selectedTeam.leagueId);
+      this.teamService.updateTeam(this.selectedTeam.id, this.selectedTeam.name, leagueId, this.selectedTeam.logoFile || undefined).subscribe({
+        next: () => {
+          this.loadTeams();  // อัปเดตทีมทันทีหลังจากแก้ไข
+          this.cancelEdit();
+        },
+        error: (error) => {
+          console.error('Error updating team:', error);
+        }
       });
     } else {
       alert("กรุณาเลือกทีมที่ต้องการอัปเดต");
     }
   }
 
-  // ฟังก์ชันลบทีม
+  // ยกเลิกการแก้ไข
+  cancelEdit(): void {
+    this.selectedTeam = null;
+    this.selectedLogoFileName = null;
+  }
+  
+
+  // ลบทีม
   deleteTeam(teamId: number): void {
     if (confirm("คุณแน่ใจว่าต้องการลบทีมนี้หรือไม่?")) {
-      this.teamService.deleteTeam(teamId).subscribe(() => {
-        this.loadTeams();
+      this.teamService.deleteTeam(teamId).subscribe({
+        next: () => {
+          this.loadTeams();  // อัปเดตทีมทันทีหลังจากลบ
+        },
+        error: (error) => {
+          console.error('Error deleting team:', error);
+        }
       });
     }
   }
@@ -85,8 +126,10 @@ export class ManageTeamsComponent implements OnInit {
     if (file) {
       if (type === 'new') {
         this.newTeam.logoFile = file;
+        this.logoFileName = file.name;
       } else if (type === 'edit' && this.selectedTeam) {
         this.selectedTeam.logoFile = file;
+        this.selectedLogoFileName = file.name;
       }
     }
   }
