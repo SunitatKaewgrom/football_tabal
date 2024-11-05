@@ -17,6 +17,7 @@ export class ManageTeamsComponent implements OnInit {
   selectedTeam: { id: number; name: string; leagueId: string; logoFile: File | null } | null = null;
   logoFileName: string | null = null;
   selectedLogoFileName: string | null = null;
+  showEditPopup: boolean = false;
 
   constructor(private teamService: TeamService) {}
 
@@ -55,7 +56,7 @@ export class ManageTeamsComponent implements OnInit {
       const leagueId = Number(this.newTeam.leagueId);
       this.teamService.createTeam(this.newTeam.name, leagueId, this.newTeam.logoFile || undefined).subscribe({
         next: () => {
-          this.loadTeams();  // อัปเดตทีมทันทีหลังเพิ่ม
+          this.loadTeams(); // อัปเดตข้อมูลหลังเพิ่มทีมสำเร็จ
           this.newTeam = { name: '', leagueId: '', logoFile: null };
           this.logoFileName = null;
         },
@@ -68,18 +69,17 @@ export class ManageTeamsComponent implements OnInit {
     }
   }
 
-// ตรวจสอบให้แน่ใจว่า selectedTeam ถูกกำหนดค่าตามต้องการ
-editTeam(team: any): void {
-  console.log("Editing team:", team); // ตรวจสอบค่าในคอนโซล
-  this.selectedTeam = { 
-    id: team.id, 
-    name: team.team_name, 
-    leagueId: team.league_id ? team.league_id.toString() : '', 
-    logoFile: null 
-  };
-  this.selectedLogoFileName = null;
-}
-
+  // แก้ไขทีม
+  editTeam(team: any): void {
+    this.selectedTeam = { 
+      id: team.id, 
+      name: team.team_name, 
+      leagueId: team.league_id ? team.league_id.toString() : '', 
+      logoFile: null 
+    };
+    this.selectedLogoFileName = null;
+    this.showEditPopup = true; // แสดง Popup แก้ไขข้อมูลทีม
+  }
 
   // อัปเดตข้อมูลทีม
   updateTeam(): void {
@@ -87,8 +87,8 @@ editTeam(team: any): void {
       const leagueId = Number(this.selectedTeam.leagueId);
       this.teamService.updateTeam(this.selectedTeam.id, this.selectedTeam.name, leagueId, this.selectedTeam.logoFile || undefined).subscribe({
         next: () => {
-          this.loadTeams();  // อัปเดตทีมทันทีหลังจากแก้ไข
-          this.cancelEdit();
+          this.loadTeams(); // อัปเดตข้อมูลหลังแก้ไขสำเร็จ
+          this.closeEditPopup(); // ปิด Popup หลังการอัปเดต
         },
         error: (error) => {
           console.error('Error updating team:', error);
@@ -99,19 +99,12 @@ editTeam(team: any): void {
     }
   }
 
-  // ยกเลิกการแก้ไข
-  cancelEdit(): void {
-    this.selectedTeam = null;
-    this.selectedLogoFileName = null;
-  }
-  
-
   // ลบทีม
   deleteTeam(teamId: number): void {
     if (confirm("คุณแน่ใจว่าต้องการลบทีมนี้หรือไม่?")) {
       this.teamService.deleteTeam(teamId).subscribe({
         next: () => {
-          this.loadTeams();  // อัปเดตทีมทันทีหลังจากลบ
+          this.loadTeams(); // อัปเดตข้อมูลหลังจากลบสำเร็จ
         },
         error: (error) => {
           console.error('Error deleting team:', error);
@@ -132,5 +125,12 @@ editTeam(team: any): void {
         this.selectedLogoFileName = file.name;
       }
     }
+  }
+
+  // ปิด Popup และรีเซ็ตค่า
+  closeEditPopup(): void {
+    this.selectedTeam = null;
+    this.selectedLogoFileName = null;
+    this.showEditPopup = false;
   }
 }

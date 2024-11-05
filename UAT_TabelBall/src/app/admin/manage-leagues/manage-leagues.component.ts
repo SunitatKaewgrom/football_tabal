@@ -14,6 +14,7 @@ export class ManageLeaguesComponent implements OnInit {
   leagues: any[] = [];
   newLeague = { name: '', logoFile: null as File | null };
   selectedLeague: { id: number; name: string; logoFile: File | null } | null = null;
+  showEditPopup = false;
 
   constructor(private leagueService: LeagueService) {}
 
@@ -22,14 +23,14 @@ export class ManageLeaguesComponent implements OnInit {
   }
 
   loadLeagues(): void {
-    this.leagueService.getLeagues().subscribe(
-      (data) => {
+    this.leagueService.getLeagues().subscribe({
+      next: (data) => {
         this.leagues = data;
       },
-      (error) => {
+      error: (error) => {
         console.error('Error loading leagues:', error);
       }
-    );
+    });
   }
 
   addLeague(): void {
@@ -45,6 +46,7 @@ export class ManageLeaguesComponent implements OnInit {
 
   editLeague(league: any): void {
     this.selectedLeague = { id: league.id, name: league.name, logoFile: null };
+    this.showEditPopup = true;
   }
 
   updateLeague(): void {
@@ -52,7 +54,7 @@ export class ManageLeaguesComponent implements OnInit {
       const logoFile = this.selectedLeague.logoFile || undefined;
       this.leagueService.updateLeague(this.selectedLeague.id, this.selectedLeague.name, logoFile).subscribe(() => {
         this.loadLeagues();
-        this.selectedLeague = null;
+        this.closeEditPopup();
       });
     } else {
       alert("กรุณาเลือกลีกที่ต้องการอัปเดต");
@@ -76,5 +78,10 @@ export class ManageLeaguesComponent implements OnInit {
         this.selectedLeague.logoFile = file;
       }
     }
+  }
+
+  closeEditPopup(): void {
+    this.selectedLeague = null;
+    this.showEditPopup = false;
   }
 }
