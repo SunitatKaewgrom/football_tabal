@@ -3,6 +3,7 @@ from flask_cors import CORS
 from config import get_db_connection
 from models.league import get_all_leagues, get_league_by_id, create_league, update_league, delete_league
 from models.teams import create_team, update_team, delete_team, get_all_teams, get_team_by_id
+from models.experts import get_all_experts, get_expert_by_id, create_expert, update_expert, delete_expert
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from bcrypt import hashpw, gensalt
@@ -278,6 +279,68 @@ def delete_team_api(team_id):
         return jsonify({'message': 'ลบทีมสำเร็จ'}), 200
     except Exception as e:
         return jsonify({'error': 'เกิดข้อผิดพลาดในการลบทีม', 'details': str(e)}), 500
+    
+
+# กำหนดโฟลเดอร์สำหรับเก็บรูปภาพที่อัปโหลด
+UPLOAD_FOLDER = 'static/uploads/img_experts'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# ตรวจสอบและสร้างโฟลเดอร์หากยังไม่มี
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+# Endpoint สำหรับดึงข้อมูลเซียนบอลทั้งหมด
+@app.route('/api/experts', methods=['GET'])
+def get_experts():
+    experts = get_all_experts()  # ดึงข้อมูลเซียนบอลทั้งหมดจากฐานข้อมูล
+    return jsonify(experts), 200  # ส่งข้อมูลในรูปแบบ JSON
+
+# Endpoint สำหรับดึงข้อมูลเซียนบอลตาม ID
+@app.route('/api/experts/<int:expert_id>', methods=['GET'])
+def get_expert(expert_id):
+    expert = get_expert_by_id(expert_id)  # ดึงข้อมูลเซียนบอลตาม ID ที่ระบุ
+    return jsonify(expert) if expert else ('Expert not found', 404)  # ส่งข้อมูล JSON หรือแจ้งเตือนหากไม่พบ
+
+# Endpoint สำหรับเพิ่มเซียนบอลใหม่
+@app.route('/api/experts', methods=['POST'])
+def create_expert_api():
+    name = request.form.get('name')  # รับข้อมูลชื่อจากฟอร์ม
+    file = request.files.get('file')  # รับไฟล์รูปจากฟอร์ม
+
+    if file:
+        # จัดการกับไฟล์รูปภาพ
+        filename = secure_filename(file.filename)  # ป้องกันชื่อไฟล์ไม่ปลอดภัย
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))  # บันทึกไฟล์ในโฟลเดอร์ที่กำหนด
+        image_url = f"{UPLOAD_FOLDER}/{filename}"  # เก็บ URL ของรูปภาพ
+    else:
+        image_url = None
+
+    create_expert(name, image_url)  # เพิ่มข้อมูลเซียนบอลในฐานข้อมูล
+    return jsonify({'message': 'Expert created successfully'}), 201  # ตอบกลับเมื่อสำเร็จ
+
+# Endpoint สำหรับแก้ไขข้อมูลเซียนบอล
+@app.route('/api/experts/<int:expert_id>', methods=['PUT'])
+def update_expert_api(expert_id):
+    name = request.form.get('name')  # รับชื่อจากฟอร์ม
+    file = request.files.get('file')  # รับไฟล์รูปจากฟอร์ม
+
+    if file:
+        # จัดการกับไฟล์รูปภาพ
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        image_url = f"{UPLOAD_FOLDER}/{filename}"  # อัปเดต URL ของรูปภาพใหม่
+    else:
+        image_url = None
+
+    update_expert(expert_id, name, image_url)  # อัปเดตข้อมูลเซียนบอลในฐานข้อมูล
+    return jsonify({'message': 'Expert updated successfully'}), 200  # ตอบกลับเมื่อสำเร็จ
+
+# Endpoint สำหรับลบข้อมูลเซียนบอล
+@app.route('/api/experts/<int:expert_id>', methods=['DELETE'])
+def delete_expert_api(expert_id):
+    delete_expert(expert_id)  # ลบข้อมูลเซียนบอลจากฐานข้อมูล
+    return jsonify({'message': 'Expert deleted successfully'}), 200  # ตอบกลับเมื่อสำเร็จ
+
 
 if __name__ == '__main__':
     app.run(debug=True)
