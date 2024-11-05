@@ -17,6 +17,7 @@ export class ManageExpertsComponent implements OnInit {
   newExpert = { name: '', imageFile: undefined as File | undefined };
   selectedExpert: { id: number; name: string; imageFile?: File } | null = null;
   imageFileName: string | null = null;
+  showEditPopup: boolean = false; // กำหนดให้เป็น false เพื่อควบคุมการแสดง Popup
 
   constructor(private expertService: ExpertService) {}
 
@@ -41,7 +42,7 @@ export class ManageExpertsComponent implements OnInit {
     if (this.newExpert.name) {
       this.expertService.createExpert(this.newExpert.name, this.newExpert.imageFile).subscribe({
         next: () => {
-          this.loadExperts(); // โหลดข้อมูลเซียนบอลใหม่
+          this.loadExperts();
           this.newExpert = { name: '', imageFile: undefined };
           this.imageFileName = null;
         },
@@ -54,10 +55,17 @@ export class ManageExpertsComponent implements OnInit {
     }
   }
 
-  // แก้ไขเซียนบอล
+  // เปิด Popup แก้ไขเซียนบอล
   editExpert(expert: any): void {
     this.selectedExpert = { id: expert.id, name: expert.name, imageFile: undefined };
     this.imageFileName = null;
+    this.showEditPopup = true; // เปิด Popup เมื่อกดแก้ไข
+  }
+
+  // ปิด Popup แก้ไขเซียนบอล
+  closeEditPopup(): void {
+    this.showEditPopup = false;
+    this.cancelEdit();
   }
 
   // อัปเดตข้อมูลเซียนบอล
@@ -65,9 +73,8 @@ export class ManageExpertsComponent implements OnInit {
     if (this.selectedExpert && this.selectedExpert.name) {
       this.expertService.updateExpert(this.selectedExpert.id, this.selectedExpert.name, this.selectedExpert.imageFile).subscribe({
         next: () => {
-          this.loadExperts(); // โหลดข้อมูลเซียนบอลใหม่
-          this.selectedExpert = null;
-          this.imageFileName = null;
+          this.loadExperts();
+          this.closeEditPopup();
         },
         error: (error) => {
           console.error('Error updating expert:', error);
@@ -83,7 +90,7 @@ export class ManageExpertsComponent implements OnInit {
     if (confirm("คุณแน่ใจว่าต้องการลบเซียนบอลนี้หรือไม่?")) {
       this.expertService.deleteExpert(id).subscribe({
         next: () => {
-          this.loadExperts(); // โหลดข้อมูลเซียนบอลใหม่
+          this.loadExperts();
         },
         error: (error) => {
           console.error('Error deleting expert:', error);
@@ -110,5 +117,6 @@ export class ManageExpertsComponent implements OnInit {
   cancelEdit(): void {
     this.selectedExpert = null;
     this.imageFileName = null;
+    this.showEditPopup = false;
   }
 }

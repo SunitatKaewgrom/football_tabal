@@ -14,23 +14,31 @@
     </form>
   </div>
   
-  <div *ngIf="selectedExpert" class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
-    <h2 class="text-2xl font-bold mb-4">แก้ไขข้อมูลเซียนบอล</h2>
-    <form (ngSubmit)="updateExpert()" class="space-y-6">
-      <div>
-        <label class="block text-sm font-medium text-gray-700">ชื่อเซียนบอล</label>
-        <input [(ngModel)]="selectedExpert.name" name="editName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ชื่อเซียนบอล" required />
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">เลือกรูปเซียนบอลใหม่ (ถ้ามี)</label>
-        <input type="file" (change)="onFileSelected($event, 'edit')" class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3" />
-        <span *ngIf="imageFileName" class="text-gray-600 mt-2 block">{{ imageFileName }}</span>
-      </div>
-      <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded-md shadow-md">บันทึกการแก้ไข</button>
-      <button type="button" (click)="cancelEdit()" class="bg-gray-500 text-white px-6 py-2 rounded-md shadow-md ml-2">ยกเลิก</button>
-    </form>
+<!-- Popup ฟอร์มแก้ไขเซียนบอล -->
+<div *ngIf="showEditPopup && selectedExpert" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"style="backdrop-filter: blur(2px);">
+    <div class="bg-white p-8 rounded-lg shadow-md max-w-2xl w-full" >
+      <h2 class="text-2xl font-bold mb-4 text-center">แก้ไขข้อมูลเซียนบอล</h2>
+      <form (ngSubmit)="updateExpert()" class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">ชื่อเซียนบอล</label>
+          <input *ngIf="selectedExpert" [(ngModel)]="selectedExpert.name" name="editName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ชื่อเซียนบอล" required />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">เลือกรูปเซียนบอลใหม่ (ถ้ามี)</label>
+          <input type="file" (change)="onFileSelected($event, 'edit')" class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3" />
+          <span *ngIf="imageFileName" class="text-gray-600 mt-2 block">{{ imageFileName }}</span>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md shadow-md">บันทึกการแก้ไข</button>
+          <button type="button" (click)="closeEditPopup()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md shadow-md">ยกเลิก</button>
+        </div>
+      </form>
+    </div>
   </div>
   
+  
+  
+  <!-- ตารางแสดงข้อมูลเซียนบอล -->
   <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
     <h2 class="text-2xl font-bold mb-4">ข้อมูลเซียนบอล</h2>
     <div class="overflow-x-auto">
@@ -53,19 +61,14 @@
                         <span *ngIf="!expert.image_url" class="text-gray-500 italic">ไม่มี</span>
                     </td>
                     <td class="py-3 px-5 border-b border-gray-300 text-center">
-                        <button (click)="editExpert(expert)" class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-4 rounded-md shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-500">
-                            แก้ไข
-                        </button>
+                        <button (click)="editExpert(expert)" class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-4 rounded-md shadow-md">แก้ไข</button>
                     </td>
                     <td class="py-3 px-5 border-b border-gray-300 text-center">
-                        <button (click)="deleteExpert(expert.id)" class="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded-md shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500">
-                            ลบ
-                        </button>
+                        <button (click)="deleteExpert(expert.id)" class="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded-md shadow-md">ลบ</button>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
-</div>
-
+  </div>
   
