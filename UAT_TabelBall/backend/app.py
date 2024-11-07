@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,url_for
 from flask_cors import CORS
 from config import get_db_connection
 from models.league import get_all_leagues, get_league_by_id, create_league, update_league, delete_league
 from models.teams import create_team, update_team, delete_team, get_all_teams, get_team_by_id
 from models.experts import get_all_experts, get_expert_by_id, create_expert, update_expert, delete_expert
+from models.community_expert import get_all_experts, add_expert, update_expert, delete_expert
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from bcrypt import hashpw, gensalt
@@ -341,6 +342,45 @@ def delete_expert_api(expert_id):
     delete_expert(expert_id)  # ลบข้อมูลเซียนบอลจากฐานข้อมูล
     return jsonify({'message': 'Expert deleted successfully'}), 200  # ตอบกลับเมื่อสำเร็จ
 
+# เส้นทางสำหรับการดึงข้อมูลเซียนทั้งหมด
+@app.route('/api/community_expert', methods=['GET'])
+def api_get_all_experts():
+    experts = get_all_experts()
+    return jsonify(experts), 200
+
+# เส้นทางสำหรับการเพิ่มข้อมูลเซียนใหม่
+@app.route('/api/community_expert', methods=['POST'])
+def api_add_expert():
+    try:
+        data = request.form
+        file = request.files.get('image')
+        print("Data received:", data)  # พิมพ์ข้อมูลที่ได้รับเพื่อตรวจสอบ
+        print("File received:", file)  # พิมพ์ข้อมูลไฟล์ที่ได้รับ
+        response = add_expert(data, file)
+        return jsonify(response), 201
+    except Exception as e:
+        print("Error in api_add_expert:", e)
+        return jsonify({"error": str(e)}), 500
+
+# เส้นทางสำหรับการอัปเดตข้อมูลเซียน
+@app.route('/api/community_expert/<int:expert_id>', methods=['PUT'])
+def api_update_expert(expert_id):
+    try:
+        data = request.form
+        file = request.files.get('image')
+        response = update_expert(expert_id, data, file)
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# เส้นทางสำหรับการลบข้อมูลเซียน
+@app.route('/api/community_expert/<int:expert_id>', methods=['DELETE'])
+def api_delete_expert(expert_id):
+    try:
+        response = delete_expert(expert_id)
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

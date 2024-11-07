@@ -1,272 +1,225 @@
-<html lang="en">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>
-   Form and Table
-  </title>
-  <script src="https://cdn.tailwindcss.com">
-  </script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
- </head>
- <body class="bg-gray-100 p-6">
-  <div class="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-md">
-   <h1 class="text-2xl font-bold mb-4">
-    เพิ่มเซียนบอลทางบ้าน
-   </h1>
-   <form class="space-y-4">
-    <div>
-     <label class="block text-sm font-medium text-gray-700">
-      ชื่อเซียนบอล:
-     </label>
-     <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ชื่อเซียนบอลทางบ้าน" type="text"/>
-    </div>
-    <div class="grid grid-cols-6 gap-4">
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       ครั้งที่ 1
-      </label>
-      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
-     </div>
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       ครั้งที่ 2
-      </label>
-      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
-     </div>
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       ครั้งที่ 3
-      </label>
-      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
-     </div>
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       ครั้งที่ 4
-      </label>
-      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
-     </div>
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       ครั้งที่ 5
-      </label>
-      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
-     </div>
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       ครั้งที่ 6
-      </label>
-      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
-     </div>
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       ครั้งที่ 7
-      </label>
-      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
-     </div>
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       ครั้งที่ 8
-      </label>
-      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
-     </div>
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       ครั้งที่ 9
-      </label>
-      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
-     </div>
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       ครั้งที่ 10
-      </label>
-      <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="ไม่ทราบ" type="text"/>
-     </div>
-    </div>
-    <div>
-     <label class="block text-sm font-medium text-gray-700">
-      สถิติ (%):
-     </label>
-     <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="0" type="text"/>
-    </div>
-    <div>
-     <label class="block text-sm font-medium text-gray-700">
-      ข้อความ:
-     </label>
-     <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="เช่น อิตาลี ซีเรียอา | อินเตอร์ มิลาน vs เจนัว" type="text"/>
-    </div>
-    <div>
-     <label class="block text-sm font-medium text-gray-700">
-      ข้อความต่อ/รอง:
-     </label>
-     <input class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="เช่น ต่อ อินเตอร์ มิลาน" type="text"/>
-    </div>
-    <div class="flex items-center space-x-4">
-     <button class="bg-blue-500 text-white px-4 py-2 rounded-md" type="button">
-      เลือกไฟล์
-     </button>
-     <span>
-      ไม่ได้เลือกไฟล์ใด
-     </span>
-    </div>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-md" type="submit">
-     บันทึก
-    </button>
-   </form>
-   <div class="mt-6">
-    <table class="min-w-full bg-white border border-gray-300">
-     <thead>
-      <tr>
-       <th class="border border-gray-300 px-4 py-2">
-        ชื่อ
-       </th>
-       <th class="border border-gray-300 px-4 py-2">
-        รูป
-       </th>
-       <th class="border border-gray-300 px-4 py-2">
-        สถิติ
-       </th>
-       <th class="border border-gray-300 px-4 py-2">
-        สถิติ (%)
-       </th>
-       <th class="border border-gray-300 px-4 py-2">
-        ข้อความ
-       </th>
-       <th class="border border-gray-300 px-4 py-2">
-        ข้อความต่อ/รอง
-       </th>
-       <th class="border border-gray-300 px-4 py-2">
-        แก้ไข/ลบ
-       </th>
-      </tr>
-     </thead>
-     <tbody>
-      <tr>
-       <td class="border border-gray-300 px-4 py-2">
-        ทัตธน ปภินวิทย์
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        <img alt="Image of a person in a blue outfit with a soccer ball" height="50" src="https://storage.googleapis.com/a1aa/image/6IZWoxsEG47wCBj375PbhR4DdZR8aAUNb3bVf1r6GbzCLUzJA.jpg" width="50"/>
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        <div class="flex space-x-1">
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-times-circle text-red-500">
-         </i>
-         <i class="fas fa-times-circle text-red-500">
-         </i>
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
+    <h1 class="text-3xl font-semibold text-center mb-8">เพิ่มเซียนบอลทางบ้าน</h1>
+  
+    <!-- Form Section for Adding Expert -->
+    <form [formGroup]="expertForm" (ngSubmit)="addExpert()" class="space-y-8">
+      <!-- Expert Name -->
+      <div class="flex items-center space-x-4">
+        <label class="text-lg font-medium w-1/4">ชื่อเซียนบอล:</label>
+        <input
+          type="text"
+          formControlName="expert_name"
+          class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+          placeholder="เช่น อินเตอร์ มิลาน"
+        />
+      </div>
+  
+      <!-- Round Selection Section -->
+      <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+        <h2 class="text-xl font-medium mb-6 text-gray-700">ผลการทำนายแต่ละครั้ง</h2>
+        <div class="grid grid-cols-5 gap-6">
+          <div *ngFor="let round of getRounds()" class="col-span-1">
+            <label class="block text-sm font-medium text-gray-700 mb-2">ครั้งที่ {{ round }}</label>
+            <select
+              class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+              formControlName="round{{ round }}"
+            >
+              <option value="ไม่ทราบผล">ไม่ทราบผล</option>
+              <option value="ถูก">ถูก</option>
+              <option value="ผิด">ผิด</option>
+            </select>
+          </div>
         </div>
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        74
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        ยูฟ่า เนชั่นส์ ลีก หนุ่มเกาะแฟโร vs ลัตเวีย
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        รอง ลัตเวีย
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        <button class="bg-yellow-500 text-white px-2 py-1 rounded-md">
-         แก้ไข
-        </button>
-        <button class="bg-red-500 text-white px-2 py-1 rounded-md">
-         ลบ
-        </button>
-       </td>
-      </tr>
-      <tr>
-       <td class="border border-gray-300 px-4 py-2">
-        เขมินทร์ ครองขวัญ
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        <img alt="Image of a person in a red and white outfit with a soccer ball" height="50" src="https://storage.googleapis.com/a1aa/image/yfhYcsVNgv3mcSwZ2kedmT59zFydln68g4Kyepj8Z6GNsQNnA.jpg" width="50"/>
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        <div class="flex space-x-1">
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-times-circle text-red-500">
-         </i>
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-times-circle text-red-500">
-         </i>
-         <i class="fas fa-times-circle text-red-500">
-         </i>
+      </div>
+  
+      <!-- Statistic Input Section -->
+      <div class="flex items-center space-x-4">
+        <label class="text-lg font-medium w-1/4">สถิติ (%):</label>
+        <input
+          type="number"
+          formControlName="stat_percentage"
+          class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+          placeholder="0 - 100"
+        />
+      </div>
+  
+      <!-- Match Detail and Betting Tip -->
+      <div class="flex flex-col space-y-4">
+        <div class="flex items-center space-x-4">
+          <label class="text-lg font-medium w-1/4">ข้อความ:</label>
+          <input
+            type="text"
+            formControlName="match_detail"
+            class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+            placeholder="เช่น อิตาลี ซีเรียอา | อินเตอร์ มิลาน vs เจนัว"
+          />
         </div>
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        64
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        ยูฟ่า เนชั่นส์ ลีก กาซัคสถาน vs สโลวีเนีย
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        ต่อ สโลวีเนีย
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        <button class="bg-yellow-500 text-white px-2 py-1 rounded-md">
-         แก้ไข
-        </button>
-        <button class="bg-red-500 text-white px-2 py-1 rounded-md">
-         ลบ
-        </button>
-       </td>
-      </tr>
-      <tr>
-       <td class="border border-gray-300 px-4 py-2">
-        กษมน เกริกวิทย์
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        <img alt="Image of a person in a green outfit with a soccer ball" height="50" src="https://storage.googleapis.com/a1aa/image/INUcfm3geElQBkPzOsL2WnjfS0IYI4lorRz1fxNetJrdwC1cC.jpg" width="50"/>
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        <div class="flex space-x-1">
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-check-circle text-green-500">
-         </i>
-         <i class="fas fa-times-circle text-red-500">
-         </i>
+        <div class="flex items-center space-x-4">
+          <label class="text-lg font-medium w-1/4">ข้อความต่อ/รอง:</label>
+          <input
+            type="text"
+            formControlName="betting_tip"
+            class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+            placeholder="เช่น ต่อ อินเตอร์ มิลาน"
+          />
         </div>
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        87
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        ลาลีก้า สเปน 2 เรอัล โอเบียโด้ vs อัลเมเรีย
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        รอง อัลเมเรีย
-       </td>
-       <td class="border border-gray-300 px-4 py-2">
-        <button class="bg-yellow-500 text-white px-2 py-1 rounded-md">
-         แก้ไข
+      </div>
+  
+      <!-- File Upload Section -->
+      <div class="flex items-center space-x-4">
+        <label class="text-lg font-medium w-1/4">เลือกรูปเซียนบอล:</label>
+        <input
+          type="file"
+          (change)="onFileSelected($event, expertForm)"
+          class="w-full border border-gray-300 rounded-lg py-2 px-3 shadow-sm focus:outline-none focus:border-blue-400"
+        />
+        <span *ngIf="imageFileName" class="text-gray-500 ml-4">{{ imageFileName }}</span>
+      </div>
+  
+      <!-- Submit Button -->
+      <div class="text-center">
+        <button
+          type="submit"
+          class="bg-blue-600 text-white text-lg px-8 py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        >
+          เพิ่มข้อมูล
         </button>
-        <button class="bg-red-500 text-white px-2 py-1 rounded-md">
-         ลบ
-        </button>
-       </td>
-      </tr>
-     </tbody>
-    </table>
-   </div>
+      </div>
+    </form>
   </div>
- </body>
-</html>
+  
+  <!-- Table Section -->
+  <div class="max-w-6xl mx-auto mt-12 bg-white p-8 rounded-lg shadow-lg">
+    <h2 class="text-2xl font-semibold text-center mb-6">รายชื่อเซียนบอลที่เพิ่มแล้ว</h2>
+    <table class="min-w-full bg-white border border-gray-300 text-sm rounded-lg">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border px-6 py-3 text-left font-medium text-gray-600">ชื่อ</th>
+          <th class="border px-6 py-3 text-left font-medium text-gray-600">รูป</th>
+          <th class="border px-6 py-3 text-left font-medium text-gray-600">สถิติ</th>
+          <th class="border px-6 py-3 text-left font-medium text-gray-600">สถิติ (%)</th>
+          <th class="border px-6 py-3 text-left font-medium text-gray-600">ข้อความ</th>
+          <th class="border px-6 py-3 text-left font-medium text-gray-600">ข้อความต่อ/รอง</th>
+          <th class="border px-6 py-3 text-left font-medium text-gray-600">แก้ไข/ลบ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pick of experts" class="hover:bg-gray-50">
+          <td class="border px-6 py-4">{{ pick.name }}</td>
+          <td class="border px-6 py-4">
+            <img [src]="'http://127.0.0.1:5000/' + pick.image_url" alt="Expert Image" class="w-16 h-16 object-cover rounded-lg" />
+          </td>
+          <td class="border px-6 py-4">{{ pick.statistic }}</td>
+          <td class="border px-6 py-4">{{ pick.stat_percentage }}</td>
+          <td class="border px-6 py-4">{{ pick.match_detail }}</td>
+          <td class="border px-6 py-4">{{ pick.betting_tip }}</td>
+          <td class="border px-6 py-4 flex space-x-2">
+            <button
+              (click)="openEditModal(pick)"
+              class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600"
+            >
+              แก้ไข
+            </button>
+            <button
+              (click)="deleteExpert(pick.id)"
+              class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+            >
+              ลบ
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Edit Popup Modal -->
+<!-- Edit Popup Modal -->
+<div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="backdrop-filter: blur(2px);">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-3xl w-full"> <!-- ปรับเป็น max-w-3xl เพื่อเพิ่มความกว้าง -->
+      <h2 class="text-xl font-semibold mb-4">แก้ไขข้อมูล</h2>
+      <form [formGroup]="editForm" (ngSubmit)="updateExpert()">
+        
+        <!-- Expert Name -->
+        <div class="flex items-center space-x-4">
+          <label class="text-lg font-medium w-1/4">ชื่อเซียนบอล:</label>
+          <input
+            type="text"
+            formControlName="expert_name"
+            class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+            placeholder="เช่น อินเตอร์ มิลาน"
+          />
+        </div>
+  
+        <!-- Round Selection Section -->
+        <div class="bg-gray-50 p-6 rounded-lg shadow-inner mt-4">
+          <h2 class="text-xl font-medium mb-6 text-gray-700">ผลการทำนายแต่ละครั้ง</h2>
+          <div class="grid grid-cols-5 gap-6">
+            <div *ngFor="let round of getRounds()" class="col-span-1">
+              <label class="block text-sm font-medium text-gray-700 mb-2">ครั้งที่ {{ round }}</label>
+              <select
+                class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+                formControlName="round{{ round }}"
+              >
+                <option value="ไม่ทราบผล">ไม่ทราบผล</option>
+                <option value="ถูก">ถูก</option>
+                <option value="ผิด">ผิด</option>
+              </select>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Statistic Input Section -->
+        <div class="flex items-center space-x-4 mt-4">
+          <label class="text-lg font-medium w-1/4">สถิติ (%):</label>
+          <input
+            type="number"
+            formControlName="stat_percentage"
+            class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+            placeholder="0 - 100"
+          />
+        </div>
+  
+        <!-- Match Detail and Betting Tip -->
+        <div class="flex flex-col space-y-4 mt-4">
+          <div class="flex items-center space-x-4">
+            <label class="text-lg font-medium w-1/4">ข้อความ:</label>
+            <input
+              type="text"
+              formControlName="match_detail"
+              class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+              placeholder="เช่น อิตาลี ซีเรียอา | อินเตอร์ มิลาน vs เจนัว"
+            />
+          </div>
+          <div class="flex items-center space-x-4">
+            <label class="text-lg font-medium w-1/4">ข้อความต่อ/รอง:</label>
+            <input
+              type="text"
+              formControlName="betting_tip"
+              class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+              placeholder="เช่น ต่อ อินเตอร์ มิลาน"
+            />
+          </div>
+        </div>
+  
+        <!-- File Upload Section -->
+        <div class="flex items-center space-x-4 mt-4">
+          <label class="text-lg font-medium w-1/4">เลือกรูปเซียนบอล:</label>
+          <input
+            type="file"
+            (change)="onFileSelected($event, editForm)"
+            class="w-full border border-gray-300 rounded-lg py-2 px-3 shadow-sm focus:outline-none focus:border-blue-400"
+          />
+          <span *ngIf="imageFileName" class="text-gray-500 ml-4">{{ imageFileName }}</span>
+        </div>
+  
+        <!-- Submit and Cancel Buttons -->
+        <div class="flex justify-end mt-4">
+          <button (click)="closeEditModal()" type="button" class="bg-gray-500 text-white px-4 py-2 rounded-md mr-2">
+            ยกเลิก
+          </button>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">บันทึกการแก้ไข</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
