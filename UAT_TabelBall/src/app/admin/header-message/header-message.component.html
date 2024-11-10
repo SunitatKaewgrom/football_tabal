@@ -8,18 +8,26 @@
       {{ exampleLinkUrl }}
     </a>
     <div class="flex justify-center">
+      <!-- แสดงรูปภาพถ้ามี -->
       <img *ngIf="exampleImageUrl" [src]="exampleImageUrl" alt="Example Image" 
            class="w-56 h-56 object-cover rounded-lg shadow-lg border border-gray-200" />
+      <!-- แสดงข้อความหากไม่มีรูปภาพ -->
+      <div *ngIf="!exampleImageUrl">
+        <p class="text-gray-500">ไม่มีรูปภาพ</p>
+      </div>
     </div>
-</div>
+  </div>
 
-
+  <!-- ฟอร์มสำหรับการอัปเดตข้อมูล -->
   <form enctype="multipart/form-data" (submit)="onSubmit()" class="space-y-6">
-    <input type="text" [(ngModel)]="description" name="description" placeholder="เพิ่มข้อความ..." class="w-full p-3 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none" />
-    <input type="text" [(ngModel)]="linkUrl" name="link_url" placeholder="ลิงก์ URL" class="w-full p-3 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none" />
+    <input type="text" [(ngModel)]="description" name="description" placeholder="เพิ่มข้อความ..." 
+           class="w-full p-3 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none" />
+    <input type="text" [(ngModel)]="linkUrl" name="link_url" placeholder="ลิงก์ URL" 
+           class="w-full p-3 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none" />
     <div>
       <label class="block mb-2 text-gray-700 font-medium">เลือก รูปภาพ:</label>
-      <input type="file" (change)="onFileSelected($event)" name="image" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <input type="file" (change)="onFileSelected($event)" name="image" 
+             class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
     </div>
     <button type="submit" class="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-3 rounded-lg w-full transition duration-200">บันทึก</button>
   </form>

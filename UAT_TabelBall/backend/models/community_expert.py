@@ -9,7 +9,7 @@ UPLOAD_FOLDER = 'static/uploads/img_community_expert'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-def get_all_experts():
+def get_all_community_expert():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM community_expert")
@@ -17,9 +17,8 @@ def get_all_experts():
     conn.close()
     return experts
 
-def add_expert(data, file):
+def add_community_expert(data, file):
     try:
-        # ตรวจสอบค่า name ทั้ง `name` และ `expert_name`
         name = data.get('name', '').strip() or data.get('expert_name', '').strip()
         stat_percentage = data.get('stat_percentage', 0)
         match_detail = data.get('match_detail', '').strip()
@@ -64,20 +63,16 @@ def add_expert(data, file):
         raise e
 
 
-
-def update_expert(expert_id, data, file):
+def update_community_expert(expert_id, data, file):
     try:
-        # รับค่า `expert_name` และตั้งค่าเป็น `name` ให้ตรงกับฟิลด์ในฐานข้อมูล
         name = data.get('expert_name', '').strip()
         stat_percentage = data.get('stat_percentage', 0)
         match_detail = data.get('match_detail', '').strip()
         betting_tip = data.get('betting_tip', '').strip()
 
-        # แปลง pick_rounds เป็น JSON string
         pick_rounds = {f'round{i}': data.get(f'round{i}', 'ไม่ทราบ') for i in range(1, 11)}
         pick_rounds_json = json.dumps(pick_rounds)
 
-        # จัดการการอัปโหลดรูปภาพ
         image_url = data.get('existing_image_url')  # ใช้ URL รูปภาพเดิมถ้าไม่มีการอัปโหลดใหม่
         if file and file.filename != '':
             filename = secure_filename(file.filename)
@@ -85,7 +80,6 @@ def update_expert(expert_id, data, file):
             file.save(file_path)
             image_url = os.path.join(UPLOAD_FOLDER, filename)
 
-        # เชื่อมต่อกับฐานข้อมูลและอัปเดตข้อมูล
         conn = get_db_connection()
         cursor = conn.cursor()
         sql = """
@@ -110,7 +104,8 @@ def update_expert(expert_id, data, file):
         print("Database update error:", e)
         raise e
 
-def delete_expert(expert_id):
+
+def delete_community_expert(expert_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()

@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify,url_for
 from flask_cors import CORS
 from config import get_db_connection
+from models.header_message import get_header_message, update_header_message
 from models.league import get_all_leagues, get_league_by_id, create_league, update_league, delete_league
-from models.teams import create_team, update_team, delete_team, get_all_teams, get_team_by_id
+from models.teams import get_all_teams, create_team, update_team, delete_team
 from models.experts import get_all_experts, get_expert_by_id, create_expert, update_expert, delete_expert
-from models.community_expert import get_all_experts, add_expert, update_expert, delete_expert
+from models.community_expert import get_all_community_expert, add_community_expert, update_community_expert, delete_community_expert
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from bcrypt import hashpw, gensalt
@@ -87,78 +88,14 @@ def login():
         cursor.close()
         connection.close()
 
-
-UPLOAD_FOLDER = 'static/uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-# ตรวจสอบให้แน่ใจว่าโฟลเดอร์อัปโหลดมีอยู่
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-
+# เส้นทางสำหรับดึงและอัปเดต header message
 @app.route('/api/header-message', methods=['GET', 'POST'])
 def header_message():
     if request.method == 'GET':
-        # ดึงข้อมูลจากฐานข้อมูลเพื่อแสดงในหน้าเว็บ
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT description, link_url, image_url, updated_at FROM header_messages LIMIT 1")
-        data = cursor.fetchone()
-        conn.close()
-        
-        # ตรวจสอบว่ามีข้อมูลอยู่ในฐานข้อมูลหรือไม่
-        if data:
-            return jsonify(data), 200
-        else:
-            return jsonify({'message': 'No record found'}), 404
+        return get_header_message()
 
     elif request.method == 'POST':
-        # รับข้อมูลจากฟอร์ม
-        description = request.form.get('description')
-        link_url = request.form.get('link_url')
-        image = request.files.get('image')
-        
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # ตรวจสอบว่ามีข้อมูลเดิมอยู่แล้วหรือไม่
-        cursor.execute("SELECT id, image_url FROM header_messages LIMIT 1")
-        record = cursor.fetchone()
-
-        if record:
-            # อัปเดตข้อมูลข้อความและลิงก์
-            cursor.execute("""
-                UPDATE header_messages 
-                SET description=%s, link_url=%s, updated_at=NOW() 
-                WHERE id=%s
-            """, (description, link_url, record[0]))
-
-            # จัดการอัปเดตรูปภาพใหม่ถ้ามีการอัปโหลด
-            if image:
-                if record[1]:
-                    old_image_path = os.path.join(UPLOAD_FOLDER, record[1])
-                    if os.path.exists(old_image_path):
-                        os.remove(old_image_path)  # ลบรูปภาพเก่าที่มีอยู่
-
-                # บันทึกรูปภาพใหม่และอัปเดตในฐานข้อมูล
-                image_filename = f"{datetime.now().strftime('%Y-%m-%d_%H.%M.%S')}_{image.filename}"
-                image.save(os.path.join(UPLOAD_FOLDER, image_filename))
-                cursor.execute("UPDATE header_messages SET image_url=%s WHERE id=%s", (image_filename, record[0]))
-
-        else:
-            # เพิ่มข้อมูลใหม่เมื่อไม่มีข้อมูลเดิม
-            image_filename = None
-            if image:
-                image_filename = f"{datetime.now().strftime('%Y-%m-%d_%H.%M.%S')}_{image.filename}"
-                image.save(os.path.join(UPLOAD_FOLDER, image_filename))
-
-            cursor.execute("""
-                INSERT INTO header_messages (description, link_url, image_url, updated_at) 
-                VALUES (%s, %s, %s, NOW())
-            """, (description, link_url, image_filename))
-        
-        conn.commit()
-        conn.close()
-        return jsonify({'message': 'Record updated successfully.'}), 200
+        return update_header_message()
 
 
 @app.route('/api/leagues', methods=['POST'])
@@ -206,26 +143,12 @@ def delete_league_route(league_id):
         return jsonify({"message": "League deleted"}), 200
     return jsonify({"error": "League not found"}), 404
 
-# เส้นทางสำหรับบันทึกรูปภาพของทีม
-UPLOAD_FOLDER = 'static/uploads/img_team'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-# เปลี่ยนชื่อ endpoint เพื่อป้องกันการซ้ำซ้อน
+# Endpoint สำหรับดึงข้อมูลทีมทั้งหมด
 @app.route('/api/teams', methods=['GET'])
 def fetch_all_teams():
     try:
-        teams = get_all_teams()
+        teams = get_all_teams()  # เรียกฟังก์ชันจาก teams.py
         return jsonify(teams), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-# เปลี่ยนชื่อ endpoint เพื่อป้องกันการซ้ำซ้อน
-@app.route('/api/leagues', methods=['GET'])
-def fetch_all_leagues():
-    try:
-        leagues = get_all_leagues()
-        return jsonify(leagues), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -235,19 +158,12 @@ def create_team_api():
     try:
         name = request.form.get('name')
         league_id = request.form.get('leagueId')
-        logo_file = request.files.get('logoFile')
+        logo_file = request.files.get('logoFile')  # ไฟล์ที่อัปโหลดมาจากฟอร์ม
 
         if not name or not league_id:
             return jsonify({'error': 'กรุณาระบุชื่อทีมและลีก'}), 400
 
-        logo_url = None
-        if logo_file:
-            filename = secure_filename(logo_file.filename)
-            logo_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            logo_file.save(logo_path)
-            logo_url = logo_path
-
-        create_team(name, league_id, logo_url)
+        create_team(name, league_id, logo_file)  # ส่งข้อมูลไปให้ teams.py
         return jsonify({'message': 'เพิ่มทีมสำเร็จ'}), 201
     except Exception as e:
         return jsonify({'error': 'เกิดข้อผิดพลาดในการเพิ่มทีม', 'details': str(e)}), 500
@@ -260,14 +176,7 @@ def update_team_api(team_id):
         league_id = request.form.get('leagueId')
         logo_file = request.files.get('logoFile')
 
-        logo_url = None
-        if logo_file:
-            filename = secure_filename(logo_file.filename)
-            logo_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            logo_file.save(logo_path)
-            logo_url = logo_path
-
-        update_team(team_id, name, league_id, logo_url)
+        update_team(team_id, name, league_id, logo_file)  # ส่งข้อมูลไปให้ teams.py
         return jsonify({'message': 'อัปเดตข้อมูลทีมสำเร็จ'}), 200
     except Exception as e:
         return jsonify({'error': 'เกิดข้อผิดพลาดในการอัปเดตทีม', 'details': str(e)}), 500
@@ -276,31 +185,22 @@ def update_team_api(team_id):
 @app.route('/api/teams/<int:team_id>', methods=['DELETE'])
 def delete_team_api(team_id):
     try:
-        delete_team(team_id)
+        delete_team(team_id)  # ส่งข้อมูลไปให้ teams.py
         return jsonify({'message': 'ลบทีมสำเร็จ'}), 200
     except Exception as e:
         return jsonify({'error': 'เกิดข้อผิดพลาดในการลบทีม', 'details': str(e)}), 500
-    
-
-# กำหนดโฟลเดอร์สำหรับเก็บรูปภาพที่อัปโหลด
-UPLOAD_FOLDER = 'static/uploads/img_experts'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-# ตรวจสอบและสร้างโฟลเดอร์หากยังไม่มี
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
 
 # Endpoint สำหรับดึงข้อมูลเซียนบอลทั้งหมด
 @app.route('/api/experts', methods=['GET'])
 def get_experts():
-    experts = get_all_experts()  # ดึงข้อมูลเซียนบอลทั้งหมดจากฐานข้อมูล
+    experts = get_all_experts()  # เรียกใช้ฟังก์ชันจาก experts.py
     return jsonify(experts), 200  # ส่งข้อมูลในรูปแบบ JSON
 
 # Endpoint สำหรับดึงข้อมูลเซียนบอลตาม ID
 @app.route('/api/experts/<int:expert_id>', methods=['GET'])
 def get_expert(expert_id):
-    expert = get_expert_by_id(expert_id)  # ดึงข้อมูลเซียนบอลตาม ID ที่ระบุ
-    return jsonify(expert) if expert else ('Expert not found', 404)  # ส่งข้อมูล JSON หรือแจ้งเตือนหากไม่พบ
+    expert = get_expert_by_id(expert_id)  # เรียกใช้ฟังก์ชันจาก experts.py
+    return jsonify(expert) if expert else ('Expert not found', 404)
 
 # Endpoint สำหรับเพิ่มเซียนบอลใหม่
 @app.route('/api/experts', methods=['POST'])
@@ -308,53 +208,64 @@ def create_expert_api():
     name = request.form.get('name')  # รับข้อมูลชื่อจากฟอร์ม
     file = request.files.get('file')  # รับไฟล์รูปจากฟอร์ม
 
+    # เรียกใช้ฟังก์ชันจาก experts.py เพื่อเพิ่มข้อมูลเซียนบอลใหม่
     if file:
-        # จัดการกับไฟล์รูปภาพ
-        filename = secure_filename(file.filename)  # ป้องกันชื่อไฟล์ไม่ปลอดภัย
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))  # บันทึกไฟล์ในโฟลเดอร์ที่กำหนด
-        image_url = f"{UPLOAD_FOLDER}/{filename}"  # เก็บ URL ของรูปภาพ
+        image_url = save_image(file)  # ฟังก์ชันการจัดการไฟล์รูปภาพ (ย้ายไป experts.py)
     else:
         image_url = None
 
-    create_expert(name, image_url)  # เพิ่มข้อมูลเซียนบอลในฐานข้อมูล
+    create_expert(name, image_url)  # เรียกใช้ฟังก์ชันจาก experts.py เพื่อเพิ่มข้อมูล
     return jsonify({'message': 'Expert created successfully'}), 201  # ตอบกลับเมื่อสำเร็จ
 
-# Endpoint สำหรับแก้ไขข้อมูลเซียนบอล
+# Endpoint สำหรับอัปเดตข้อมูลเซียนบอล
 @app.route('/api/experts/<int:expert_id>', methods=['PUT'])
 def update_expert_api(expert_id):
     name = request.form.get('name')  # รับชื่อจากฟอร์ม
     file = request.files.get('file')  # รับไฟล์รูปจากฟอร์ม
 
+    # เรียกใช้ฟังก์ชันจาก experts.py เพื่ออัปเดตข้อมูล
     if file:
-        # จัดการกับไฟล์รูปภาพ
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        image_url = f"{UPLOAD_FOLDER}/{filename}"  # อัปเดต URL ของรูปภาพใหม่
+        image_url = save_image(file)  # ฟังก์ชันการจัดการไฟล์รูปภาพ (ย้ายไป experts.py)
     else:
         image_url = None
 
-    update_expert(expert_id, name, image_url)  # อัปเดตข้อมูลเซียนบอลในฐานข้อมูล
+    update_expert(expert_id, name, image_url)  # เรียกใช้ฟังก์ชันจาก experts.py เพื่ออัปเดตข้อมูล
     return jsonify({'message': 'Expert updated successfully'}), 200  # ตอบกลับเมื่อสำเร็จ
 
 # Endpoint สำหรับลบข้อมูลเซียนบอล
 @app.route('/api/experts/<int:expert_id>', methods=['DELETE'])
 def delete_expert_api(expert_id):
-    delete_expert(expert_id)  # ลบข้อมูลเซียนบอลจากฐานข้อมูล
+    delete_expert(expert_id)  # เรียกใช้ฟังก์ชันจาก experts.py เพื่อลบข้อมูล
     return jsonify({'message': 'Expert deleted successfully'}), 200  # ตอบกลับเมื่อสำเร็จ
 
-# เส้นทางสำหรับการดึงข้อมูลเซียนทั้งหมด
+def save_image(file):
+    """ฟังก์ชันช่วยในการจัดการไฟล์รูปภาพ"""
+    from werkzeug.utils import secure_filename
+    import os
+
+    UPLOAD_FOLDER = 'static/uploads/img_experts'
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(file_path)
+    return f"{UPLOAD_FOLDER}/{filename}"
+
+
+# เส้นทางสำหรับดึงข้อมูลเซียนทั้งหมด
 @app.route('/api/community_expert', methods=['GET'])
-def api_get_all_experts():
-    experts = get_all_experts()
+def api_get_all_community_expert():
+    experts = get_all_community_expert()
     return jsonify(experts)
 
 @app.route('/api/community_expert', methods=['POST'])
-def api_add_expert():
+def api_add_community_expert():
     try:
         data = request.form  # รับข้อมูลที่เป็นฟอร์ม
         file = request.files.get('image')  # รับไฟล์ที่แนบมา (รูปภาพ)
 
-        result = add_expert(data, file)  # เรียกใช้งาน add_expert ใน community_experts.py
+        result = add_community_expert(data, file)  # เรียกใช้งาน add_expert ใน community_experts.py
         return jsonify(result), 201
 
     except Exception as e:
@@ -364,20 +275,20 @@ def api_add_expert():
 
 # เส้นทางสำหรับการอัปเดตข้อมูลเซียน
 @app.route('/api/community_expert/<int:expert_id>', methods=['PUT'])
-def api_update_expert(expert_id):
+def api_update_community_expert(expert_id):
     try:
         data = request.form
         file = request.files.get('image')
-        response = update_expert(expert_id, data, file)
+        response = update_community_expert(expert_id, data, file)
         return jsonify(response), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 # เส้นทางสำหรับการลบข้อมูลเซียน
 @app.route('/api/community_expert/<int:expert_id>', methods=['DELETE'])
-def api_delete_expert(expert_id):
+def api_delete_community_expert(expert_id):
     try:
-        response = delete_expert(expert_id)
+        response = delete_community_expert(expert_id)
         return jsonify(response), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

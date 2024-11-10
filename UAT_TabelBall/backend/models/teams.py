@@ -1,7 +1,13 @@
 from config import get_db_connection
+import os
+from werkzeug.utils import secure_filename
 
-# ฟังก์ชันสำหรับดึงข้อมูลทีมทั้งหมด
+# ตั้งค่าโฟลเดอร์สำหรับการอัปโหลดไฟล์รูปภาพของทีม
+UPLOAD_FOLDER = 'static/uploads/img_team'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 def get_all_teams():
+    """ดึงข้อมูลทั้งหมดของทีมจากฐานข้อมูล"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -13,19 +19,18 @@ def get_all_teams():
     conn.close()
     return teams
 
-# ฟังก์ชันสำหรับดึงข้อมูลทีมตาม ID
-def get_team_by_id(team_id):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM teams WHERE id = %s", (team_id,))
-    team = cursor.fetchone()
-    conn.close()
-    return team
-
-# ฟังก์ชันสำหรับสร้างทีมใหม่
-def create_team(name, league_id, logo_url=None):
+def create_team(name, league_id, logo_file=None):
+    """เพิ่มข้อมูลทีมใหม่ลงในฐานข้อมูล"""
     conn = get_db_connection()
     cursor = conn.cursor()
+
+    logo_url = None
+    if logo_file:
+        filename = secure_filename(logo_file.filename)
+        logo_path = os.path.join(UPLOAD_FOLDER, filename)
+        logo_file.save(logo_path)
+        logo_url = f"{UPLOAD_FOLDER}/{filename}"
+
     cursor.execute("""
         INSERT INTO teams (name, league_id, logo_url)
         VALUES (%s, %s, %s)
@@ -33,11 +38,16 @@ def create_team(name, league_id, logo_url=None):
     conn.commit()
     conn.close()
 
-# ฟังก์ชันสำหรับอัปเดตข้อมูลทีม
-def update_team(team_id, name, league_id, logo_url=None):
+def update_team(team_id, name, league_id, logo_file=None):
+    """อัปเดตข้อมูลทีมที่มีอยู่"""
     conn = get_db_connection()
     cursor = conn.cursor()
-    if logo_url:
+
+    if logo_file:
+        filename = secure_filename(logo_file.filename)
+        logo_path = os.path.join(UPLOAD_FOLDER, filename)
+        logo_file.save(logo_path)
+        logo_url = f"{UPLOAD_FOLDER}/{filename}"
         cursor.execute("""
             UPDATE teams SET name = %s, league_id = %s, logo_url = %s WHERE id = %s
         """, (name, league_id, logo_url, team_id))
@@ -45,11 +55,12 @@ def update_team(team_id, name, league_id, logo_url=None):
         cursor.execute("""
             UPDATE teams SET name = %s, league_id = %s WHERE id = %s
         """, (name, league_id, team_id))
+
     conn.commit()
     conn.close()
 
-# ฟังก์ชันสำหรับลบทีมตาม ID
 def delete_team(team_id):
+    """ลบทีมจากฐานข้อมูล"""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM teams WHERE id = %s", (team_id,))

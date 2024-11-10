@@ -1,53 +1,55 @@
 from config import get_db_connection
+import os
+from werkzeug.utils import secure_filename
 
-# ฟังก์ชันสำหรับดึงข้อมูลเซียนบอลทั้งหมด
+# กำหนดโฟลเดอร์สำหรับเก็บรูปภาพที่อัปโหลด
+UPLOAD_FOLDER = 'static/uploads/img_experts'
+
+# ตรวจสอบและสร้างโฟลเดอร์หากยังไม่มี
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
 def get_all_experts():
-    conn = get_db_connection()  # เชื่อมต่อฐานข้อมูล
+    """ดึงข้อมูลเซียนบอลทั้งหมด"""
+    conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    # ดึงข้อมูล ID, ชื่อ และ URL ของรูปภาพจากตาราง experts
     cursor.execute("SELECT id, name, image_url FROM experts")
     experts = cursor.fetchall()
-    conn.close()  # ปิดการเชื่อมต่อฐานข้อมูล
-    return experts  # คืนค่ารายชื่อเซียนบอลทั้งหมด
+    conn.close()
+    return experts
 
-# ฟังก์ชันสำหรับดึงข้อมูลเซียนบอลตาม ID
 def get_expert_by_id(expert_id):
-    conn = get_db_connection()  # เชื่อมต่อฐานข้อมูล
+    """ดึงข้อมูลเซียนบอลตาม ID"""
+    conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    # ดึงข้อมูลเซียนบอลตาม ID ที่ระบุ
     cursor.execute("SELECT id, name, image_url FROM experts WHERE id = %s", (expert_id,))
     expert = cursor.fetchone()
-    conn.close()  # ปิดการเชื่อมต่อฐานข้อมูล
-    return expert  # คืนค่าข้อมูลเซียนบอลตาม ID ที่ระบุ
+    conn.close()
+    return expert
 
-# ฟังก์ชันสำหรับเพิ่มข้อมูลเซียนบอลใหม่
 def create_expert(name, image_url):
-    conn = get_db_connection()  # เชื่อมต่อฐานข้อมูล
+    """เพิ่มข้อมูลเซียนบอลใหม่"""
+    conn = get_db_connection()
     cursor = conn.cursor()
-    # เพิ่มข้อมูลเซียนบอลใหม่พร้อม URL ของรูปภาพ
     cursor.execute("INSERT INTO experts (name, image_url) VALUES (%s, %s)", (name, image_url))
-    conn.commit()  # ยืนยันการบันทึกข้อมูล
-    conn.close()  # ปิดการเชื่อมต่อฐานข้อมูล
+    conn.commit()
+    conn.close()
 
-# ฟังก์ชันสำหรับอัปเดตข้อมูลเซียนบอล
 def update_expert(expert_id, name, image_url=None):
-    conn = get_db_connection()  # เชื่อมต่อฐานข้อมูล
+    """อัปเดตข้อมูลเซียนบอล"""
+    conn = get_db_connection()
     cursor = conn.cursor()
-    # ตรวจสอบว่ามีการส่ง URL ของรูปภาพมาหรือไม่
     if image_url:
-        # อัปเดตชื่อและ URL ของรูปภาพ
         cursor.execute("UPDATE experts SET name = %s, image_url = %s WHERE id = %s", (name, image_url, expert_id))
     else:
-        # อัปเดตเฉพาะชื่อ
         cursor.execute("UPDATE experts SET name = %s WHERE id = %s", (name, expert_id))
-    conn.commit()  # ยืนยันการบันทึกข้อมูล
-    conn.close()  # ปิดการเชื่อมต่อฐานข้อมูล
+    conn.commit()
+    conn.close()
 
-# ฟังก์ชันสำหรับลบข้อมูลเซียนบอล
 def delete_expert(expert_id):
-    conn = get_db_connection()  # เชื่อมต่อฐานข้อมูล
+    """ลบข้อมูลเซียนบอล"""
+    conn = get_db_connection()
     cursor = conn.cursor()
-    # ลบข้อมูลเซียนบอลตาม ID ที่ระบุ
     cursor.execute("DELETE FROM experts WHERE id = %s", (expert_id,))
-    conn.commit()  # ยืนยันการลบข้อมูล
-    conn.close()  # ปิดการเชื่อมต่อฐานข้อมูล
+    conn.commit()
+    conn.close()
