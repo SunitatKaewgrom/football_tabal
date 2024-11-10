@@ -1,138 +1,126 @@
 <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
-    <h1 class="text-3xl font-semibold text-center mb-8">เพิ่มเซียนบอลทางบ้าน</h1>
-  
-    <!-- Form Section for Adding Expert -->
-    <form [formGroup]="expertForm" (ngSubmit)="addExpert()" class="space-y-8">
-      <!-- Expert Name -->
+  <h1 class="text-3xl font-semibold text-center mb-8">เพิ่มเซียนบอลทางบ้าน</h1>
+
+  <form [formGroup]="expertForm" (ngSubmit)="addExpert()" class="space-y-8">
+    <div class="flex items-center space-x-4">
+      <label class="text-lg font-medium w-1/4">ชื่อเซียนบอล:</label>
+      <input
+        type="text"
+        formControlName="expert_name"
+        class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+        placeholder="เช่น อินเตอร์ มิลาน"
+      />
+    </div>
+
+    <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+      <h2 class="text-xl font-medium mb-6 text-gray-700">ผลการทำนายแต่ละครั้ง</h2>
+      <div class="grid grid-cols-5 gap-6">
+        <div *ngFor="let round of getRounds()" class="col-span-1">
+          <label class="block text-sm font-medium text-gray-700 mb-2">ครั้งที่ {{ round }}</label>
+          <select
+            class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+            formControlName="round{{ round }}"
+          >
+            <option value="ไม่ทราบผล">ไม่ทราบผล</option>
+            <option value="ถูก">ถูก</option>
+            <option value="ผิด">ผิด</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center space-x-4">
+      <label class="text-lg font-medium w-1/4">สถิติ (%):</label>
+      <input
+        type="number"
+        formControlName="stat_percentage"
+        class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+        placeholder="0 - 100"
+      />
+    </div>
+
+    <div class="flex flex-col space-y-4">
       <div class="flex items-center space-x-4">
-        <label class="text-lg font-medium w-1/4">ชื่อเซียนบอล:</label>
+        <label class="text-lg font-medium w-1/4">ข้อความ:</label>
         <input
           type="text"
-          formControlName="expert_name"
+          formControlName="match_detail"
           class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
-          placeholder="เช่น อินเตอร์ มิลาน"
+          placeholder="เช่น อิตาลี ซีเรียอา | อินเตอร์ มิลาน vs เจนัว"
         />
       </div>
-  
-      <!-- Round Selection Section -->
-      <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
-        <h2 class="text-xl font-medium mb-6 text-gray-700">ผลการทำนายแต่ละครั้ง</h2>
-        <div class="grid grid-cols-5 gap-6">
-          <div *ngFor="let round of getRounds()" class="col-span-1">
-            <label class="block text-sm font-medium text-gray-700 mb-2">ครั้งที่ {{ round }}</label>
-            <select
-              class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
-              formControlName="round{{ round }}"
-            >
-              <option value="ไม่ทราบผล">ไม่ทราบผล</option>
-              <option value="ถูก">ถูก</option>
-              <option value="ผิด">ผิด</option>
-            </select>
+      <div class="flex items-center space-x-4">
+        <label class="text-lg font-medium w-1/4">ข้อความต่อ/รอง:</label>
+        <input
+          type="text"
+          formControlName="betting_tip"
+          class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
+          placeholder="เช่น ต่อ อินเตอร์ มิลาน"
+        />
+      </div>
+    </div>
+
+    <div class="flex items-center space-x-4">
+      <label class="text-lg font-medium w-1/4">เลือกรูปเซียนบอล:</label>
+      <input
+        type="file"
+        (change)="onFileSelected($event, expertForm)"
+        class="w-full border border-gray-300 rounded-lg py-2 px-3 shadow-sm focus:outline-none focus:border-blue-400"
+      />
+      <span *ngIf="imageFileName" class="text-gray-500 ml-4">{{ imageFileName }}</span>
+    </div>
+
+    <div class="text-center">
+      <button
+        type="submit"
+        class="bg-blue-600 text-white text-lg px-8 py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+      >
+        เพิ่มข้อมูล
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="max-w-6xl mx-auto mt-12 bg-white p-8 rounded-lg shadow-lg">
+  <h2 class="text-2xl font-semibold text-center mb-6">รายชื่อเซียนบอลที่เพิ่มแล้ว</h2>
+  <table class="min-w-full bg-white border border-gray-300 text-sm rounded-lg">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="border px-6 py-3 text-left font-medium text-gray-600">ชื่อ</th>
+        <th class="border px-6 py-3 text-left font-medium text-gray-600">รูป</th>
+        <th class="border px-6 py-3 text-left font-medium text-gray-600">สถิติ</th>
+        <th class="border px-6 py-3 text-left font-medium text-gray-600">สถิติ (%)</th>
+        <th class="border px-6 py-3 text-left font-medium text-gray-600">ข้อความ</th>
+        <th class="border px-6 py-3 text-left font-medium text-gray-600">ข้อความต่อ/รอง</th>
+        <th class="border px-6 py-3 text-left font-medium text-gray-600">แก้ไข/ลบ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let pick of experts" class="hover:bg-gray-50">
+        <td class="border px-6 py-4">{{ pick.name }}</td>
+        <td class="border px-6 py-4">
+          <img [src]="'http://127.0.0.1:5000/' + pick.image_url" alt="Expert Image" class="w-16 h-16 object-cover rounded-lg" />
+        </td>
+        <td class="border px-6 py-4">
+          <ng-container *ngFor="let round of getRounds()">
+            <img [src]="getIconForRound(getRoundResult(pick, round))" class="w-6 h-6 inline-block" />
+          </ng-container>
+        </td>
+        <td class="border px-6 py-4">{{ pick.stat_percentage }}</td>
+        <td class="border px-6 py-4">{{ pick.match_detail }}</td>
+        <td class="border px-6 py-4">{{ pick.betting_tip }}</td>
+        <td class="border px-6 py-4">
+          <div class="flex justify-center items-center space-x-2">
+            <button (click)="openEditModal(pick)" class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">แก้ไข</button>
+            <button (click)="deleteExpert(pick.id)" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">ลบ</button>
           </div>
-        </div>
-      </div>
-  
-      <!-- Statistic Input Section -->
-      <div class="flex items-center space-x-4">
-        <label class="text-lg font-medium w-1/4">สถิติ (%):</label>
-        <input
-          type="number"
-          formControlName="stat_percentage"
-          class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
-          placeholder="0 - 100"
-        />
-      </div>
-  
-      <!-- Match Detail and Betting Tip -->
-      <div class="flex flex-col space-y-4">
-        <div class="flex items-center space-x-4">
-          <label class="text-lg font-medium w-1/4">ข้อความ:</label>
-          <input
-            type="text"
-            formControlName="match_detail"
-            class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
-            placeholder="เช่น อิตาลี ซีเรียอา | อินเตอร์ มิลาน vs เจนัว"
-          />
-        </div>
-        <div class="flex items-center space-x-4">
-          <label class="text-lg font-medium w-1/4">ข้อความต่อ/รอง:</label>
-          <input
-            type="text"
-            formControlName="betting_tip"
-            class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:outline-none focus:border-blue-400"
-            placeholder="เช่น ต่อ อินเตอร์ มิลาน"
-          />
-        </div>
-      </div>
-  
-      <!-- File Upload Section -->
-      <div class="flex items-center space-x-4">
-        <label class="text-lg font-medium w-1/4">เลือกรูปเซียนบอล:</label>
-        <input
-          type="file"
-          (change)="onFileSelected($event, expertForm)"
-          class="w-full border border-gray-300 rounded-lg py-2 px-3 shadow-sm focus:outline-none focus:border-blue-400"
-        />
-        <span *ngIf="imageFileName" class="text-gray-500 ml-4">{{ imageFileName }}</span>
-      </div>
-  
-      <!-- Submit Button -->
-      <div class="text-center">
-        <button
-          type="submit"
-          class="bg-blue-600 text-white text-lg px-8 py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-        >
-          เพิ่มข้อมูล
-        </button>
-      </div>
-    </form>
-  </div>
-  
-  <!-- Table Section -->
-  <div class="max-w-6xl mx-auto mt-12 bg-white p-8 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-semibold text-center mb-6">รายชื่อเซียนบอลที่เพิ่มแล้ว</h2>
-    <table class="min-w-full bg-white border border-gray-300 text-sm rounded-lg">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="border px-6 py-3 text-left font-medium text-gray-600">ชื่อ</th>
-          <th class="border px-6 py-3 text-left font-medium text-gray-600">รูป</th>
-          <th class="border px-6 py-3 text-left font-medium text-gray-600">สถิติ</th>
-          <th class="border px-6 py-3 text-left font-medium text-gray-600">สถิติ (%)</th>
-          <th class="border px-6 py-3 text-left font-medium text-gray-600">ข้อความ</th>
-          <th class="border px-6 py-3 text-left font-medium text-gray-600">ข้อความต่อ/รอง</th>
-          <th class="border px-6 py-3 text-left font-medium text-gray-600">แก้ไข/ลบ</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let pick of experts" class="hover:bg-gray-50">
-          <td class="border px-6 py-4">{{ pick.name }}</td>
-          <td class="border px-6 py-4">
-            <img [src]="'http://127.0.0.1:5000/' + pick.image_url" alt="Expert Image" class="w-16 h-16 object-cover rounded-lg" />
-          </td>
-          <td class="border px-6 py-4">{{ pick.statistic }}</td>
-          <td class="border px-6 py-4">{{ pick.stat_percentage }}</td>
-          <td class="border px-6 py-4">{{ pick.match_detail }}</td>
-          <td class="border px-6 py-4">{{ pick.betting_tip }}</td>
-          <td class="border px-6 py-4 flex space-x-2">
-            <button
-              (click)="openEditModal(pick)"
-              class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600"
-            >
-              แก้ไข
-            </button>
-            <button
-              (click)="deleteExpert(pick.id)"
-              class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
-            >
-              ลบ
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-  <!-- Edit Popup Modal -->
+        </td>
+        
+        
+      </tr>
+    </tbody>
+  </table>
+</div>
 <!-- Edit Popup Modal -->
 <div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="backdrop-filter: blur(2px);">
     <div class="bg-white p-6 rounded-lg shadow-lg max-w-3xl w-full"> <!-- ปรับเป็น max-w-3xl เพื่อเพิ่มความกว้าง -->

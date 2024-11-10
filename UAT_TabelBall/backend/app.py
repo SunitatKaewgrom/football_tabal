@@ -346,21 +346,21 @@ def delete_expert_api(expert_id):
 @app.route('/api/community_expert', methods=['GET'])
 def api_get_all_experts():
     experts = get_all_experts()
-    return jsonify(experts), 200
+    return jsonify(experts)
 
-# เส้นทางสำหรับการเพิ่มข้อมูลเซียนใหม่
 @app.route('/api/community_expert', methods=['POST'])
 def api_add_expert():
     try:
-        data = request.form
-        file = request.files.get('image')
-        print("Data received:", data)  # พิมพ์ข้อมูลที่ได้รับเพื่อตรวจสอบ
-        print("File received:", file)  # พิมพ์ข้อมูลไฟล์ที่ได้รับ
-        response = add_expert(data, file)
-        return jsonify(response), 201
+        data = request.form  # รับข้อมูลที่เป็นฟอร์ม
+        file = request.files.get('image')  # รับไฟล์ที่แนบมา (รูปภาพ)
+
+        result = add_expert(data, file)  # เรียกใช้งาน add_expert ใน community_experts.py
+        return jsonify(result), 201
+
     except Exception as e:
         print("Error in api_add_expert:", e)
         return jsonify({"error": str(e)}), 500
+
 
 # เส้นทางสำหรับการอัปเดตข้อมูลเซียน
 @app.route('/api/community_expert/<int:expert_id>', methods=['PUT'])
