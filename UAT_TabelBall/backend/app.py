@@ -6,6 +6,7 @@ from models.league import get_all_leagues, get_league_by_id, create_league, upda
 from models.teams import get_all_teams, create_team, update_team, delete_team
 from models.experts import get_all_experts, get_expert_by_id, create_expert, update_expert, delete_expert
 from models.community_expert import get_all_community_expert, add_community_expert, update_community_expert, delete_community_expert
+from models.tips_table import get_all_tips, add_prediction, get_predictions_by_expert, get_tips_by_id, save_tips_file
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from bcrypt import hashpw, gensalt
@@ -292,6 +293,53 @@ def api_delete_community_expert(expert_id):
         return jsonify(response), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+
+# Endpoint สำหรับดึงข้อมูลการทายผลทั้งหมด
+@app.route('/api/tips', methods=['GET'])
+def fetch_all_tips():
+    try:
+        tips = get_all_tips()  # ดึงข้อมูลการทายผลทั้งหมดจากฐานข้อมูล
+        return jsonify(tips), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Endpoint สำหรับเพิ่มการทายผล
+@app.route('/api/tips', methods=['POST'])
+def add_tips_prediction():
+    try:
+        expert_id = request.form.get('expert_id')
+        tips_table_id = request.form.get('tips_table_id')
+        prediction = request.form.get('prediction')
+
+        if not expert_id or not tips_table_id or not prediction:
+            return jsonify({'error': 'All fields are required'}), 400
+
+        add_prediction(expert_id, tips_table_id, prediction)  # บันทึกการทายผล
+        return jsonify({'message': 'Prediction added successfully'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Endpoint สำหรับดึงข้อมูลการทายผลของเซียนตาม ID
+@app.route('/api/tips/<int:expert_id>', methods=['GET'])
+def get_expert_predictions(expert_id):
+    try:
+        predictions = get_predictions_by_expert(expert_id)  # ดึงข้อมูลทายผลของเซียนตาม expert_id
+        return jsonify(predictions), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Endpoint สำหรับดึงข้อมูลการทายผลตาม ID
+@app.route('/api/tips/<int:tip_id>', methods=['GET'])
+def get_tips(tip_id):
+    try:
+        tip = get_tips_by_id(tip_id)  # ดึงข้อมูลการทายผลตาม tips_table_id
+        return jsonify(tip), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
