@@ -15,7 +15,7 @@
         <div>
           <label class="block text-gray-700 font-semibold mb-2">เลือกทีมเหย้า</label>
           <select formControlName="homeTeam" class="w-full p-3 border border-gray-300 rounded-lg mb-4">
-            <option *ngFor="let team of teams$ | async" [value]="team.id">{{ team.name }}</option>
+            <option *ngFor="let team of teams$ | async" [value]="team.id">{{ team.team_name }}</option>
           </select>
 
           <label class="block text-gray-700 font-semibold mb-2">วันที่</label>
@@ -31,7 +31,7 @@
         <div>
           <label class="block text-gray-700 font-semibold mb-2">เลือกทีมเยือน</label>
           <select formControlName="awayTeam" class="w-full p-3 border border-gray-300 rounded-lg mb-4">
-            <option *ngFor="let team of teams$ | async" [value]="team.id">{{ team.name }}</option>
+            <option *ngFor="let team of teams$ | async" [value]="team.id">{{ team.team_name }}</option>
           </select>
 
           <label class="block text-gray-700 font-semibold mb-2">เวลา</label>
