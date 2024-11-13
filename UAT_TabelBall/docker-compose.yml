@@ -1,0 +1,42 @@
+# version: '3.8'  # ลบบรรทัดนี้ออก
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: src/Dockerfile
+    ports:
+      - "4200:4200"
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=SYS_Football_DB
+      - DB_USER=root
+      - DB_PASSWORD=123456
+    networks:
+      - app-network
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: SYS_Football_DB
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./data:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

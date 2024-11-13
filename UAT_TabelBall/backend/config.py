@@ -3,9 +3,9 @@ import mysql.connector
 
 def get_db_connection():
     connection = mysql.connector.connect(
-        host='localhost',
+        host='db',
         user='root',
-        password='',
+        password='123456',
         database='SYS_Football_DB'
     )
     return connection
