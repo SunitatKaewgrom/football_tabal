@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TipsTableService } from 'src/app/core/service/api/tips-table.service';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
@@ -8,7 +8,7 @@ import { forkJoin } from 'rxjs';
   selector: 'app-tips-table',
   templateUrl: './tips-table.component.html',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],  // เพิ่ม ReactiveFormsModule ที่นี่
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TipsTableComponent implements OnInit {

@@ -6,9 +6,12 @@ services:
       dockerfile: src/Dockerfile
     ports:
       - "4200:4200"
+    command: npm run start
     networks:
       - app-network
-
+    volumes:
+      - .:/app
+    
   backend:
     build:
       context: ./backend
