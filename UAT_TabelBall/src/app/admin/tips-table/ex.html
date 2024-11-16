@@ -1,99 +1,137 @@
-<html>
-<head>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-</head>
-<body class="bg-gray-50 p-6">
-
-  <!-- Section เพิ่มผู้แข่งขัน และ บันทึก -->
-  <div class="max-w-6xl mx-auto">
-    <div class="flex justify-between mb-4">
-      <button class="w-1/2 bg-yellow-500 text-white py-3 font-semibold rounded-lg hover:bg-yellow-600 mr-2">
-        เพิ่มผู้แข่งขัน
-      </button>
-      <button class="w-1/2 bg-green-700 text-white py-3 font-semibold rounded-lg hover:bg-green-800 ml-2">
-        บันทึก
-      </button>
-    </div>
-
-    <!-- Form คู่ที่ 1 -->
-    <div class="border-4 border-blue-300 p-6 rounded-lg mb-6">
-      <h2 class="text-2xl font-bold mb-4 flex justify-between items-center">
-        คู่ที่ 1
-        <button class="bg-red-500 text-white px-3 py-1 rounded-full">ลบผู้แข่งขัน</button>
-      </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <!-- ทีมเหย้า -->
-        <div>
-          <label class="block text-gray-700 font-semibold mb-2">เลือกทีมเหย้า</label>
-          <div class="flex items-center mb-4">
-            <img src="https://storage.googleapis.com/a1aa/image/HQOzWt3eXXwqBSTPWw7iUMiQ2kz3b25Sc7WiRVQp9S4bEUzJA.jpg" alt="Belgium flag" class="w-10 h-10 mr-2"/>
-            <span class="text-gray-700">เบลเยี่ยม</span>
-          </div>
-          <label class="block text-gray-700 font-semibold mb-2">วันที่</label>
-          <input type="date" class="w-full p-3 border border-gray-300 rounded-lg mb-4"/>
-          <label class="block text-gray-700 font-semibold mb-2">ราคาต่อรอง</label>
-          <input type="text" class="w-full p-3 border border-gray-300 rounded-lg mb-4" placeholder="เสมอ"/>
-          <label class="block text-gray-700 font-semibold mb-2">ผลทีมเหย้า</label>
-          <input type="number" class="w-full p-3 border border-gray-300 rounded-lg mb-4" value="0"/>
-          <button class="bg-green-500 text-white py-2 px-4 rounded-lg w-full">เพิ่มเซียนบอล</button>
-        </div>
-
-        <!-- ทีมเยือน -->
-        <div>
-          <label class="block text-gray-700 font-semibold mb-2">เลือกทีมเยือน</label>
-          <div class="flex items-center mb-4">
-            <img src="https://storage.googleapis.com/a1aa/image/qseMFXFAHt0vJKmhvhSvp05qGdcMj9FLpOThORtZyie0IomTA.jpg" alt="France flag" class="w-10 h-10 mr-2"/>
-            <span class="text-gray-700">ฝรั่งเศส</span>
-          </div>
-          <label class="block text-gray-700 font-semibold mb-2">เวลา</label>
-          <input type="time" class="w-full p-3 border border-gray-300 rounded-lg mb-4"/>
-          <label class="block text-gray-700 font-semibold mb-2">ต่อทีมไหน</label>
-          <input type="text" class="w-full p-3 border border-gray-300 rounded-lg mb-4" placeholder="ต่อทีมเยือน"/>
-          <label class="block text-gray-700 font-semibold mb-2">ผลทีมเยือน</label>
-          <input type="number" class="w-full p-3 border border-gray-300 rounded-lg mb-4" value="0"/>
-        </div>
-      </div>
-    </div>
-
-    <!-- เซียนบอลคนที่ 1 -->
-    <div class="border-4 border-green-300 p-6 rounded-lg">
-      <h2 class="text-2xl font-bold mb-4">เซียนบอลคนที่ 1</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <!-- ด้านซ้าย -->
-        <div>
-          <label class="block text-gray-700 font-semibold mb-2">เลือกเซียนบอล</label>
-          <input type="text" class="w-full p-3 border border-gray-300 rounded-lg mb-4" value="เดอะนันท์ บอลเต็ง"/>
-          <label class="block text-gray-700 font-semibold mb-2">วิเคราะห์ผล</label>
-          <input type="text" class="w-full p-3 border border-gray-300 rounded-lg mb-4" value="ต่อ ฝรั่งเศส"/>
-          <label class="block text-gray-700 font-semibold mb-2">ลิงค์วิเคราะห์</label>
-          <input type="text" class="w-full p-3 border border-gray-300 rounded-lg mb-4" value="https://youtu.be/Wnkfz5PKt8M"/>
-        </div>
-
-        <!-- ด้านขวา -->
-        <div class="flex flex-col items-center">
-          <img src="https://storage.googleapis.com/a1aa/image/MjY3MjUyMTczNA%3D%3D.jpg" alt="logo" class="w-20 h-20 mb-4"/>
-          <label class="block text-gray-700 font-semibold mb-2">ทางด้านทีมเหย้า:</label>
-          <div class="flex flex-col space-y-2 mb-4">
-            <label class="flex items-center">
-              <input type="radio" name="result" value="ชนะ" class="mr-2"/>
-              ชนะ
-            </label>
-            <label class="flex items-center">
-              <input type="radio" name="result" value="เสมอ" class="mr-2"/>
-              เสมอ
-            </label>
-            <label class="flex items-center">
-              <input type="radio" name="result" value="แพ้" class="mr-2"/>
-              แพ้
-            </label>
-          </div>
-          <button class="bg-red-500 text-white py-2 px-4 rounded-lg">ลบเซียนบอล</button>
-        </div>
-      </div>
-    </div>
-
+<div class="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-8">
+  <div class="flex justify-between mb-4">
+    <button (click)="addMatch()" class="w-1/2 bg-yellow-500 text-white py-3 font-semibold rounded-lg hover:bg-yellow-600 mr-2">
+      เพิ่มผู้แข่งขัน
+    </button>
+    <button (click)="onSubmit()" class="w-1/2 bg-green-700 text-white py-3 font-semibold rounded-lg hover:bg-green-800 ml-2">
+      บันทึก
+    </button>
   </div>
 
-</body>
-</html>
+  <form [formGroup]="tipsForm">
+    <ng-container formArrayName="matches">
+      <div *ngFor="let match of matches.controls; let i = index; trackBy: trackByIndex" [formGroupName]="i" class="border-4 border-blue-300 p-6 rounded-lg mb-6">
+        <h2 class="text-2xl font-bold mb-4 flex justify-between items-center">
+          คู่ที่ {{ i + 1 }}
+          <button (click)="removeMatch(i)" type="button" class="bg-red-500 text-white px-3 py-1 rounded-full">ลบผู้แข่งขัน</button>
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <!-- ฝั่งซ้าย -->
+          <div>
+            <!-- สถานะการแข่งขัน -->
+            <label class="block text-gray-700 font-semibold mb-2">สถานะการแข่งขัน</label>
+            <select formControlName="matchStatus" class="w-full p-3 border border-gray-300 rounded-lg mb-4">
+              <option value="not_started">ยังไม่เริ่มแข่ง</option>
+              <option value="in_progress">กำลังแข่ง</option>
+              <option value="finished">แข่งเสร็จแล้ว</option>
+            </select>
+
+            <!-- ทีมเหย้า -->
+            <label class="block text-gray-700 font-semibold mb-2">เลือกทีมเหย้า</label>
+            <div class="flex items-center mb-4">
+              <img *ngIf="getTeamImage(match.value.homeTeam)" [src]="getTeamImage(match.value.homeTeam)" alt="ทีมเหย้า" class="w-10 h-10 rounded-full mr-2">
+              <select formControlName="homeTeam" class="w-full p-3 border border-gray-300 rounded-lg">
+                <option *ngFor="let team of teams" [value]="team.id">{{ team.team_name }}</option>
+              </select>
+            </div>
+
+            <!-- วันที่ -->
+            <label class="block text-gray-700 font-semibold mb-2">วันที่</label>
+            <input type="date" formControlName="date" class="w-full p-3 border border-gray-300 rounded-lg mb-4" />
+
+            <!-- ราคารอง -->
+            <label class="block text-gray-700 font-semibold mb-2">ราคารอง</label>
+            <input type="text" formControlName="odds" class="w-full p-3 border border-gray-300 rounded-lg mb-4" />
+
+            <!-- ผลทีมเหย้า -->
+            <label class="block text-gray-700 font-semibold mb-2">ผลทีมเหย้า</label>
+            <input type="number" formControlName="homeScore" class="w-full p-3 border border-gray-300 rounded-lg mb-4" />
+          </div>
+
+          <!-- ฝั่งขวา -->
+          <div>
+            <!-- ลีก -->
+            <label class="block text-gray-700 font-semibold mb-2">ลีก</label>
+            <div class="flex items-center mb-4">
+              <img *ngIf="getLeagueImage(match.value.league)" [src]="getLeagueImage(match.value.league)" alt="ลีก" class="w-10 h-10 rounded-full mr-2">
+              <select formControlName="league" class="w-full p-3 border border-gray-300 rounded-lg">
+                <option *ngFor="let league of leagues" [value]="league.id">{{ league.name }}</option>
+              </select>
+            </div>
+
+            <!-- ทีมเยือน -->
+            <label class="block text-gray-700 font-semibold mb-2">เลือกทีมเยือน</label>
+            <div class="flex items-center mb-4">
+              <img *ngIf="getTeamImage(match.value.awayTeam)" [src]="getTeamImage(match.value.awayTeam)" alt="ทีมเยือน" class="w-10 h-10 rounded-full mr-2">
+              <select formControlName="awayTeam" class="w-full p-3 border border-gray-300 rounded-lg">
+                <option *ngFor="let team of teams" [value]="team.id">{{ team.team_name }}</option>
+              </select>
+            </div>
+
+            <!-- เวลา -->
+            <label class="block text-gray-700 font-semibold mb-2">เวลา</label>
+            <input type="time" formControlName="time" class="w-full p-3 border border-gray-300 rounded-lg mb-4" />
+
+            <!-- ต่อทีมไหน -->
+            <label class="block text-gray-700 font-semibold mb-2">ต่อทีมไหน</label>
+            <select formControlName="teamAdvantage" class="w-full p-3 border border-gray-300 rounded-lg mb-4">
+              <option value="home">ทีมเหย้า</option>
+              <option value="away">ทีมเยือน</option>
+            </select>
+
+            <!-- ผลทีมเยือน -->
+            <label class="block text-gray-700 font-semibold mb-2">ผลทีมเยือน</label>
+            <input type="number" formControlName="awayScore" class="w-full p-3 border border-gray-300 rounded-lg mb-4" />
+          </div>
+        </div>
+
+        <!-- Expert Predictions -->
+        <ng-container formArrayName="expertPredictions">
+          <div *ngFor="let prediction of getExpertPredictions(i).controls; let j = index; trackBy: trackByIndex" [formGroupName]="j" class="border-4 border-green-300 p-6 rounded-lg mb-6">
+            <h3 class="text-2xl font-bold mb-4">เซียนบอลคนที่ {{ j + 1 }}</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <!-- เลือกเซียน -->
+                <label class="block text-gray-700 font-semibold mb-2">เลือกเซียนบอล</label>
+                <div class="flex items-center mb-4">
+                  <img *ngIf="getExpertImage(prediction.value.expertId)" [src]="getExpertImage(prediction.value.expertId)" alt="เซียนบอล" class="w-10 h-10 rounded-full mr-2">
+                  <select formControlName="expertId" class="w-full p-3 border border-gray-300 rounded-lg">
+                    <option *ngFor="let expert of experts" [value]="expert.id">{{ expert.name }}</option>
+                  </select>
+                </div>
+
+                <!-- วิเคราะห์ผล -->
+                <label class="block text-gray-700 font-semibold mb-2">วิเคราะห์ผล</label>
+                <input type="text" formControlName="analysis" class="w-full p-3 border border-gray-300 rounded-lg mb-4" />
+
+                <!-- ลิงค์วิเคราะห์ -->
+                <label class="block text-gray-700 font-semibold mb-2">ลิงค์วิเคราะห์</label>
+                <input type="text" formControlName="link" class="w-full p-3 border border-gray-300 rounded-lg mb-4" />
+              </div>
+
+              <div class="flex flex-col items-center">
+                <!-- การทายผล -->
+                <label class="block text-gray-700 font-semibold mb-2">ทายว่าทีมเหย้าจะ:</label>
+                <div class="flex flex-col space-y-2 mb-4">
+                  <label class="flex items-center">
+                    <input type="radio" formControlName="prediction" value="win" class="mr-2" /> ชนะ
+                  </label>
+                  <label class="flex items-center">
+                    <input type="radio" formControlName="prediction" value="draw" class="mr-2" /> เสมอ
+                  </label>
+                  <label class="flex items-center">
+                    <input type="radio" formControlName="prediction" value="lose" class="mr-2" /> แพ้
+                  </label>
+                </div>
+                <button (click)="removeExpertPrediction(i, j)" type="button" class="bg-red-500 text-white py-2 px-4 rounded-lg">ลบเซียนบอล</button>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <button (click)="addExpertPrediction(i)" type="button" class="bg-green-500 text-white py-2 px-4 rounded-lg w-full">เพิ่มเซียนบอล</button>
+      </div>
+    </ng-container>
+  </form>
+</div>

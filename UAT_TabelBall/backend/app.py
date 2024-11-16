@@ -6,7 +6,7 @@ from models.league import get_all_leagues, get_league_by_id, create_league, upda
 from models.teams import get_all_teams, create_team, update_team, delete_team
 from models.experts import get_all_experts, get_expert_by_id, create_expert, update_expert, delete_expert
 from models.community_expert import get_all_community_expert, add_community_expert, update_community_expert, delete_community_expert
-from models.tips_table import get_all_tips, add_prediction, get_predictions_by_expert, get_tips_by_id, save_tips_file
+from models.tips_table import fetch_all_matches, add_match_to_db, fetch_all_predictions, add_prediction_to_db
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from bcrypt import hashpw, gensalt
@@ -295,51 +295,69 @@ def api_delete_community_expert(expert_id):
         return jsonify({"error": str(e)}), 500
     
 
+@app.route('/api/matches', methods=['GET'])
+def get_matches():
+    """
+    Endpoint สำหรับดึงข้อมูล Matches ทั้งหมด
+    """
+    matches = fetch_all_matches()
+    return jsonify(matches)
 
-# Endpoint สำหรับดึงข้อมูลการทายผลทั้งหมด
-@app.route('/api/tips', methods=['GET'])
-def fetch_all_tips():
-    try:
-        tips = get_all_tips()  # ดึงข้อมูลการทายผลทั้งหมดจากฐานข้อมูล
-        return jsonify(tips), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+@app.route('/api/predictions', methods=['GET'])
+def get_predictions():
+    """
+    Endpoint สำหรับดึงข้อมูล Predictions ทั้งหมด
+    """
+    predictions = fetch_all_predictions()
+    return jsonify(predictions)
 
-# Endpoint สำหรับเพิ่มการทายผล
 @app.route('/api/tips', methods=['POST'])
-def add_tips_prediction():
+def save_matches_with_predictions():
+    """
+    Endpoint สำหรับบันทึกข้อมูล Matches และ Predictions พร้อมกัน
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    matches = data.get('matches', [])
+    if not matches:
+        return jsonify({"error": "No matches data provided"}), 400
+
     try:
-        expert_id = request.form.get('expert_id')
-        tips_table_id = request.form.get('tips_table_id')
-        prediction = request.form.get('prediction')
+        for match in matches:
+            # เพิ่ม Match
+            match_data = {
+                'match_status': match['matchStatus'],
+                'league_id': match['league'],
+                'home_team_id': match['homeTeam'],
+                'away_team_id': match['awayTeam'],
+                'date': match['date'],
+                'time': match['time'],
+                'odds': match.get('odds'),
+                'home_score': match.get('homeScore', 0),
+                'away_score': match.get('awayScore', 0),
+                'team_advantage': match.get('teamAdvantage'),
+            }
+            match_id = add_match_to_db(match_data)  # บันทึก Match และรับ match_id
 
-        if not expert_id or not tips_table_id or not prediction:
-            return jsonify({'error': 'All fields are required'}), 400
+            # เพิ่ม Predictions ที่เกี่ยวข้องกับ Match
+            for prediction in match['expertPredictions']:
+                prediction_data = {
+                    'match_id': match_id,
+                    'expert_id': prediction['expertId'],
+                    'analysis': prediction.get('analysis'),
+                    'link': prediction.get('link'),
+                    'prediction': prediction['prediction'],
+                }
+                add_prediction_to_db(prediction_data)
 
-        add_prediction(expert_id, tips_table_id, prediction)  # บันทึกการทายผล
-        return jsonify({'message': 'Prediction added successfully'}), 201
+        return jsonify({"message": "Matches and Predictions saved successfully!"}), 201
+
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
-# Endpoint สำหรับดึงข้อมูลการทายผลของเซียนตาม ID
-@app.route('/api/tips/<int:expert_id>', methods=['GET'])
-def get_expert_predictions(expert_id):
-    try:
-        predictions = get_predictions_by_expert(expert_id)  # ดึงข้อมูลทายผลของเซียนตาม expert_id
-        return jsonify(predictions), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
-# Endpoint สำหรับดึงข้อมูลการทายผลตาม ID
-@app.route('/api/tips/<int:tip_id>', methods=['GET'])
-def get_tips(tip_id):
-    try:
-        tip = get_tips_by_id(tip_id)  # ดึงข้อมูลการทายผลตาม tips_table_id
-        return jsonify(tip), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    
-    
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

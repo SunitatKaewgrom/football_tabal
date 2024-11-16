@@ -1,63 +1,89 @@
 from config import get_db_connection
-import os
-from werkzeug.utils import secure_filename
 
-# กำหนดโฟลเดอร์สำหรับเก็บรูปภาพที่อัปโหลด
-UPLOAD_FOLDER = 'static/uploads/img_tips_table'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# ฟังก์ชันดึงข้อมูล Matches ทั้งหมด
+def fetch_all_matches():
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        query = """
+            SELECT m.id, m.match_status, m.league_id, l.name AS league_name, 
+                   m.home_team_id, t1.team_name AS home_team_name, 
+                   m.away_team_id, t2.team_name AS away_team_name, 
+                   m.date, m.time, m.odds, m.home_score, m.away_score, m.team_advantage
+            FROM matches m
+            JOIN leagues l ON m.league_id = l.id
+            JOIN teams t1 ON m.home_team_id = t1.id
+            JOIN teams t2 ON m.away_team_id = t2.id
+            ORDER BY m.date, m.time;
+        """
+        cursor.execute(query)
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        connection.close()
 
-# ฟังก์ชันสำหรับดึงข้อมูลการทายผลทั้งหมด
-def get_all_tips():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT tt.id, tt.home_team, tt.away_team, tt.match_date, tt.home_team_result, tt.away_team_result, tt.betting_tip 
-        FROM tips_table tt
-    """)
-    tips = cursor.fetchall()
-    conn.close()
-    return tips
+# ฟังก์ชันเพิ่ม Match
+def add_match_to_db(match_data):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        query = """
+            INSERT INTO matches (match_status, league_id, home_team_id, away_team_id, date, time, odds, home_score, away_score, team_advantage)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+        """
+        cursor.execute(query, (
+            match_data['match_status'],
+            match_data['league_id'],
+            match_data['home_team_id'],
+            match_data['away_team_id'],
+            match_data['date'],
+            match_data['time'],
+            match_data.get('odds', None),
+            match_data.get('home_score', 0),
+            match_data.get('away_score', 0),
+            match_data.get('team_advantage', None)
+        ))
+        connection.commit()
+        return cursor.lastrowid  # ส่งคืน match_id ที่เพิ่งเพิ่ม
+    finally:
+        cursor.close()
+        connection.close()
 
-# ฟังก์ชันสำหรับดึงข้อมูลการทายผลตาม ID
-def get_tips_by_id(tip_id):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM tips_table WHERE id = %s", (tip_id,))
-    tip = cursor.fetchone()
-    conn.close()
-    return tip
+# ฟังก์ชันดึงข้อมูล Predictions ทั้งหมด
+def fetch_all_predictions():
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        query = """
+            SELECT p.id, p.match_id, p.expert_id, e.name AS expert_name, 
+                   p.analysis, p.link, p.prediction
+            FROM predictions p
+            JOIN experts e ON p.expert_id = e.id
+            ORDER BY p.match_id;
+        """
+        cursor.execute(query)
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        connection.close()
 
-# ฟังก์ชันสำหรับเพิ่มข้อมูลการทายผล
-def add_prediction(expert_id, tips_table_id, prediction):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO expert_predictions (expert_id, tips_table_id, prediction)
-        VALUES (%s, %s, %s)
-    """, (expert_id, tips_table_id, prediction))
-    conn.commit()
-    conn.close()
-
-# ฟังก์ชันสำหรับดึงข้อมูลทายผลของเซียน
-def get_predictions_by_expert(expert_id):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT ep.id, tt.home_team, tt.away_team, ep.prediction 
-        FROM expert_predictions ep
-        JOIN tips_table tt ON ep.tips_table_id = tt.id
-        WHERE ep.expert_id = %s
-    """, (expert_id,))
-    predictions = cursor.fetchall()
-    conn.close()
-    return predictions
-
-# ฟังก์ชันสำหรับบันทึกข้อมูลการทายผล
-def save_tips_file(file):
-    if file:
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
-        return file_path
-    return None
-
+# ฟังก์ชันเพิ่ม Prediction
+def add_prediction_to_db(prediction_data):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        query = """
+            INSERT INTO predictions (match_id, expert_id, analysis, link, prediction)
+            VALUES (%s, %s, %s, %s, %s);
+        """
+        cursor.execute(query, (
+            prediction_data['match_id'],
+            prediction_data['expert_id'],
+            prediction_data.get('analysis', None),
+            prediction_data.get('link', None),
+            prediction_data['prediction']
+        ))
+        connection.commit()
+    finally:
+        cursor.close()
+        connection.close()

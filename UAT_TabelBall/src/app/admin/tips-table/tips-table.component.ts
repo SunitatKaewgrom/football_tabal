@@ -1,44 +1,41 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
-import { TipsTableService } from 'src/app/core/service/api/tips-table.service';
 import { CommonModule } from '@angular/common';
-import { forkJoin } from 'rxjs';
+import { TipsTableService } from 'src/app/core/service/api/tips-table.service';
 
 @Component({
   selector: 'app-tips-table',
-  templateUrl: './tips-table.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],  // เพิ่ม ReactiveFormsModule ที่นี่
-  changeDetection: ChangeDetectionStrategy.OnPush
+  templateUrl: './tips-table.component.html',
+  imports: [CommonModule, ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TipsTableComponent implements OnInit {
-  tipsForm: FormGroup;
-  experts: any[] = [];
-  leagues: any[] = [];
-  teams: any[] = [];
-  dataLoaded: boolean = false;
+  tipsForm: FormGroup; // FormGroup สำหรับจัดการข้อมูลฟอร์ม
+  teams: any[] = []; // เก็บข้อมูลทีมทั้งหมด
+  leagues: any[] = []; // เก็บข้อมูลลีกทั้งหมด
+  experts: any[] = []; // เก็บข้อมูลเซียนบอลทั้งหมด
+  dataLoaded: boolean = false; // ใช้ตรวจสอบว่าข้อมูลโหลดเสร็จหรือไม่
 
   constructor(
-    private fb: FormBuilder,
-    private tipsTableService: TipsTableService,
-    private cdr: ChangeDetectorRef
+    private fb: FormBuilder, // FormBuilder สำหรับสร้างฟอร์ม
+    private tipsTableService: TipsTableService, // Service สำหรับดึงข้อมูล
+    private cdr: ChangeDetectorRef // สำหรับอัปเดต UI
   ) {
+    // สร้าง FormGroup สำหรับฟอร์ม
     this.tipsForm = this.fb.group({
-      matches: this.fb.array([]),
+      matches: this.fb.array([]), // Array สำหรับจัดการข้อมูลแมตช์
     });
   }
 
   ngOnInit(): void {
-    forkJoin({
-      experts: this.tipsTableService.getAllExperts(),
-      leagues: this.tipsTableService.getAllLeagues(),
-      teams: this.tipsTableService.getAllTeams()
-    }).subscribe((data) => {
-      this.experts = data.experts;
-      this.leagues = data.leagues;
+    // ดึงข้อมูลทีม ลีก และเซียนบอลจาก API
+    this.tipsTableService.getAllData().subscribe((data) => {
       this.teams = data.teams;
-      this.dataLoaded = true;
-      this.cdr.markForCheck();
+      this.leagues = data.leagues;
+      this.experts = data.experts;
+      this.dataLoaded = true; // ตั้งค่าหลังจากโหลดข้อมูลเสร็จ
+      this.cdr.markForCheck(); // รีเฟรช UI
     });
   }
 
@@ -50,70 +47,86 @@ export class TipsTableComponent implements OnInit {
   // สร้าง match FormGroup ใหม่
   createMatchGroup(): FormGroup {
     return this.fb.group({
-      homeTeam: ['', Validators.required],
-      date: ['', Validators.required],
-      odds: ['', Validators.required],
-      homeScore: [0, Validators.required],
-      awayTeam: ['', Validators.required],
-      time: ['', Validators.required],
-      league: ['', Validators.required],
-      awayScore: [0, Validators.required],
-      expertPredictions: this.fb.array([]),
+      matchStatus: ['not_started', Validators.required], // สถานะการแข่งขัน
+      league: ['', Validators.required], // ลีกที่เกี่ยวข้อง
+      homeTeam: ['', Validators.required], // ทีมเหย้า
+      date: ['', Validators.required], // วันที่แข่งขัน
+      odds: ['', Validators.required], // ราคารอง
+      homeScore: [0, Validators.required], // คะแนนทีมเหย้า
+      awayTeam: ['', Validators.required], // ทีมเยือน
+      time: ['', Validators.required], // เวลาการแข่งขัน
+      teamAdvantage: ['', Validators.required], // ทีมที่มีข้อได้เปรียบ
+      awayScore: [0, Validators.required], // คะแนนทีมเยือน
+      expertPredictions: this.fb.array([]), // Array สำหรับการทายผลของเซียน
     });
   }
 
-  // สร้าง expertPrediction FormGroup
-  createExpertPredictionGroup(): FormGroup {
-    return this.fb.group({
-      expertId: ['', Validators.required],
-      analysis: ['', Validators.required],
-      link: ['', Validators.required],
-      prediction: ['win', Validators.required],
-    });
-  }
-
-  // เพิ่ม match ใน matches array
+  // เพิ่ม match
   addMatch(): void {
-    const matchGroup = this.createMatchGroup();
-    this.matches.push(matchGroup);
+    this.matches.push(this.createMatchGroup());
     this.cdr.markForCheck();
   }
 
-  // ลบ match ใน matches array
+  // ลบ match
   removeMatch(index: number): void {
     this.matches.removeAt(index);
     this.cdr.markForCheck();
   }
 
-  // เพิ่ม expertPrediction ใน match ที่กำหนด
+  // เพิ่ม expertPrediction
   addExpertPrediction(matchIndex: number): void {
     const expertPredictions = this.getExpertPredictions(matchIndex);
     expertPredictions.push(this.createExpertPredictionGroup());
     this.cdr.markForCheck();
   }
 
-  // เข้าถึง expertPredictions array ใน match
+  // สร้าง expertPrediction FormGroup
+  createExpertPredictionGroup(): FormGroup {
+    return this.fb.group({
+      expertId: ['', Validators.required], // ID ของเซียนบอล
+      analysis: ['', Validators.required], // การวิเคราะห์
+      link: ['', Validators.required], // ลิงค์การวิเคราะห์
+      prediction: ['win', Validators.required], // การทายผล
+    });
+  }
+
+  // เข้าถึง expertPredictions
   getExpertPredictions(matchIndex: number): FormArray {
     return this.matches.at(matchIndex).get('expertPredictions') as FormArray;
   }
 
-  // ลบ expertPrediction ใน match ที่กำหนด
+  // ลบ expertPrediction
   removeExpertPrediction(matchIndex: number, predictionIndex: number): void {
     this.getExpertPredictions(matchIndex).removeAt(predictionIndex);
     this.cdr.markForCheck();
   }
 
-  // ส่งข้อมูล form ไปยัง backend
+  // ฟังก์ชันดึงรูปทีม
+  getTeamImage(teamId: string): string | null {
+    const team = this.teams.find((t) => t.id.toString() === teamId);
+    return team ? `http://127.0.0.1:5000/${team.logo_url}` : null;
+  }
+
+  // ฟังก์ชันดึงรูปลีก
+  getLeagueImage(leagueId: string): string | null {
+    const league = this.leagues.find((l) => l.id.toString() === leagueId);
+    return league ? `http://127.0.0.1:5000/${league.logo_url}` : null;
+  }
+
+  // ฟังก์ชันดึงรูปเซียนบอล
+  getExpertImage(expertId: string): string | null {
+    const expert = this.experts.find((e) => e.id.toString() === expertId);
+    return expert ? `http://127.0.0.1:5000/${expert.image_url}` : null;
+  }
+
+  // ฟังก์ชันบันทึกข้อมูล
   onSubmit(): void {
     if (this.tipsForm.valid) {
-      this.tipsTableService.addTipsPrediction(this.tipsForm.value).subscribe(
-        response => console.log('Submission successful:', response),
-        error => console.error('Submission error:', error)
-      );
+      console.log('Form Submitted:', this.tipsForm.value); // แสดงข้อมูลฟอร์ม
     }
   }
 
-  // trackBy สำหรับ ngFor
+  // trackBy สำหรับ ngFor เพื่อเพิ่มประสิทธิภาพ
   trackByIndex(index: number): any {
     return index;
   }
