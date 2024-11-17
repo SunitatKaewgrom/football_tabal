@@ -150,3 +150,84 @@ def add_matches_with_predictions(data):
         match_id = add_match(match['matchDetails'])
         # เพิ่ม predictions ที่เกี่ยวข้อง
         add_predictions(match_id, match['predictions'])
+
+
+# ฟังก์ชันอัปเดต match เดียวในฐานข้อมูล
+def update_match(match_id, match_data):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        query = """
+            UPDATE matches
+            SET match_status = %s, league_id = %s, home_team_id = %s, 
+                away_team_id = %s, date = %s, time = %s, odds = %s, 
+                home_score = %s, away_score = %s, team_advantage = %s
+            WHERE id = %s
+        """
+        cursor.execute(query, (
+            match_data['matchStatus'],
+            match_data['league'],
+            match_data['homeTeam'],
+            match_data['awayTeam'],
+            match_data['date'],
+            match_data['time'],
+            match_data.get('odds', None),
+            match_data.get('homeScore', 0),
+            match_data.get('awayScore', 0),
+            match_data.get('teamAdvantage', None),
+            match_id
+        ))
+        connection.commit()
+    finally:
+        cursor.close()
+        connection.close()
+
+# ฟังก์ชันลบ match เดียวจากฐานข้อมูล
+def delete_match(match_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        # ลบ predictions ที่เกี่ยวข้องก่อน
+        query_predictions = "DELETE FROM predictions WHERE match_id = %s"
+        cursor.execute(query_predictions, (match_id,))
+        # ลบ match
+        query_match = "DELETE FROM matches WHERE id = %s"
+        cursor.execute(query_match, (match_id,))
+        connection.commit()
+    finally:
+        cursor.close()
+        connection.close()
+
+# ฟังก์ชันอัปเดต prediction เดียวในฐานข้อมูล
+def update_prediction(prediction_id, prediction_data):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        query = """
+            UPDATE predictions
+            SET expert_id = %s, analysis = %s, link = %s, prediction = %s
+            WHERE id = %s
+        """
+        cursor.execute(query, (
+            prediction_data['expertId'],
+            prediction_data['analysis'],
+            prediction_data['link'],
+            prediction_data['prediction'],
+            prediction_id
+        ))
+        connection.commit()
+    finally:
+        cursor.close()
+        connection.close()
+
+# ฟังก์ชันลบ prediction เดียวจากฐานข้อมูล
+def delete_prediction(prediction_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        query = "DELETE FROM predictions WHERE id = %s"
+        cursor.execute(query, (prediction_id,))
+        connection.commit()
+    finally:
+        cursor.close()
+        connection.close()

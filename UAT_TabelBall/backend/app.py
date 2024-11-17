@@ -6,7 +6,7 @@ from models.league import get_all_leagues, get_league_by_id, create_league, upda
 from models.teams import get_all_teams, create_team, update_team, delete_team
 from models.experts import get_all_experts, get_expert_by_id, create_expert, update_expert, delete_expert
 from models.community_expert import get_all_community_expert, add_community_expert, update_community_expert, delete_community_expert
-from models.tips_table import fetch_all_matches, add_match, add_predictions, add_matches_with_predictions
+from models.tips_table import fetch_all_matches, add_matches_with_predictions, update_match,delete_match, update_prediction, delete_prediction
 from werkzeug.utils import secure_filename
 from datetime import datetime ,timedelta
 from bcrypt import hashpw, gensalt
@@ -302,32 +302,64 @@ def serialize_timedelta(obj):
         return obj.total_seconds()
     raise TypeError("Type not serializable")
     
-# Endpoint สำหรับดึงข้อมูล matches ทั้งหมด
+# ดึงข้อมูล matches
 @app.route('/api/matches', methods=['GET'])
-def get_all_matches():
+def get_matches():
     try:
-        matches = fetch_all_matches()
-        # ตรวจสอบหรือแปลงข้อมูลที่ไม่รองรับ JSON เช่น timedelta
-        for match in matches:
-            if isinstance(match['time'], timedelta):
-                match['time'] = str(match['time'])  # แปลงเป็น string
-
+        limit = int(request.args.get('limit', 5))
+        matches = fetch_all_matches(limit=limit)
         return jsonify({'status': 'success', 'data': matches}), 200
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-# Endpoint บันทึก matches และ predictions
-@app.route('/api/matches_with_predictions', methods=['POST'])
-def create_matches_with_predictions():
+# เพิ่ม matches พร้อม predictions
+@app.route('/api/matches', methods=['POST'])
+def add_matches():
     try:
         data = request.json
-        if not data or 'matches' not in data:
-            return jsonify({'status': 'error', 'message': 'Invalid data'}), 400
-
         add_matches_with_predictions(data)
         return jsonify({'status': 'success'}), 201
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# อัปเดต match
+@app.route('/api/matches/<int:match_id>', methods=['PUT'])
+def update_match_endpoint(match_id):
+    try:
+        match_data = request.json
+        update_match(match_id, match_data)
+        return jsonify({'status': 'success'}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# ลบ match
+@app.route('/api/matches/<int:match_id>', methods=['DELETE'])
+def delete_match_endpoint(match_id):
+    try:
+        delete_match(match_id)
+        return jsonify({'status': 'success'}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# อัปเดต prediction
+@app.route('/api/predictions/<int:prediction_id>', methods=['PUT'])
+def update_prediction_endpoint(prediction_id):
+    try:
+        prediction_data = request.json
+        update_prediction(prediction_id, prediction_data)
+        return jsonify({'status': 'success'}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# ลบ prediction
+@app.route('/api/predictions/<int:prediction_id>', methods=['DELETE'])
+def delete_prediction_endpoint(prediction_id):
+    try:
+        delete_prediction(prediction_id)
+        return jsonify({'status': 'success'}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 
 if __name__ == "__main__":

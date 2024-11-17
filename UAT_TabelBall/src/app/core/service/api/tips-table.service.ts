@@ -36,7 +36,23 @@ export class TipsTableService {
 
   // บันทึกข้อมูล matches พร้อม predictions ไปยัง API
   addMatchesWithPredictions(data: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/matches_with_predictions`, data); // ส่งข้อมูล POST ไปที่ `/matches_with_predictions`
+    return this.http.post<any>(`${this.baseUrl}/matches`, data); // เปลี่ยน endpoint เป็น /api/matches
+  }
+  
+  updateMatch(matchId: number, matchData: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/matches/${matchId}`, matchData);
+  }
+
+  updatePrediction(predictionId: number, predictionData: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/predictions/${predictionId}`, predictionData);
+  }
+
+  deleteMatch(matchId: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/matches/${matchId}`);
+  }
+
+  deletePrediction(predictionId: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/predictions/${predictionId}`);
   }
 
   // ดึงข้อมูลทั้งหมด (ทีม, ลีก, เซียนบอล) รวมกัน

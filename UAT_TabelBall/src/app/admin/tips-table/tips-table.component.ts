@@ -8,159 +8,176 @@ import { TipsTableService } from 'src/app/core/service/api/tips-table.service';
   standalone: true,
   templateUrl: './tips-table.component.html',
   imports: [CommonModule, ReactiveFormsModule],
-  changeDetection: ChangeDetectionStrategy.OnPush, // ใช้ OnPush เพื่อเพิ่มประสิทธิภาพการอัปเดต UI
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TipsTableComponent implements OnInit {
-  tipsForm: FormGroup; // ฟอร์มหลักสำหรับจัดการข้อมูล
-  teams: any[] = []; // ข้อมูลทีม
-  leagues: any[] = []; // ข้อมูลลีก
-  experts: any[] = []; // ข้อมูลเซียนบอล
-  dataLoaded: boolean = false; // ตรวจสอบสถานะว่าข้อมูลโหลดสำเร็จหรือไม่
+  tipsForm: FormGroup;
+  teams: any[] = [];
+  leagues: any[] = [];
+  experts: any[] = [];
+  dataLoaded: boolean = false;
 
   constructor(
-    private fb: FormBuilder, // FormBuilder สำหรับสร้างและจัดการฟอร์ม
-    private tipsTableService: TipsTableService, // Service สำหรับดึงข้อมูลและบันทึกข้อมูล
-    private cdr: ChangeDetectorRef // สำหรับอัปเดต UI
+    private fb: FormBuilder,
+    private tipsTableService: TipsTableService,
+    private cdr: ChangeDetectorRef
   ) {
-    // กำหนดโครงสร้างฟอร์ม
     this.tipsForm = this.fb.group({
-      matches: this.fb.array([]), // Array สำหรับจัดการคู่บอล
+      matches: this.fb.array([]),
     });
   }
 
   ngOnInit(): void {
-    // โหลดข้อมูลทีม ลีก และเซียนบอล
     this.tipsTableService.getAllData().subscribe((data) => {
       this.teams = data.teams;
       this.leagues = data.leagues;
       this.experts = data.experts;
-      this.refreshMatches(); // ดึงข้อมูลคู่บอล 5 คู่ล่าสุด
-      this.dataLoaded = true; // ตั้งค่าให้โหลดสำเร็จ
-      this.cdr.markForCheck(); // รีเฟรช UI
+      this.refreshMatches();
+      this.dataLoaded = true;
+      this.cdr.markForCheck();
     });
   }
 
-  // ดึงข้อมูลคู่บอล 5 คู่ล่าสุด และแสดงในฟอร์ม
   refreshMatches(): void {
     this.tipsTableService.getTop5Matches().subscribe((response: any) => {
-      this.matches.clear(); // ล้างข้อมูลคู่บอลในฟอร์ม
+      this.matches.clear();
       response.data.forEach((match: any) => {
-        const matchGroup = this.createMatchGroup();
-        matchGroup.patchValue({
-          matchStatus: match.match_status,
-          league: match.league_id,
-          homeTeam: match.home_team_id,
-          awayTeam: match.away_team_id,
-          date: match.date,
-          time: match.time,
-          odds: match.odds,
-          homeScore: match.home_score,
-          awayScore: match.away_score,
-          teamAdvantage: match.team_advantage,
-        });
-
-        const expertPredictionsArray = matchGroup.get('expertPredictions') as FormArray;
-        match.predictions.forEach((prediction: any) => {
-          const predictionGroup = this.createExpertPredictionGroup();
-          predictionGroup.patchValue({
-            expertId: prediction.expert_id,
-            analysis: prediction.analysis,
-            link: prediction.link,
-            prediction: prediction.prediction,
-          });
-          expertPredictionsArray.push(predictionGroup);
-        });
-
+        const matchGroup = this.createMatchGroup(match);
         this.matches.push(matchGroup);
       });
       this.cdr.markForCheck();
     });
   }
 
-  // ฟังก์ชันเข้าถึง matches FormArray
   get matches(): FormArray {
     return this.tipsForm.get('matches') as FormArray;
   }
 
-  // สร้าง match FormGroup ใหม่
-  createMatchGroup(): FormGroup {
+  createMatchGroup(matchData: any = {}): FormGroup {
     return this.fb.group({
-      matchStatus: ['not_started', Validators.required], // สถานะการแข่งขัน
-      league: ['', Validators.required], // ลีก
-      homeTeam: ['', Validators.required], // ทีมเหย้า
-      date: ['', Validators.required], // วันที่
-      odds: ['', Validators.required], // ราคารอง
-      homeScore: [0, Validators.required], // คะแนนทีมเหย้า
-      awayTeam: ['', Validators.required], // ทีมเยือน
-      time: ['', Validators.required], // เวลา
-      teamAdvantage: ['', Validators.required], // ทีมที่ได้เปรียบ
-      awayScore: [0, Validators.required], // คะแนนทีมเยือน
-      expertPredictions: this.fb.array([]), // การทายผลของเซียนบอล
+      id: [matchData.match_id || null],
+      matchStatus: [matchData.match_status || 'not_started', Validators.required],
+      league: [matchData.league_id || '', Validators.required],
+      homeTeam: [matchData.home_team_id || '', Validators.required],
+      date: [matchData.date || '', Validators.required],
+      odds: [matchData.odds || '', Validators.required],
+      homeScore: [matchData.home_score || 0, Validators.required],
+      awayTeam: [matchData.away_team_id || '', Validators.required],
+      time: [matchData.time || '', Validators.required],
+      teamAdvantage: [matchData.team_advantage || '', Validators.required],
+      awayScore: [matchData.away_score || 0, Validators.required],
+      expertPredictions: this.fb.array(
+        (matchData.predictions || []).map((prediction: any) => this.createExpertPredictionGroup(prediction))
+      ),
     });
   }
 
-  // เพิ่ม match
   addMatch(): void {
     if (this.matches.length >= 5) {
-      this.matches.removeAt(0); // ลบคู่บอลเก่าที่สุด
+      const matchId = this.matches.at(0).get('id')?.value;
+      if (matchId) {
+        this.tipsTableService.deleteMatch(matchId).subscribe(() => {
+          this.matches.removeAt(0);
+          this.cdr.markForCheck();
+        });
+      } else {
+        this.matches.removeAt(0);
+        this.cdr.markForCheck();
+      }
     }
-    this.matches.push(this.createMatchGroup()); // เพิ่มคู่บอลใหม่
+    this.matches.push(this.createMatchGroup());
     this.cdr.markForCheck();
   }
 
-  // ลบ match
   removeMatch(index: number): void {
-    this.matches.removeAt(index); // ลบคู่บอลตามลำดับที่เลือก
-    this.cdr.markForCheck();
+    const matchId = this.matches.at(index).get('id')?.value;
+    if (matchId) {
+      this.tipsTableService.deleteMatch(matchId).subscribe(() => {
+        this.matches.removeAt(index);
+        this.cdr.markForCheck();
+      });
+    } else {
+      this.matches.removeAt(index);
+      this.cdr.markForCheck();
+    }
   }
 
-  // เพิ่ม expertPrediction
+  updateMatch(index: number): void {
+    const matchId = this.matches.at(index).get('id')?.value;
+    const matchData = this.matches.at(index).value;
+    this.tipsTableService.updateMatch(matchId, matchData).subscribe({
+      next: () => {
+        alert('อัปเดตข้อมูลสำเร็จ!');
+      },
+      error: (err) => {
+        console.error('เกิดข้อผิดพลาดในการอัปเดต:', err);
+        alert('เกิดข้อผิดพลาดในการอัปเดตข้อมูล');
+      },
+    });
+  }
+
   addExpertPrediction(matchIndex: number): void {
     const expertPredictions = this.getExpertPredictions(matchIndex);
     expertPredictions.push(this.createExpertPredictionGroup());
     this.cdr.markForCheck();
   }
 
-  // สร้าง expertPrediction FormGroup
-  createExpertPredictionGroup(): FormGroup {
-    return this.fb.group({
-      expertId: ['', Validators.required], // ID ของเซียนบอล
-      analysis: ['', Validators.required], // การวิเคราะห์
-      link: ['', Validators.required], // ลิงก์การวิเคราะห์
-      prediction: ['win', Validators.required], // การทายผล
+  removeExpertPrediction(matchIndex: number, predictionIndex: number): void {
+    const predictionId = this.getExpertPredictions(matchIndex).at(predictionIndex).get('id')?.value;
+    if (predictionId) {
+      this.tipsTableService.deletePrediction(predictionId).subscribe(() => {
+        this.getExpertPredictions(matchIndex).removeAt(predictionIndex);
+        this.cdr.markForCheck();
+      });
+    } else {
+      this.getExpertPredictions(matchIndex).removeAt(predictionIndex);
+      this.cdr.markForCheck();
+    }
+  }
+
+  updatePrediction(matchIndex: number, predictionIndex: number): void {
+    const predictionId = this.getExpertPredictions(matchIndex).at(predictionIndex).get('id')?.value;
+    const predictionData = this.getExpertPredictions(matchIndex).at(predictionIndex).value;
+    this.tipsTableService.updatePrediction(predictionId, predictionData).subscribe({
+      next: () => {
+        alert('อัปเดตข้อมูลเซียนบอลสำเร็จ!');
+      },
+      error: (err) => {
+        console.error('เกิดข้อผิดพลาดในการอัปเดตเซียนบอล:', err);
+        alert('เกิดข้อผิดพลาดในการอัปเดตข้อมูล');
+      },
     });
   }
 
-  // เข้าถึง expertPredictions
+  createExpertPredictionGroup(predictionData: any = {}): FormGroup {
+    return this.fb.group({
+      id: [predictionData.id || null],
+      expertId: [predictionData.expert_id || '', Validators.required],
+      analysis: [predictionData.analysis || '', Validators.required],
+      link: [predictionData.link || '', Validators.required],
+      prediction: [predictionData.prediction || 'win', Validators.required],
+    });
+  }
+
   getExpertPredictions(matchIndex: number): FormArray {
     return this.matches.at(matchIndex).get('expertPredictions') as FormArray;
   }
 
-  // ลบ expertPrediction
-  removeExpertPrediction(matchIndex: number, predictionIndex: number): void {
-    this.getExpertPredictions(matchIndex).removeAt(predictionIndex);
-    this.cdr.markForCheck();
-  }
-
-  // ฟังก์ชันดึงรูปทีม
   getTeamImage(teamId: string): string | null {
     const team = this.teams.find((t) => t.id.toString() === teamId);
     return team ? `http://127.0.0.1:5000/${team.logo_url}` : null;
   }
 
-  // ฟังก์ชันดึงรูปลีก
   getLeagueImage(leagueId: string): string | null {
     const league = this.leagues.find((l) => l.id.toString() === leagueId);
     return league ? `http://127.0.0.1:5000/${league.logo_url}` : null;
   }
 
-  // ฟังก์ชันดึงรูปเซียนบอล
   getExpertImage(expertId: string): string | null {
     const expert = this.experts.find((e) => e.id.toString() === expertId);
     return expert ? `http://127.0.0.1:5000/${expert.image_url}` : null;
   }
 
-  // บันทึกข้อมูล matches และ predictions
   onSubmit(): void {
     if (this.tipsForm.valid) {
       const matchesData = this.matches.value.map((match: any) => {
@@ -177,11 +194,9 @@ export class TipsTableComponent implements OnInit {
       });
 
       this.tipsTableService.addMatchesWithPredictions({ matches: matchesData }).subscribe({
-        next: (response) => {
-          if (response.status === 'success') {
-            this.refreshMatches(); // อัปเดต matches หลังบันทึกสำเร็จ
-            alert('บันทึกข้อมูลสำเร็จ!');
-          }
+        next: () => {
+          this.refreshMatches();
+          alert('บันทึกข้อมูลสำเร็จ!');
         },
         error: (err) => {
           console.error('เกิดข้อผิดพลาดในการบันทึก:', err);
@@ -191,7 +206,6 @@ export class TipsTableComponent implements OnInit {
     }
   }
 
-  // trackBy สำหรับ ngFor
   trackByIndex(index: number): any {
     return index;
   }
