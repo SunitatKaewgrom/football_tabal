@@ -10,33 +10,41 @@ export class TipsTableService {
 
   constructor(private http: HttpClient) {} // ใช้ HttpClient สำหรับเรียก API
 
-  // ฟังก์ชันสำหรับดึงข้อมูลทีมทั้งหมดจาก API
+  // ดึงข้อมูลทีมทั้งหมดจาก API
   getTeams(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/teams`); // เรียก API ที่ endpoint `/teams`
   }
 
-  // ฟังก์ชันสำหรับดึงข้อมูลลีกทั้งหมดจาก API
+  // ดึงข้อมูลลีกทั้งหมดจาก API
   getLeagues(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/leagues`); // เรียก API ที่ endpoint `/leagues`
   }
 
-  // ฟังก์ชันสำหรับดึงข้อมูลเซียนบอลทั้งหมดจาก API
+  // ดึงข้อมูลเซียนบอลทั้งหมดจาก API
   getExperts(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/experts`); // เรียก API ที่ endpoint `/experts`
   }
 
-  // ฟังก์ชันสำหรับดึงข้อมูลทั้งหมด (ทีม, ลีก, เซียนบอล) รวมกัน
+  // ดึงข้อมูลคู่บอล 5 คู่ล่าสุดจาก API
+  getTop5Matches(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/matches?limit=5`); // กำหนดให้แสดง 5 คู่แรก
+  }
+
+  getMatches(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/matches`);
+  }
+
+  // บันทึกข้อมูล matches พร้อม predictions ไปยัง API
+  addMatchesWithPredictions(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/matches_with_predictions`, data); // ส่งข้อมูล POST ไปที่ `/matches_with_predictions`
+  }
+
+  // ดึงข้อมูลทั้งหมด (ทีม, ลีก, เซียนบอล) รวมกัน
   getAllData(): Observable<any> {
-    // ใช้ forkJoin รวม API หลายตัวเข้าด้วยกัน
     return forkJoin({
       teams: this.getTeams(), // ดึงข้อมูลทีม
       leagues: this.getLeagues(), // ดึงข้อมูลลีก
       experts: this.getExperts(), // ดึงข้อมูลเซียนบอล
     });
-  }
-
-  // ฟังก์ชันสำหรับบันทึกข้อมูลการทายผลไปยัง API
-  addMatchesWithPredictions(data: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/matches_with_predictions`, data);
   }
 }

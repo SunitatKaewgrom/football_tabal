@@ -8,8 +8,9 @@ from models.experts import get_all_experts, get_expert_by_id, create_expert, upd
 from models.community_expert import get_all_community_expert, add_community_expert, update_community_expert, delete_community_expert
 from models.tips_table import fetch_all_matches, add_match, add_predictions, add_matches_with_predictions
 from werkzeug.utils import secure_filename
-from datetime import datetime
+from datetime import datetime ,timedelta
 from bcrypt import hashpw, gensalt
+import json
 import bcrypt
 import os
 
@@ -294,28 +295,28 @@ def api_delete_community_expert(expert_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+    
+
+def serialize_timedelta(obj):
+    if isinstance(obj, timedelta):
+        return obj.total_seconds()
+    raise TypeError("Type not serializable")
+    
 # Endpoint สำหรับดึงข้อมูล matches ทั้งหมด
 @app.route('/api/matches', methods=['GET'])
 def get_all_matches():
     try:
         matches = fetch_all_matches()
+        # ตรวจสอบหรือแปลงข้อมูลที่ไม่รองรับ JSON เช่น timedelta
+        for match in matches:
+            if isinstance(match['time'], timedelta):
+                match['time'] = str(match['time'])  # แปลงเป็น string
+
         return jsonify({'status': 'success', 'data': matches}), 200
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-# Endpoint สำหรับเพิ่ม match ใหม่
-@app.route('/api/matches', methods=['POST'])
-def create_match():
-    try:
-        match_data = request.json
-        if not match_data:
-            return jsonify({'status': 'error', 'message': 'No data provided'}), 400
-        match_id = add_match(match_data)
-        return jsonify({'status': 'success', 'match_id': match_id}), 201
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-# Endpoint สำหรับเพิ่ม matches และ predictions พร้อมกัน
+# Endpoint บันทึก matches และ predictions
 @app.route('/api/matches_with_predictions', methods=['POST'])
 def create_matches_with_predictions():
     try:
@@ -326,9 +327,7 @@ def create_matches_with_predictions():
         add_matches_with_predictions(data)
         return jsonify({'status': 'success'}), 201
     except Exception as e:
-        print(f"Error in create_matches_with_predictions: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
 
 
 if __name__ == "__main__":
