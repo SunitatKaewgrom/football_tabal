@@ -122,9 +122,36 @@ export class TipsTableComponent implements OnInit {
   // ฟังก์ชันบันทึกข้อมูล
   onSubmit(): void {
     if (this.tipsForm.valid) {
-      console.log('Form Submitted:', this.tipsForm.value); // แสดงข้อมูลฟอร์ม
+      const formData = this.matches.value.map((match: any) => {
+        const { expertPredictions, ...matchDetails } = match;
+        return {
+          matchDetails,
+          predictions: expertPredictions.map((prediction: any) => ({
+            expert_id: prediction.expertId,
+            analysis: prediction.analysis,
+            link: prediction.link,
+            prediction: prediction.prediction,
+          })),
+        };
+      });
+  
+      this.tipsTableService.addMatchesWithPredictions({ matches: formData }).subscribe({
+        next: () => {
+          alert('บันทึกข้อมูลสำเร็จ!');
+          this.tipsForm.reset();
+          this.matches.clear();
+          this.addMatch();
+        },
+        error: (err) => {
+          console.error('เกิดข้อผิดพลาด:', err);
+          alert('บันทึกข้อมูลล้มเหลว');
+        },
+      });
+    } else {
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
     }
   }
+  
 
   // trackBy สำหรับ ngFor เพื่อเพิ่มประสิทธิภาพ
   trackByIndex(index: number): any {

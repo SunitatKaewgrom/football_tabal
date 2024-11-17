@@ -36,7 +36,7 @@ export class TipsTableService {
   }
 
   // ฟังก์ชันสำหรับบันทึกข้อมูลการทายผลไปยัง API
-  addTipsPrediction(tipsData: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/matches`, tipsData); // ส่งข้อมูลแบบ POST ไปที่ `/tips`
+  addMatchesWithPredictions(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/matches_with_predictions`, data);
   }
 }

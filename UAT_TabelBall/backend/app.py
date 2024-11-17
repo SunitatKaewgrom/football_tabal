@@ -6,7 +6,7 @@ from models.league import get_all_leagues, get_league_by_id, create_league, upda
 from models.teams import get_all_teams, create_team, update_team, delete_team
 from models.experts import get_all_experts, get_expert_by_id, create_expert, update_expert, delete_expert
 from models.community_expert import get_all_community_expert, add_community_expert, update_community_expert, delete_community_expert
-from models.tips_table import fetch_all_matches, add_match_to_db, fetch_all_predictions, add_prediction_to_db
+from models.tips_table import fetch_all_matches, add_match, add_predictions, add_matches_with_predictions
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from bcrypt import hashpw, gensalt
@@ -294,68 +294,40 @@ def api_delete_community_expert(expert_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-
+# Endpoint สำหรับดึงข้อมูล matches ทั้งหมด
 @app.route('/api/matches', methods=['GET'])
-def get_matches():
-    """
-    Endpoint สำหรับดึงข้อมูล Matches ทั้งหมด
-    """
-    matches = fetch_all_matches()
-    return jsonify(matches)
-
-@app.route('/api/predictions', methods=['GET'])
-def get_predictions():
-    """
-    Endpoint สำหรับดึงข้อมูล Predictions ทั้งหมด
-    """
-    predictions = fetch_all_predictions()
-    return jsonify(predictions)
-
-@app.route('/api/tips', methods=['POST'])
-def save_matches_with_predictions():
-    """
-    Endpoint สำหรับบันทึกข้อมูล Matches และ Predictions พร้อมกัน
-    """
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "No data provided"}), 400
-
-    matches = data.get('matches', [])
-    if not matches:
-        return jsonify({"error": "No matches data provided"}), 400
-
+def get_all_matches():
     try:
-        for match in matches:
-            # เพิ่ม Match
-            match_data = {
-                'match_status': match['matchStatus'],
-                'league_id': match['league'],
-                'home_team_id': match['homeTeam'],
-                'away_team_id': match['awayTeam'],
-                'date': match['date'],
-                'time': match['time'],
-                'odds': match.get('odds'),
-                'home_score': match.get('homeScore', 0),
-                'away_score': match.get('awayScore', 0),
-                'team_advantage': match.get('teamAdvantage'),
-            }
-            match_id = add_match_to_db(match_data)  # บันทึก Match และรับ match_id
-
-            # เพิ่ม Predictions ที่เกี่ยวข้องกับ Match
-            for prediction in match['expertPredictions']:
-                prediction_data = {
-                    'match_id': match_id,
-                    'expert_id': prediction['expertId'],
-                    'analysis': prediction.get('analysis'),
-                    'link': prediction.get('link'),
-                    'prediction': prediction['prediction'],
-                }
-                add_prediction_to_db(prediction_data)
-
-        return jsonify({"message": "Matches and Predictions saved successfully!"}), 201
-
+        matches = fetch_all_matches()
+        return jsonify({'status': 'success', 'data': matches}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# Endpoint สำหรับเพิ่ม match ใหม่
+@app.route('/api/matches', methods=['POST'])
+def create_match():
+    try:
+        match_data = request.json
+        if not match_data:
+            return jsonify({'status': 'error', 'message': 'No data provided'}), 400
+        match_id = add_match(match_data)
+        return jsonify({'status': 'success', 'match_id': match_id}), 201
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# Endpoint สำหรับเพิ่ม matches และ predictions พร้อมกัน
+@app.route('/api/matches_with_predictions', methods=['POST'])
+def create_matches_with_predictions():
+    try:
+        data = request.json
+        if not data or 'matches' not in data:
+            return jsonify({'status': 'error', 'message': 'Invalid data'}), 400
+
+        add_matches_with_predictions(data)
+        return jsonify({'status': 'success'}), 201
+    except Exception as e:
+        print(f"Error in create_matches_with_predictions: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
 

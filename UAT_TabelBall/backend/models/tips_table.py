@@ -1,6 +1,6 @@
 from config import get_db_connection
 
-# ฟังก์ชันดึงข้อมูล Matches ทั้งหมด
+# ฟังก์ชันดึงข้อมูล matches ทั้งหมด
 def fetch_all_matches():
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
@@ -22,8 +22,8 @@ def fetch_all_matches():
         cursor.close()
         connection.close()
 
-# ฟังก์ชันเพิ่ม Match
-def add_match_to_db(match_data):
+# ฟังก์ชันเพิ่ม match เดียวลงในฐานข้อมูล
+def add_match(match_data):
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
@@ -31,44 +31,32 @@ def add_match_to_db(match_data):
             INSERT INTO matches (match_status, league_id, home_team_id, away_team_id, date, time, odds, home_score, away_score, team_advantage)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """
+        # Execute SQL สำหรับการเพิ่ม match
         cursor.execute(query, (
-            match_data['match_status'],
-            match_data['league_id'],
-            match_data['home_team_id'],
-            match_data['away_team_id'],
+            match_data['matchStatus'],
+            match_data['league'],
+            match_data['homeTeam'],
+            match_data['awayTeam'],
             match_data['date'],
             match_data['time'],
             match_data.get('odds', None),
-            match_data.get('home_score', 0),
-            match_data.get('away_score', 0),
-            match_data.get('team_advantage', None)
+            match_data.get('homeScore', 0),
+            match_data.get('awayScore', 0),
+            match_data.get('teamAdvantage', None)
         ))
         connection.commit()
-        return cursor.lastrowid  # ส่งคืน match_id ที่เพิ่งเพิ่ม
+
+        # ดึงค่า match_id ที่ถูกเพิ่มล่าสุด
+        cursor.execute("SELECT LAST_INSERT_ID();")
+        match_id = cursor.fetchone()[0]
+        return match_id
     finally:
         cursor.close()
         connection.close()
 
-# ฟังก์ชันดึงข้อมูล Predictions ทั้งหมด
-def fetch_all_predictions():
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
-    try:
-        query = """
-            SELECT p.id, p.match_id, p.expert_id, e.name AS expert_name, 
-                   p.analysis, p.link, p.prediction
-            FROM predictions p
-            JOIN experts e ON p.expert_id = e.id
-            ORDER BY p.match_id;
-        """
-        cursor.execute(query)
-        return cursor.fetchall()
-    finally:
-        cursor.close()
-        connection.close()
 
-# ฟังก์ชันเพิ่ม Prediction
-def add_prediction_to_db(prediction_data):
+# ฟังก์ชันเพิ่ม prediction หลายรายการสำหรับ match หนึ่งรายการ
+def add_predictions(match_id, predictions):
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
@@ -76,14 +64,26 @@ def add_prediction_to_db(prediction_data):
             INSERT INTO predictions (match_id, expert_id, analysis, link, prediction)
             VALUES (%s, %s, %s, %s, %s);
         """
-        cursor.execute(query, (
-            prediction_data['match_id'],
-            prediction_data['expert_id'],
-            prediction_data.get('analysis', None),
-            prediction_data.get('link', None),
-            prediction_data['prediction']
-        ))
+        for prediction in predictions:
+            cursor.execute(query, (
+                match_id,
+                prediction['expert_id'],
+                prediction.get('analysis', None),
+                prediction.get('link', None),
+                prediction['prediction']
+            ))
         connection.commit()
     finally:
         cursor.close()
         connection.close()
+
+# ฟังก์ชันเพิ่ม matches พร้อม predictions หลายรายการ
+def add_matches_with_predictions(data):
+    try:
+        for match in data['matches']:
+            # เพิ่ม match ใหม่
+            match_id = add_match(match['matchDetails'])
+            # เพิ่ม predictions ที่เกี่ยวข้องกับ match ที่สร้าง
+            add_predictions(match_id, match['predictions'])
+    except Exception as e:
+        raise Exception(f"Error adding matches with predictions: {str(e)}")
