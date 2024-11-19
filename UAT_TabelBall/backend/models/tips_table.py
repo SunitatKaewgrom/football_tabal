@@ -22,7 +22,6 @@ def fetch_all_matches(limit=None):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
     try:
-        # ดึงข้อมูล matches พร้อมข้อมูล predictions
         query_matches = """
             SELECT m.id AS match_id, 
                    m.match_status, 
@@ -52,7 +51,6 @@ def fetch_all_matches(limit=None):
 
         matches = cursor.fetchall()
 
-        # ดึงข้อมูล predictions ที่เกี่ยวข้องกับ matches
         match_ids = [match['match_id'] for match in matches]
         if match_ids:
             query_predictions = """
@@ -71,7 +69,6 @@ def fetch_all_matches(limit=None):
         else:
             predictions = []
 
-        # จัดกลุ่ม predictions ตาม match_id
         predictions_by_match = {}
         for prediction in predictions:
             match_id = prediction['match_id']
@@ -79,12 +76,9 @@ def fetch_all_matches(limit=None):
                 predictions_by_match[match_id] = []
             predictions_by_match[match_id].append(prediction)
 
-        # ผนวก predictions เข้าไปใน matches
         for match in matches:
             match_id = match['match_id']
             match['predictions'] = predictions_by_match.get(match_id, [])
-
-            # แปลงชนิดข้อมูลให้ JSON serializable
             for key, value in match.items():
                 match[key] = serialize_data(value)
 
@@ -94,7 +88,6 @@ def fetch_all_matches(limit=None):
         connection.close()
 
 
-# ฟังก์ชันเพิ่ม match เดียวลงในฐานข้อมูล
 def add_match(match_data):
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -121,7 +114,7 @@ def add_match(match_data):
         cursor.close()
         connection.close()
 
-# ฟังก์ชันเพิ่ม predictions หลายรายการสำหรับ match หนึ่งรายการ
+
 def add_predictions(match_id, predictions):
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -143,16 +136,19 @@ def add_predictions(match_id, predictions):
         cursor.close()
         connection.close()
 
-# ฟังก์ชันเพิ่ม matches พร้อม predictions หลายรายการ
+
 def add_matches_with_predictions(data):
-    for match in data['matches']:
-        # เพิ่ม match และรับ match_id ที่สร้างใหม่
-        match_id = add_match(match['matchDetails'])
-        # เพิ่ม predictions ที่เกี่ยวข้อง
-        add_predictions(match_id, match['predictions'])
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        for match in data['matches']:
+            match_id = add_match(match['matchDetails'])
+            add_predictions(match_id, match['predictions'])
+    finally:
+        cursor.close()
+        connection.close()
 
 
-# ฟังก์ชันอัปเดต match เดียวในฐานข้อมูล
 def update_match(match_id, match_data):
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -182,15 +178,13 @@ def update_match(match_id, match_data):
         cursor.close()
         connection.close()
 
-# ฟังก์ชันลบ match เดียวจากฐานข้อมูล
+
 def delete_match(match_id):
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
-        # ลบ predictions ที่เกี่ยวข้องก่อน
         query_predictions = "DELETE FROM predictions WHERE match_id = %s"
         cursor.execute(query_predictions, (match_id,))
-        # ลบ match
         query_match = "DELETE FROM matches WHERE id = %s"
         cursor.execute(query_match, (match_id,))
         connection.commit()
@@ -198,7 +192,7 @@ def delete_match(match_id):
         cursor.close()
         connection.close()
 
-# ฟังก์ชันอัปเดต prediction เดียวในฐานข้อมูล
+
 def update_prediction(prediction_id, prediction_data):
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -220,7 +214,7 @@ def update_prediction(prediction_id, prediction_data):
         cursor.close()
         connection.close()
 
-# ฟังก์ชันลบ prediction เดียวจากฐานข้อมูล
+
 def delete_prediction(prediction_id):
     connection = get_db_connection()
     cursor = connection.cursor()

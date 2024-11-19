@@ -1,15 +1,15 @@
-from flask import Flask, request, jsonify,url_for
-from flask_cors import CORS
+from flask import Flask, request, jsonify, url_for, abort
 from config import get_db_connection
 from models.header_message import get_header_message, update_header_message
 from models.league import get_all_leagues, get_league_by_id, create_league, update_league, delete_league
 from models.teams import get_all_teams, create_team, update_team, delete_team
 from models.experts import get_all_experts, get_expert_by_id, create_expert, update_expert, delete_expert
 from models.community_expert import get_all_community_expert, add_community_expert, update_community_expert, delete_community_expert
-from models.tips_table import fetch_all_matches, add_matches_with_predictions, update_match,delete_match, update_prediction, delete_prediction
+from models.tips_table import fetch_all_matches,add_matches_with_predictions,update_match,delete_match,update_prediction,delete_prediction
 from werkzeug.utils import secure_filename
 from datetime import datetime ,timedelta
 from bcrypt import hashpw, gensalt
+from flask_cors import CORS
 import json
 import bcrypt
 import os
@@ -301,38 +301,50 @@ def serialize_timedelta(obj):
     if isinstance(obj, timedelta):
         return obj.total_seconds()
     raise TypeError("Type not serializable")
-    
-# ดึงข้อมูล matches
+
+
+# API: ดึงข้อมูล Matches
 @app.route('/api/matches', methods=['GET'])
 def get_matches():
     try:
-        limit = int(request.args.get('limit', 5))
+        limit = request.args.get('limit', None)
+        if limit:
+            limit = int(limit)
         matches = fetch_all_matches(limit=limit)
         return jsonify({'status': 'success', 'data': matches}), 200
+    except ValueError:
+        return jsonify({'status': 'error', 'message': 'Invalid limit value'}), 400
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-# เพิ่ม matches พร้อม predictions
+
+# API: เพิ่ม Matches พร้อม Predictions
 @app.route('/api/matches', methods=['POST'])
 def add_matches():
     try:
         data = request.json
+        if not data or 'matches' not in data:
+            abort(400, 'Invalid request: missing matches data')
         add_matches_with_predictions(data)
         return jsonify({'status': 'success'}), 201
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-# อัปเดต match
+
+# API: อัปเดต Match
 @app.route('/api/matches/<int:match_id>', methods=['PUT'])
 def update_match_endpoint(match_id):
     try:
         match_data = request.json
+        if not match_data:
+            abort(400, 'Invalid request: missing match data')
         update_match(match_id, match_data)
         return jsonify({'status': 'success'}), 200
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-# ลบ match
+
+# API: ลบ Match
 @app.route('/api/matches/<int:match_id>', methods=['DELETE'])
 def delete_match_endpoint(match_id):
     try:
@@ -341,17 +353,21 @@ def delete_match_endpoint(match_id):
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-# อัปเดต prediction
+
+# API: อัปเดต Prediction
 @app.route('/api/predictions/<int:prediction_id>', methods=['PUT'])
 def update_prediction_endpoint(prediction_id):
     try:
         prediction_data = request.json
+        if not prediction_data:
+            abort(400, 'Invalid request: missing prediction data')
         update_prediction(prediction_id, prediction_data)
         return jsonify({'status': 'success'}), 200
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-# ลบ prediction
+
+# API: ลบ Prediction
 @app.route('/api/predictions/<int:prediction_id>', methods=['DELETE'])
 def delete_prediction_endpoint(prediction_id):
     try:

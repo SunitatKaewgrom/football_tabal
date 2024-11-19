@@ -3,64 +3,92 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root', // ทำให้ Service นี้สามารถใช้งานได้ทั่วทั้งแอป
+  providedIn: 'root',
 })
 export class TipsTableService {
-  private baseUrl = 'http://127.0.0.1:5000/api'; // URL พื้นฐานของ API
+  private baseUrl = 'http://127.0.0.1:5000/api'; // Base API URL
 
-  constructor(private http: HttpClient) {} // ใช้ HttpClient สำหรับเรียก API
+  constructor(private http: HttpClient) {}
 
-  // ดึงข้อมูลทีมทั้งหมดจาก API
-  getTeams(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/teams`); // เรียก API ที่ endpoint `/teams`
+  /**
+   * ดึงข้อมูล Matches
+   * @param limit จำนวน Matches ที่ต้องการ (Optional)
+   */
+  getMatches(limit: number = 5): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/matches?limit=${limit}`);
   }
 
-  // ดึงข้อมูลลีกทั้งหมดจาก API
-  getLeagues(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/leagues`); // เรียก API ที่ endpoint `/leagues`
-  }
-
-  // ดึงข้อมูลเซียนบอลทั้งหมดจาก API
-  getExperts(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/experts`); // เรียก API ที่ endpoint `/experts`
-  }
-
-  // ดึงข้อมูลคู่บอล 5 คู่ล่าสุดจาก API
-  getTop5Matches(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/matches?limit=5`); // กำหนดให้แสดง 5 คู่แรก
-  }
-
-  getMatches(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/matches`);
-  }
-
-  // บันทึกข้อมูล matches พร้อม predictions ไปยัง API
+  /**
+   * เพิ่ม Matches พร้อม Predictions
+   * @param data ข้อมูล Matches และ Predictions
+   */
   addMatchesWithPredictions(data: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/matches`, data); // เปลี่ยน endpoint เป็น /api/matches
+    return this.http.post<any>(`${this.baseUrl}/matches`, data);
   }
-  
+
+  /**
+   * อัปเดต Match
+   * @param matchId รหัส Match
+   * @param matchData ข้อมูลที่ต้องการอัปเดต
+   */
   updateMatch(matchId: number, matchData: any): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/matches/${matchId}`, matchData);
   }
 
-  updatePrediction(predictionId: number, predictionData: any): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/predictions/${predictionId}`, predictionData);
-  }
-
+  /**
+   * ลบ Match
+   * @param matchId รหัส Match ที่ต้องการลบ
+   */
   deleteMatch(matchId: number): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/matches/${matchId}`);
   }
 
+  /**
+   * อัปเดต Prediction
+   * @param predictionId รหัส Prediction
+   * @param predictionData ข้อมูลที่ต้องการอัปเดต
+   */
+  updatePrediction(predictionId: number, predictionData: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/predictions/${predictionId}`, predictionData);
+  }
+
+  /**
+   * ลบ Prediction
+   * @param predictionId รหัส Prediction ที่ต้องการลบ
+   */
   deletePrediction(predictionId: number): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/predictions/${predictionId}`);
   }
 
-  // ดึงข้อมูลทั้งหมด (ทีม, ลีก, เซียนบอล) รวมกัน
+  /**
+   * ดึงข้อมูล Teams
+   */
+  getAllTeams(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/teams`);
+  }
+
+  /**
+   * ดึงข้อมูล Leagues
+   */
+  getAllLeagues(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/leagues`);
+  }
+
+  /**
+   * ดึงข้อมูล Experts
+   */
+  getAllExperts(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/experts`);
+  }
+
+  /**
+   * ดึงข้อมูลทั้งหมด (Teams, Leagues, Experts)
+   */
   getAllData(): Observable<any> {
     return forkJoin({
-      teams: this.getTeams(), // ดึงข้อมูลทีม
-      leagues: this.getLeagues(), // ดึงข้อมูลลีก
-      experts: this.getExperts(), // ดึงข้อมูลเซียนบอล
+      teams: this.getAllTeams(),
+      leagues: this.getAllLeagues(),
+      experts: this.getAllExperts(),
     });
   }
 }
