@@ -5,7 +5,7 @@ from models.league import get_all_leagues, get_league_by_id, create_league, upda
 from models.teams import get_all_teams, create_team, update_team, delete_team
 from models.experts import get_all_experts, get_expert_by_id, create_expert, update_expert, delete_expert
 from models.community_expert import get_all_community_expert, add_community_expert, update_community_expert, delete_community_expert
-from models.tips_table import fetch_all_matches,add_matches_with_predictions,update_match,delete_match,update_prediction,delete_prediction
+from models.tips_table import fetch_all_matches,add_matches_with_predictions,update_match,delete_match,add_predictions,update_prediction,delete_prediction
 from werkzeug.utils import secure_filename
 from datetime import datetime ,timedelta
 from bcrypt import hashpw, gensalt
@@ -359,10 +359,19 @@ def delete_match_endpoint(match_id):
 def update_prediction_endpoint(prediction_id):
     try:
         prediction_data = request.json
-        if not prediction_data:
-            abort(400, 'Invalid request: missing prediction data')
+        print(f"Updating prediction ID: {prediction_id} with data: {prediction_data}")
         update_prediction(prediction_id, prediction_data)
         return jsonify({'status': 'success'}), 200
+    except Exception as e:
+        print(f"Error updating prediction: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/predictions', methods=['POST'])
+def add_prediction_endpoint():
+    try:
+        prediction_data = request.json
+        add_predictions(prediction_data['match_id'], [prediction_data])
+        return jsonify({'status': 'success'}), 201
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 

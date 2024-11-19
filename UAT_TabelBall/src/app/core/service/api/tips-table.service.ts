@@ -2,6 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 
+export interface PredictionData {
+  id?: number | null; // รองรับทั้ง undefined และ null
+  expert_id: number;
+  analysis: string;
+  link: string;
+  prediction: string;
+}
+
+
 @Injectable({
   providedIn: 'root',
 })
@@ -48,7 +57,8 @@ export class TipsTableService {
    * @param predictionId รหัส Prediction
    * @param predictionData ข้อมูลที่ต้องการอัปเดต
    */
-  updatePrediction(predictionId: number, predictionData: any): Observable<any> {
+  updatePrediction(predictionId: number, predictionData: PredictionData): Observable<any> {
+    console.log(`Updating prediction with id ${predictionId}:`, predictionData); // Log ข้อมูลการอัปเดต
     return this.http.put<any>(`${this.baseUrl}/predictions/${predictionId}`, predictionData);
   }
 
@@ -57,6 +67,7 @@ export class TipsTableService {
    * @param predictionId รหัส Prediction ที่ต้องการลบ
    */
   deletePrediction(predictionId: number): Observable<any> {
+    console.log(`Deleting prediction with id: ${predictionId}`); // Log คำขอก่อนส่ง
     return this.http.delete<any>(`${this.baseUrl}/predictions/${predictionId}`);
   }
 
@@ -89,6 +100,19 @@ export class TipsTableService {
       teams: this.getAllTeams(),
       leagues: this.getAllLeagues(),
       experts: this.getAllExperts(),
+    });
+  }
+
+  /**
+   * เพิ่ม Prediction ใหม่
+   * @param matchId รหัส Match ที่ต้องการเพิ่ม Prediction
+   * @param predictionData ข้อมูล Prediction ที่ต้องการเพิ่ม
+   */
+  addPrediction(matchId: number, predictionData: PredictionData): Observable<any> {
+    console.log('Adding prediction:', { matchId, predictionData }); // Log ข้อมูลที่ส่งไป
+    return this.http.post<any>(`${this.baseUrl}/predictions`, {
+      match_id: matchId,
+      ...predictionData,
     });
   }
 }

@@ -2,6 +2,37 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common'; // ใช้สำหรับคำสั่งพื้นฐานของ Angular
 import { TipsTableService } from 'src/app/core/service/api/tips-table.service';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
+// ประกาศ Interface ก่อน @Component
+interface MatchData {
+  matchDetails: {
+    id: number | null;
+    matchStatus: string;
+    league: string;
+    homeTeam: string;
+    awayTeam: string;
+    date: string;
+    time: string;
+    odds: string;
+    homeScore: number;
+    awayScore: number;
+    teamAdvantage: string;
+  };
+  predictions: PredictionData[];
+}
+
+interface PredictionData {
+  id: number | null;
+  expert_id: number;
+  analysis: string;
+  link: string;
+  prediction: string;
+  isNew?: boolean; // เพิ่มฟิลด์ isNew (Optional)
+}
+
+
 
 @Component({
   selector: 'app-tips-table',
@@ -23,7 +54,8 @@ export class TipsTableComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private tipsTableService: TipsTableService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) {
     this.tipsForm = this.fb.group({
       matches: this.fb.array([]),
@@ -33,6 +65,8 @@ export class TipsTableComponent implements OnInit {
   ngOnInit(): void {
     this.loadAllData();
   }
+  
+  
 
   // โหลดข้อมูลทีม ลีก และเซียนบอลทั้งหมด
   loadAllData(): void {
@@ -93,6 +127,8 @@ export class TipsTableComponent implements OnInit {
       ),
     });
   }
+  
+  
 
   // สร้าง Expert Prediction Group
   createExpertPredictionGroup(prediction: any = {}): FormGroup {
@@ -102,27 +138,31 @@ export class TipsTableComponent implements OnInit {
       analysis: [prediction.analysis || '', Validators.required],
       link: [prediction.link || '', Validators.required],
       prediction: [prediction.prediction || 'win', Validators.required],
+      isNew: [prediction.isNew ?? !prediction.id], // isNew เป็น true ถ้า id ไม่มีค่า
     });
   }
+  
+  
 
-  // เพิ่ม Match ใหม่
   addMatch(): void {
-    const matchesArray = this.tipsForm.get('matches') as FormArray;
-    if (matchesArray.length >= 5) {
-      const firstMatchId = matchesArray.at(0).get('id')?.value;
-      if (firstMatchId) {
-        this.tipsTableService.deleteMatch(firstMatchId).subscribe(() => {
-          matchesArray.removeAt(0);
-          this.cdr.markForCheck();
-        });
-      } else {
-        matchesArray.removeAt(0);
-        this.cdr.markForCheck();
-      }
-    }
-    matchesArray.push(this.createMatchGroup());
+    console.log('Adding a new match'); // ตรวจสอบว่าฟังก์ชันทำงานหรือไม่
+    const matchesArray = this.matches;
+  
+    // เพิ่ม Match ใหม่
+    matchesArray.push(
+      this.createMatchGroup({
+        predictions: [], // Predictions ว่างสำหรับ Match ใหม่
+      })
+    );
+  
+    console.log('Matches after addition:', matchesArray.value); // ตรวจสอบว่า Match ถูกเพิ่มใน FormArray หรือไม่
+  
+    // อัปเดตการแสดงผล
     this.cdr.markForCheck();
   }
+  
+  
+  
 
   // ลบ Match
   removeMatch(index: number): void {
@@ -140,20 +180,30 @@ export class TipsTableComponent implements OnInit {
 
   // เพิ่ม Expert Prediction
   addExpertPrediction(matchIndex: number): void {
+    console.log(`Adding a new prediction to match at index ${matchIndex}`); // ตรวจสอบการเพิ่ม Prediction
     const expertPredictions = this.getExpertPredictions(matchIndex);
+  
     expertPredictions.push(this.createExpertPredictionGroup());
+    console.log('Expert Predictions after addition:', expertPredictions.value); // ตรวจสอบค่าหลังการเพิ่ม
     this.cdr.markForCheck();
   }
 
   // ลบ Expert Prediction
   removeExpertPrediction(matchIndex: number, predictionIndex: number): void {
     const predictionId = this.getExpertPredictions(matchIndex).at(predictionIndex).get('id')?.value;
+    console.log(`Removing prediction at index ${predictionIndex} in match ${matchIndex} with id: ${predictionId}`); // Log ข้อมูลก่อนลบ
+  
     if (predictionId) {
-      this.tipsTableService.deletePrediction(predictionId).subscribe(() => {
-        this.getExpertPredictions(matchIndex).removeAt(predictionIndex);
-        this.cdr.markForCheck();
+      this.tipsTableService.deletePrediction(predictionId).subscribe({
+        next: () => {
+          console.log(`Prediction with id ${predictionId} deleted successfully`);
+          this.getExpertPredictions(matchIndex).removeAt(predictionIndex);
+          this.cdr.markForCheck();
+        },
+        error: (err) => console.error(`Error deleting prediction with id ${predictionId}:`, err),
       });
     } else {
+      console.log('Prediction does not exist in the database, removing locally');
       this.getExpertPredictions(matchIndex).removeAt(predictionIndex);
       this.cdr.markForCheck();
     }
@@ -177,34 +227,105 @@ export class TipsTableComponent implements OnInit {
     return expert ? `http://127.0.0.1:5000/${expert.image_url}` : null;
   }
 
-  // ฟังก์ชันบันทึก Matches และ Predictions
-  onSubmit(): void {
+   // ฟังก์ชันบันทึก Matches และ Predictions
+   onSubmit(): void {
     if (this.tipsForm.valid) {
+      console.log('Submitting form:', this.tipsForm.value);
+  
       const matchesData = this.matches.value.map((match: any) => {
         const { expertPredictions, ...matchDetails } = match;
+  
         return {
           matchDetails,
           predictions: expertPredictions.map((prediction: any) => ({
+            id: prediction.id ?? undefined,
             expert_id: prediction.expertId,
             analysis: prediction.analysis,
             link: prediction.link,
             prediction: prediction.prediction,
+            isNew: prediction.isNew || false, // กำหนด isNew
           })),
         };
       });
-
-      this.tipsTableService.addMatchesWithPredictions({ matches: matchesData }).subscribe({
-        next: () => {
-          this.loadMatches();
-          alert('บันทึกข้อมูลสำเร็จ!');
-        },
-        error: (err) => {
-          console.error('เกิดข้อผิดพลาดในการบันทึก:', err);
-          alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
-        },
+  
+      matchesData.forEach((match: MatchData) => {
+        if (match.matchDetails.id) {
+          this.tipsTableService.updateMatch(match.matchDetails.id, match.matchDetails).subscribe({
+            next: () => {
+              console.log(`Match with id ${match.matchDetails.id} updated successfully`);
+              match.predictions.forEach((prediction: PredictionData) => {
+                if (prediction.isNew) {
+                  // เพิ่ม Predictions ใหม่
+                  this.tipsTableService.addPrediction(match.matchDetails.id!, prediction).subscribe({
+                    next: () => console.log('Prediction added successfully'),
+                    error: (err) => console.error('Error adding prediction:', err),
+                  });
+                } else if (this.isPredictionUpdated(prediction)) {
+                  // อัปเดต Predictions ที่เปลี่ยนแปลง
+                  this.tipsTableService.updatePrediction(Number(prediction.id), prediction).subscribe({
+                    next: () => console.log(`Prediction with id ${prediction.id} updated successfully`),
+                    error: (err) => console.error(`Error updating prediction with id ${prediction.id}:`, err),
+                  });
+                }
+              });
+            },
+            error: (err) => console.error(`Error updating match with id ${match.matchDetails.id}:`, err),
+          });
+        } else {
+          this.tipsTableService.addMatchesWithPredictions({ matches: [match] }).subscribe({
+            next: () => console.log('Match and predictions added successfully'),
+            error: (err) => console.error('Error adding match and predictions:', err),
+          });
+        }
       });
+  
+      alert('บันทึกข้อมูลสำเร็จ!');
+      this.refreshMatches();
+    } else {
+      console.error('Form is invalid:', this.tipsForm);
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
     }
   }
+  
+  
+  private isPredictionUpdated(prediction: PredictionData): boolean {
+    // ใช้ค่า Prediction เดิมที่โหลดมาจาก API เปรียบเทียบกับ Prediction ปัจจุบัน
+    const originalPrediction = this.getOriginalPrediction(prediction.id!);
+    if (!originalPrediction) {
+      return false; // ไม่มีข้อมูลเดิมให้เปรียบเทียบ
+    }
+  
+    return (
+      originalPrediction.expert_id !== prediction.expert_id ||
+      originalPrediction.analysis !== prediction.analysis ||
+      originalPrediction.link !== prediction.link ||
+      originalPrediction.prediction !== prediction.prediction
+    );
+  }
+  
+  // ฟังก์ชันช่วยดึง Prediction เดิมจาก API หรือข้อมูลในฟอร์ม
+  private getOriginalPrediction(predictionId: number): PredictionData | null {
+    // ตัวอย่างการดึง Prediction เดิม (ควรเปลี่ยนเป็นการดึงข้อมูลจาก state หรือ cache ของคุณ)
+    const allPredictions = this.matches.value.flatMap((match: any) =>
+      match.expertPredictions || []
+    );
+  
+    return allPredictions.find((p: any) => p.id === predictionId) || null;
+  }
+  
+  
+  refreshMatches(): void {
+  this.tipsTableService.getMatches().subscribe((response: any) => {
+    this.matches.clear();
+    response.data.forEach((match: any) => {
+      const matchGroup = this.createMatchGroup(match);
+      this.matches.push(matchGroup);
+    });
+    this.cdr.markForCheck();
+  });
+}
+
+  
 
   // ฟังก์ชันช่วยติดตามการเปลี่ยนแปลงใน *ngFor
   trackByIndex(index: number): any {

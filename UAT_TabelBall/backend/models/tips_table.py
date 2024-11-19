@@ -200,19 +200,31 @@ def update_prediction(prediction_id, prediction_data):
         query = """
             UPDATE predictions
             SET expert_id = %s, analysis = %s, link = %s, prediction = %s
-            WHERE id = %s
+            WHERE expert_id = %s
         """
+        print(f"Executing query: {query} with values: {(
+            prediction_data['expert_id'],
+            prediction_data['analysis'],
+            prediction_data['link'],
+            prediction_data['prediction'],
+            prediction_id
+        )}")
         cursor.execute(query, (
-            prediction_data['expertId'],
+            prediction_data['expert_id'],
             prediction_data['analysis'],
             prediction_data['link'],
             prediction_data['prediction'],
             prediction_id
         ))
-        connection.commit()
+        connection.commit()  # ยืนยันการเปลี่ยนแปลงในฐานข้อมูล
+        print("Commit successful.")
+    except Exception as e:
+        print(f"Database error: {e}")
+        raise e
     finally:
         cursor.close()
         connection.close()
+
 
 
 def delete_prediction(prediction_id):
