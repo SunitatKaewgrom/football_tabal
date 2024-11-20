@@ -127,49 +127,50 @@
           </div>
         </div>
 
-        <!-- รายการ Predictions -->
-        <ng-container formArrayName="expertPredictions">
-          <div 
-            *ngFor="let prediction of getExpertPredictions(i).controls; let j = index; trackBy: trackByIndex" 
-            [formGroupName]="j" 
-            class="mt-8 border-4 border-green-300 p-6 rounded-lg mb-6">
-            <h3 class="text-2xl font-bold mb-4">เซียนบอลคนที่ {{ j + 1 }}</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-gray-700 font-semibold mb-2">เลือกเซียนบอล</label>
-                <div class="flex flex-col items-center mb-4">
-                  <img 
-                    *ngIf="getExpertImage(prediction.get('expertId')?.value)" 
-                    [src]="getExpertImage(prediction.get('expertId')?.value)" 
-                    alt="เซียนบอล" 
-                    class="w-28 h-28 rounded-full border-2 border-gray-300 shadow-lg mb-2">
-                  <select formControlName="expertId" class="w-full p-3 border border-gray-300 rounded-lg">
-                    <option *ngFor="let expert of experts" [value]="expert.id">{{ expert.name }}</option>
-                  </select>
-                </div>
-                <label class="block text-gray-700 font-semibold mb-2">วิเคราะห์ผล</label>
-                <input type="text" formControlName="analysis" class="w-full p-3 border border-gray-300 rounded-lg mb-4">
-                <label class="block text-gray-700 font-semibold mb-2">ลิงค์วิเคราะห์</label>
-                <input type="text" formControlName="link" class="w-full p-3 border border-gray-300 rounded-lg mb-4">
-              </div>
+<!-- รายการ Predictions -->
+<ng-container formArrayName="expertPredictions">
+  <div 
+    *ngFor="let prediction of getExpertPredictions(i).controls; let j = index; trackBy: trackByIndex" 
+    [formGroupName]="j" 
+    class="mt-8 border-4 border-green-300 p-6 rounded-lg mb-6">
+    <h3 class="text-2xl font-bold mb-4">เซียนบอลคนที่ {{ j + 1 }}</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">เลือกเซียนบอล</label>
+        <div class="flex flex-col items-center mb-4">
+          <img 
+            *ngIf="getExpertImage(prediction.get('expert_id')?.value)" 
+            [src]="getExpertImage(prediction.get('expert_id')?.value)" 
+            alt="เซียนบอล" 
+            class="w-28 h-28 rounded-full border-2 border-gray-300 shadow-lg mb-2">
+          <select formControlName="expert_id" class="w-full p-3 border border-gray-300 rounded-lg">
+            <option *ngFor="let expert of experts" [value]="expert.id">{{ expert.name }}</option>
+          </select>
+        </div>
+        <label class="block text-gray-700 font-semibold mb-2">วิเคราะห์ผล</label>
+        <input type="text" formControlName="analysis" class="w-full p-3 border border-gray-300 rounded-lg mb-4">
+        <label class="block text-gray-700 font-semibold mb-2">ลิงค์วิเคราะห์</label>
+        <input type="text" formControlName="link" class="w-full p-3 border border-gray-300 rounded-lg mb-4">
+      </div>
 
-              <div>
-                <label class="block text-gray-700 font-semibold mb-2">ผลทำนาย</label>
-                <div class="flex space-x-4">
-                  <label><input type="radio" formControlName="prediction" value="win" class="mr-2"> ชนะ</label>
-                  <label><input type="radio" formControlName="prediction" value="draw" class="mr-2"> เสมอ</label>
-                  <label><input type="radio" formControlName="prediction" value="lose" class="mr-2"> แพ้</label>
-                </div>
-                <button 
-                  (click)="removeExpertPrediction(i, j)" 
-                  type="button" 
-                  class="bg-red-500 text-white py-2 px-4 rounded-lg mt-4">
-                  ลบเซียนบอล
-                </button>
-              </div>
-            </div>
-          </div>
-        </ng-container>
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">ผลทำนาย</label>
+        <div class="flex space-x-4">
+          <label><input type="radio" formControlName="prediction" value="win" class="mr-2"> ชนะ</label>
+          <label><input type="radio" formControlName="prediction" value="draw" class="mr-2"> เสมอ</label>
+          <label><input type="radio" formControlName="prediction" value="lose" class="mr-2"> แพ้</label>
+        </div>
+        <button 
+          (click)="removeExpertPrediction(i, j)" 
+          type="button" 
+          class="bg-red-500 text-white py-2 px-4 rounded-lg mt-4">
+          ลบเซียนบอล
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
 
         <div class="mt-8 flex justify-center">
           <button 

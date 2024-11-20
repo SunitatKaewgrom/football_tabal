@@ -2,6 +2,7 @@ from config import get_db_connection
 from datetime import timedelta, datetime, date
 
 
+
 def serialize_data(data):
     """
     ฟังก์ชันช่วยแปลงชนิดข้อมูลเพื่อให้ JSON serializable
@@ -22,6 +23,7 @@ def fetch_all_matches(limit=None):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
     try:
+        # Query สำหรับดึงข้อมูล Matches
         query_matches = """
             SELECT m.id AS match_id, 
                    m.match_status, 
@@ -49,12 +51,16 @@ def fetch_all_matches(limit=None):
         else:
             cursor.execute(query_matches)
 
+        # ดึงข้อมูล Matches
         matches = cursor.fetchall()
 
+        # ดึง Match IDs สำหรับ Query Predictions
         match_ids = [match['match_id'] for match in matches]
         if match_ids:
+            # Query สำหรับดึงข้อมูล Predictions
             query_predictions = """
-                SELECT p.match_id, 
+                SELECT p.id AS prediction_id, 
+                       p.match_id, 
                        p.expert_id, 
                        e.name AS expert_name, 
                        p.analysis, 
@@ -69,16 +75,26 @@ def fetch_all_matches(limit=None):
         else:
             predictions = []
 
+        # จัดกลุ่ม Predictions ตาม Match ID
         predictions_by_match = {}
         for prediction in predictions:
             match_id = prediction['match_id']
             if match_id not in predictions_by_match:
                 predictions_by_match[match_id] = []
-            predictions_by_match[match_id].append(prediction)
+            predictions_by_match[match_id].append({
+                'prediction_id': prediction['prediction_id'],
+                'expert_id': prediction['expert_id'],
+                'expert_name': prediction['expert_name'],
+                'analysis': prediction['analysis'],
+                'link': prediction['link'],
+                'prediction': prediction['prediction'],
+            })
 
+        # รวม Predictions กับ Matches
         for match in matches:
             match_id = match['match_id']
             match['predictions'] = predictions_by_match.get(match_id, [])
+            # จัดการข้อมูลแต่ละฟิลด์
             for key, value in match.items():
                 match[key] = serialize_data(value)
 
@@ -137,16 +153,63 @@ def add_predictions(match_id, predictions):
         connection.close()
 
 
+
 def add_matches_with_predictions(data):
-    connection = get_db_connection()
-    cursor = connection.cursor()
     try:
-        for match in data['matches']:
-            match_id = add_match(match['matchDetails'])
-            add_predictions(match_id, match['predictions'])
+        matches = data.get('matches', [])
+        connection = get_db_connection()  # สร้างการเชื่อมต่อกับฐานข้อมูล
+        with connection.cursor() as cursor:
+            for match in matches:
+                match_details = match.get('matchDetails', {})
+                predictions = match.get('newPredictions', [])
+
+                # เพิ่ม Match ลงในฐานข้อมูล
+                sql_match = """
+                INSERT INTO matches (match_status, league_id, home_team_id, away_team_id, date, time, odds, home_score, away_score, team_advantage)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                values_match = (
+                    match_details.get('matchStatus'),
+                    match_details.get('league'),
+                    match_details.get('homeTeam'),
+                    match_details.get('awayTeam'),
+                    match_details.get('date'),
+                    match_details.get('time'),
+                    match_details.get('odds'),
+                    match_details.get('homeScore'),
+                    match_details.get('awayScore'),
+                    match_details.get('teamAdvantage')
+                )
+                cursor.execute(sql_match, values_match)
+
+                # ดึง Match ID ที่ถูกสร้างขึ้น
+                match_id = cursor.lastrowid
+
+                # เพิ่ม Predictions ที่เกี่ยวข้อง
+                for prediction in predictions:
+                    sql_prediction = """
+                    INSERT INTO predictions (match_id, expert_id, analysis, link, prediction)
+                    VALUES (%s, %s, %s, %s, %s)
+                    """
+                    values_prediction = (
+                        match_id,
+                        prediction.get('expert_id'),
+                        prediction.get('analysis'),
+                        prediction.get('link'),
+                        prediction.get('prediction')
+                    )
+                    cursor.execute(sql_prediction, values_prediction)
+
+        # Commit การเปลี่ยนแปลง
+        connection.commit()
+    except Exception as e:
+        connection.rollback()
+        print('Error in add_matches_with_predictions:', str(e))
+        raise
     finally:
-        cursor.close()
-        connection.close()
+        connection.close()  # ปิดการเชื่อมต่อฐานข้อมูล
+
+
 
 
 def update_match(match_id, match_data):
@@ -231,9 +294,26 @@ def delete_prediction(prediction_id):
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
-        query = "DELETE FROM predictions WHERE id = %s"
-        cursor.execute(query, (prediction_id,))
+        # ตรวจสอบว่าข้อมูลมีอยู่หรือไม่ก่อนลบ
+        check_query = "SELECT id FROM predictions WHERE id = %s"
+        cursor.execute(check_query, (prediction_id,))
+        prediction = cursor.fetchone()
+
+        if not prediction:
+            return {"status": "error", "message": "Prediction not found"}, 404
+
+        # ลบข้อมูล
+        delete_query = "DELETE FROM predictions WHERE id = %s"
+        cursor.execute(delete_query, (prediction_id,))
         connection.commit()
+
+        return {"status": "success", "message": "Prediction deleted successfully"}, 200
+
+    except Exception as e:
+        print(f"Error deleting prediction: {e}")
+        return {"status": "error", "message": str(e)}, 500
+
     finally:
         cursor.close()
         connection.close()
+

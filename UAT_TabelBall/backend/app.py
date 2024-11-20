@@ -325,10 +325,16 @@ def add_matches():
         data = request.json
         if not data or 'matches' not in data:
             abort(400, 'Invalid request: missing matches data')
+
+        print('Received data:', data)  # Debug ข้อมูลที่ส่งมาจาก Frontend
+
         add_matches_with_predictions(data)
+
         return jsonify({'status': 'success'}), 201
     except Exception as e:
+        print('Error in add_matches:', str(e))  # Debug ข้อผิดพลาด
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 
 # API: อัปเดต Match
@@ -376,14 +382,20 @@ def add_prediction_endpoint():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
+
 # API: ลบ Prediction
 @app.route('/api/predictions/<int:prediction_id>', methods=['DELETE'])
 def delete_prediction_endpoint(prediction_id):
     try:
+        # เรียกใช้ฟังก์ชันลบ Prediction
         delete_prediction(prediction_id)
-        return jsonify({'status': 'success'}), 200
+        return jsonify({'status': 'success', 'message': 'Prediction deleted successfully'}), 200
+    except ValueError as ve:
+        # หาก Prediction ไม่พบ
+        return jsonify({'status': 'error', 'message': str(ve)}), 404
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        # จัดการข้อผิดพลาดทั่วไป
+        return jsonify({'status': 'error', 'message': f'Unexpected error: {str(e)}'}), 500
 
 
 

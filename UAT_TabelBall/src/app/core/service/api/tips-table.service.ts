@@ -40,9 +40,11 @@ export class TipsTableService {
    * @param matchId รหัส Match
    * @param matchData ข้อมูลที่ต้องการอัปเดต
    */
-  updateMatch(matchId: number, matchData: any): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/matches/${matchId}`, matchData);
+  updateMatch(matchId: number, matchDetails: any): Observable<any> {
+    console.log('Sending data to update match:', matchDetails);  // ตรวจสอบข้อมูลที่ส่งไป
+    return this.http.put<any>(`${this.baseUrl}/matches/${matchId}`, matchDetails);
   }
+  
 
   /**
    * ลบ Match
