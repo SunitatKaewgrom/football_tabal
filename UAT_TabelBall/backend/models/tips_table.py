@@ -255,7 +255,7 @@ def update_prediction(prediction_id, prediction_data):
         query = """
             UPDATE predictions
             SET expert_id = %s, analysis = %s, link = %s, prediction = %s
-            WHERE expert_id = %s
+            WHERE id = %s
         """
         print(f"Executing query: {query} with values: {(
             prediction_data['expert_id'],
@@ -279,6 +279,7 @@ def update_prediction(prediction_id, prediction_data):
     finally:
         cursor.close()
         connection.close()
+
 
 
 

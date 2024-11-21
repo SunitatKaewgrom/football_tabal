@@ -366,13 +366,15 @@ def delete_match_endpoint(match_id):
 def update_prediction_endpoint(prediction_id):
     try:
         prediction_data = request.json
-        print(f"Updating prediction ID: {prediction_id} with data: {prediction_data}")
+        if not prediction_data:
+            return jsonify({'status': 'error', 'message': 'Invalid request, no data provided'}), 400
+        
         update_prediction(prediction_id, prediction_data)
-        return jsonify({'status': 'success'}), 200
+        return jsonify({'status': 'success', 'message': 'Prediction updated successfully'}), 200
     except Exception as e:
-        print(f"Error updating prediction: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
+    
+    
 @app.route('/api/predictions', methods=['POST'])
 def add_prediction_endpoint():
     try:

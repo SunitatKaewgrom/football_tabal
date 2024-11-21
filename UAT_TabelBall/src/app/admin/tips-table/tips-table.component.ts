@@ -163,17 +163,19 @@ export class TipsTableComponent implements OnInit {
   
   
  // ปรับปรุงการสร้าง Expert Prediction Group
-createExpertPredictionGroup(prediction: any = {}): FormGroup {
+ createExpertPredictionGroup(prediction: any = {}): FormGroup {
   console.log('Creating Expert Prediction Group for:', prediction);
+
   return this.fb.group({
     id: [prediction.id || null],
     expert_id: [prediction.expert_id || '', Validators.required],
     analysis: [prediction.analysis || '', Validators.required],
     link: [prediction.link || '', Validators.required],
     prediction: [prediction.prediction || 'win', Validators.required],
-    isNew: [prediction.isNew ?? !prediction.id], // ระบุว่าเป็น Prediction ใหม่หรือไม่
+    isNew: [prediction.isNew ?? !prediction.id], // ตรวจสอบ isNew
   });
 }
+
   
   
   
@@ -276,8 +278,9 @@ createExpertPredictionGroup(prediction: any = {}): FormGroup {
     }
   }
   
-    
 
+  
+    
   // ฟังก์ชันช่วยโหลดรูปภาพของทีม
   getTeamImage(teamId: string): string | null {
     const team = this.teams.find((t) => t.id.toString() === teamId);
@@ -296,7 +299,20 @@ createExpertPredictionGroup(prediction: any = {}): FormGroup {
     return expert ? `http://127.0.0.1:5000/${expert.image_url}` : null;
   }
 
-
+  private addNewMatch(match: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.tipsTableService.addMatchesWithPredictions({ matches: [match] }).subscribe({
+        next: (response) => {
+          console.log('Match added successfully:', response);
+          resolve(response); // สำเร็จ
+        },
+        error: (err) => {
+          console.error('Error adding match:', err);
+          reject(err); // เกิดข้อผิดพลาด
+        },
+      });
+    });
+  }
 
    // ฟังก์ชันบันทึก Matches และ Predictions
    onSubmit(): void {
@@ -306,12 +322,18 @@ createExpertPredictionGroup(prediction: any = {}): FormGroup {
       const matchesData = this.matches.value.map((match: any) => {
         const { expertPredictions, ...matchDetails } = match;
   
+        const newPredictions = expertPredictions.filter((prediction: any) => prediction.isNew);
+        const updatedPredictions = expertPredictions.filter((prediction: any) =>
+          prediction.id && this.isPredictionUpdated(prediction)
+        );
+  
+        console.log('New Predictions:', newPredictions);
+        console.log('Updated Predictions:', updatedPredictions);
+  
         return {
           matchDetails,
-          newPredictions: expertPredictions.filter((prediction: any) => prediction.isNew),
-          updatedPredictions: expertPredictions.filter((prediction: any) =>
-            prediction.id && this.isPredictionUpdated(prediction)
-          ),
+          newPredictions,
+          updatedPredictions,
         };
       });
   
@@ -329,77 +351,56 @@ createExpertPredictionGroup(prediction: any = {}): FormGroup {
   
   
   
-  
-  
-  
-  private addNewMatch(match: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.tipsTableService.addMatchesWithPredictions({ matches: [match] }).subscribe({
-        next: (response) => {
-          console.log('Match added successfully:', response);
-          resolve(response); // สำเร็จ
-        },
-        error: (err) => {
-          console.error('Error adding match:', err);
-          reject(err); // เกิดข้อผิดพลาด
-        },
-      });
+  private updateExistingMatch(match: any): void {
+    this.tipsTableService.updateMatch(match.matchDetails.id, match.matchDetails).subscribe({
+      next: () => {
+        console.log(`Match with ID ${match.matchDetails.id} updated successfully`);
+        this.processPredictions(match.matchDetails.id, match.newPredictions, match.updatedPredictions);
+      },
+      error: (err) => {
+        console.error(`Error updating match with ID ${match.matchDetails.id}:`, err);
+        alert('เกิดข้อผิดพลาดในการอัปเดต Match');
+      },
     });
   }
   
-  private updateExistingMatch(match: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.tipsTableService.updateMatch(match.matchDetails.id, match.matchDetails).subscribe({
-        next: () => {
-          console.log('Match updated successfully');
-          this.processPredictions(match.matchDetails.id, match.newPredictions, match.updatedPredictions)
-            .then(resolve) // สำเร็จ
-            .catch(reject); // เกิดข้อผิดพลาด
-        },
-        error: (err) => {
-          console.error(`Error updating match with ID ${match.matchDetails.id}:`, err);
-          reject(err); // เกิดข้อผิดพลาด
-        },
-      });
+  private processPredictions(
+    matchId: number,
+    newPredictions: PredictionData[],
+    updatedPredictions: PredictionData[]
+  ): void {
+    console.log('Processing Predictions for Match ID:', matchId);
+    console.log('New Predictions:', newPredictions);
+    console.log('Updated Predictions:', updatedPredictions);
+  
+    const addPromises = newPredictions.map((prediction) => {
+      console.log('Adding Prediction:', prediction);
+      return this.tipsTableService.addPrediction(matchId, prediction).toPromise();
     });
-  }
   
-  
-  
-  private processPredictions(matchId: number, newPredictions: PredictionData[], updatedPredictions: PredictionData[]): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const addPromises = newPredictions.map((prediction) => {
-        const formattedPrediction = { ...prediction, expert_id: prediction.expert_id };
-        console.log('Adding new prediction:', formattedPrediction);
-        return this.tipsTableService.addPrediction(matchId, formattedPrediction).toPromise();
-      });
-  
-      const updatePromises = updatedPredictions.map((prediction) => {
-        console.log('Updating prediction:', prediction);
-        return this.tipsTableService.updatePrediction(Number(prediction.id), prediction).toPromise();
-      });
-  
-      Promise.all([...addPromises, ...updatePromises])
-        .then((results) => {
-          console.log('All predictions processed successfully:', results);
-          resolve(results); // สำเร็จ
-        })
-        .catch((error) => {
-          console.error('Error processing predictions:', error);
-          reject(error); // เกิดข้อผิดพลาด
-        });
+    const updatePromises = updatedPredictions.map((prediction) => {
+      console.log('Updating Prediction:', prediction);
+      return this.tipsTableService.updatePrediction(prediction.id!, prediction).toPromise();
     });
+  
+    Promise.all([...addPromises, ...updatePromises])
+      .then((results) => {
+        console.log('All predictions processed successfully:', results);
+        this.refreshMatches();
+      })
+      .catch((error) => {
+        console.error('Error processing predictions:', error);
+      });
   }
   
   
   
   
   private isPredictionUpdated(prediction: PredictionData): boolean {
-    if (!prediction.id) {
-      return false; // ถ้าไม่มี ID ให้ถือว่าเป็นข้อมูลใหม่
-    }
-  
     const originalPrediction = this.getOriginalPrediction(prediction.id!);
+    console.log('Original Prediction:', originalPrediction);
+    console.log('Current Prediction:', prediction);
+  
     if (!originalPrediction) {
       return false; // ไม่มีข้อมูลเดิมให้เปรียบเทียบ
     }
@@ -412,46 +413,44 @@ createExpertPredictionGroup(prediction: any = {}): FormGroup {
     );
   }
   
+  
+  
+  
   private getOriginalPrediction(predictionId: number): PredictionData | null {
-    // ค้นหา Prediction เดิมจาก Matches ทั้งหมด
     const allPredictions = this.matches.value.flatMap((match: any) =>
       match.expertPredictions || []
     );
+    console.log('All Predictions:', allPredictions);
   
     return allPredictions.find((p: any) => p.id === predictionId) || null;
   }
   
-  refreshMatches(): void {
+  
+  
+  private refreshMatches(): void {
+    console.log('Refreshing Matches...');
     this.tipsTableService.getMatches().subscribe({
       next: (response) => {
+        console.log('API Response:', response);
+  
         const matchesArray = this.matches;
-        matchesArray.clear();
+        matchesArray.clear(); // ลบข้อมูลเดิม
   
         response.data.forEach((match: any) => {
-          const uniquePredictions: PredictionData[] = []; // กำหนดชนิดข้อมูลเป็น PredictionData[]
-          const seenIds = new Set<number>();
-  
-          match.predictions.forEach((prediction: PredictionData) => {
-            if (!seenIds.has(prediction.id!)) {
-              uniquePredictions.push(prediction);
-              seenIds.add(prediction.id!);
-            } else {
-              console.warn('Duplicate Prediction Removed:', prediction);
-            }
-          });
-  
-          match.predictions = uniquePredictions; // ใช้ข้อมูล Prediction ที่กรองแล้ว
-          matchesArray.push(this.createMatchGroup(match));
+          console.log('Processing Match:', match);
+          matchesArray.push(this.createMatchGroup(match)); // เพิ่ม Matches ใหม่
         });
   
-        console.log('Matches after refresh:', matchesArray.value);
-        this.cdr.detectChanges(); // อัปเดต UI
+        console.log('Updated Matches Array:', matchesArray.value);
+        this.cdr.detectChanges(); // บังคับให้ Angular อัปเดต UI
       },
       error: (err) => {
         console.error('Error refreshing matches:', err);
+        alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
       },
     });
   }
+  
   
   
   
