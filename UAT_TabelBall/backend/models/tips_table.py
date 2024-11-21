@@ -55,16 +55,18 @@ def fetch_all_matches(limit=None):
         match_ids = [match['match_id'] for match in matches]
         if match_ids:
             query_predictions = """
-                SELECT DISTINCT p.id, 
-                    p.match_id, 
-                    p.expert_id, 
-                    e.name AS expert_name, 
-                    p.analysis, 
-                    p.link, 
-                    p.prediction
+                SELECT DISTINCT
+                p.id,
+                p.match_id,
+                p.expert_id,
+                e.name AS expert_name,
+                p.analysis,
+                p.link,
+                p.prediction
                 FROM predictions p
                 JOIN experts e ON p.expert_id = e.id
                 WHERE p.match_id IN (%s)
+
             """ % ','.join(['%s'] * len(match_ids))
             cursor.execute(query_predictions, match_ids)
             predictions = cursor.fetchall()
