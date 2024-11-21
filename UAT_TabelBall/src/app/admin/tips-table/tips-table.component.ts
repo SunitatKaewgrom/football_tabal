@@ -134,7 +134,7 @@ export class TipsTableComponent implements OnInit {
   
 
   // สร้าง Match Group
-  createMatchGroup(match: any = {}): FormGroup {
+  createMatchGroup(match: any): FormGroup {
     return this.fb.group({
       id: [match.match_id || null],
       matchStatus: [match.match_status || 'not_started', Validators.required],
@@ -147,7 +147,11 @@ export class TipsTableComponent implements OnInit {
       homeScore: [match.home_score ?? null, Validators.required],
       awayScore: [match.away_score ?? null, Validators.required],
       teamAdvantage: [match.team_advantage || '', Validators.required],
-      expertPredictions: this.fb.array([]), // ไม่มี Predictions เริ่มต้น
+      expertPredictions: this.fb.array(
+        (Array.isArray(match.predictions) ? match.predictions : []).map((prediction: any) =>
+          this.createExpertPredictionGroup(prediction)
+        )
+      ),
     });
   }
   
@@ -156,14 +160,15 @@ export class TipsTableComponent implements OnInit {
   // สร้าง Expert Prediction Group
   createExpertPredictionGroup(prediction: any = {}): FormGroup {
     return this.fb.group({
-      id: [prediction.id || null], // ใช้ ID ถ้ามี หรือกำหนดเป็น null
-      expert_id: [prediction.expert_id || '', Validators.required], // ID ของเซียน
-      analysis: [prediction.analysis || '', Validators.required], // ข้อวิเคราะห์
-      link: [prediction.link || '', Validators.required], // ลิงก์
-      prediction: [prediction.prediction || 'win', Validators.required], // ผลลัพธ์
-      isNew: [prediction.isNew ?? !prediction.id], // ระบุว่าคือ Prediction ใหม่
+      id: [prediction.id || null],
+      expert_id: [prediction.expert_id || '', Validators.required],
+      analysis: [prediction.analysis || '', Validators.required],
+      link: [prediction.link || '', Validators.required],
+      prediction: [prediction.prediction || 'win', Validators.required],
+      isNew: [prediction.isNew ?? !prediction.id], // ระบุว่าเป็น Prediction ใหม่หรือไม่
     });
   }
+  
   
   
   
@@ -240,33 +245,31 @@ export class TipsTableComponent implements OnInit {
 
   // ลบ Expert Prediction
   removeExpertPrediction(matchIndex: number, predictionIndex: number): void {
-    const confirmDelete = confirm('คุณแน่ใจหรือไม่ว่าต้องการลบเซียนบอลนี้?');
-    if (!confirmDelete) {
-      return; // หยุดการทำงานหากผู้ใช้กดยกเลิก
-    }
+    const expertPredictions = this.getExpertPredictions(matchIndex);
+    const prediction = expertPredictions.at(predictionIndex).value;
   
-    const expertPrediction = this.getExpertPredictions(matchIndex).at(predictionIndex);
-    const predictionId = expertPrediction.get('id')?.value;
-  
-    if (predictionId) {
-      // ลบในฐานข้อมูล
-      this.tipsTableService.deletePrediction(predictionId).subscribe({
+    if (prediction.id) {
+      // หากมี prediction_id ให้ลบออกจากฐานข้อมูล
+      this.tipsTableService.deletePrediction(prediction.id).subscribe({
         next: () => {
-          console.log(`Prediction with ID ${predictionId} deleted successfully`);
-          this.getExpertPredictions(matchIndex).removeAt(predictionIndex); // ลบจาก UI
-          alert('เซียนบอลถูกลบเรียบร้อยแล้ว');
+          console.log(`Prediction with id ${prediction.id} deleted successfully.`);
+          expertPredictions.removeAt(predictionIndex); // ลบออกจาก UI
+          alert('เซียนถูกลบออกจากฐานข้อมูลสำเร็จ!');
+          this.cdr.markForCheck(); // บังคับให้ UI อัปเดต
         },
         error: (err) => {
-          console.error(`Error deleting prediction with ID ${predictionId}:`, err);
-          alert('เกิดข้อผิดพลาดในการลบเซียนบอล');
+          console.error('Error deleting prediction:', err);
+          alert('เกิดข้อผิดพลาดในการลบเซียน');
         },
       });
     } else {
-      // ลบเฉพาะใน UI หากยังไม่ได้บันทึก
-      this.getExpertPredictions(matchIndex).removeAt(predictionIndex);
-      alert('เซียนบอลถูกลบออกจากรายการ (ยังไม่ได้บันทึกในฐานข้อมูล)');
+      // หากไม่มี prediction_id แสดงว่าเซียนยังไม่ได้ถูกบันทึกในฐานข้อมูล
+      expertPredictions.removeAt(predictionIndex); // ลบออกจาก UI อย่างเดียว
+      alert('เซียนถูกลบออกจากรายการ (ยังไม่ได้บันทึกในฐานข้อมูล)');
+      this.cdr.markForCheck();
     }
   }
+  
     
   
   
@@ -306,24 +309,31 @@ export class TipsTableComponent implements OnInit {
         };
       });
   
-      matchesData.forEach((match: any) => {
+      const operations = matchesData.map((match: any) => {
         if (!match.matchDetails.id) {
-          this.addNewMatch(match);
+          return this.addNewMatch(match);
         } else {
-          this.updateExistingMatch(match);
+          return this.updateExistingMatch(match);
         }
+      });
+  
+      Promise.all(operations).then(() => {
+        this.refreshMatches(); // เรียก refreshMatches เพียงครั้งเดียว
       });
     } else {
       alert('กรุณากรอกข้อมูลให้ครบถ้วน');
     }
   }
   
+  
+  
+  
   private addNewMatch(match: any): void {
+    console.log('addNewMatch called');
     this.tipsTableService.addMatchesWithPredictions({ matches: [match] }).subscribe({
       next: (response) => {
         console.log('Match added successfully:', response);
-        this.refreshMatches();
-        alert('เพิ่มข้อมูลสำเร็จ!');
+        this.refreshMatches(); // อาจทำให้เกิดการเรียกซ้ำ
       },
       error: (err) => {
         console.error('Error adding match:', err);
@@ -331,6 +341,7 @@ export class TipsTableComponent implements OnInit {
       },
     });
   }
+  
   
   private updateExistingMatch(match: any): void {
     this.tipsTableService.updateMatch(match.matchDetails.id, match.matchDetails).subscribe({
@@ -345,29 +356,25 @@ export class TipsTableComponent implements OnInit {
     });
   }
   
-  processPredictions(matchId: number, newPredictions: PredictionData[], updatedPredictions: PredictionData[]): void {
-    const addPromises = newPredictions.map((prediction, index) =>
-      this.tipsTableService.addPrediction(matchId, prediction).toPromise().then((response) => {
-        console.log('Added prediction response:', response);
+  private processPredictions(matchId: number, newPredictions: PredictionData[], updatedPredictions: PredictionData[]): void {
+    const addPromises = newPredictions.map((prediction) => {
+      const formattedPrediction = { ...prediction, expert_id: prediction.expert_id };
+      return this.tipsTableService.addPrediction(matchId, formattedPrediction).toPromise();
+    });
   
-        // อัปเดต ID ใน FormArray
-        const addedPrediction = response; // สมมติ API ส่ง { id: 123 } กลับมา
-        newPredictions[index].id = addedPrediction.id;
-        newPredictions[index].isNew = false;
-      })
-    );
-  
-    const updatePromises = updatedPredictions.map((prediction) =>
-      this.tipsTableService.updatePrediction(Number(prediction.id), prediction).toPromise()
-    );
+    const updatePromises = updatedPredictions.map((prediction) => {
+      return this.tipsTableService.updatePrediction(Number(prediction.id), prediction).toPromise();
+    });
   
     Promise.all([...addPromises, ...updatePromises])
-      .then(() => {
-        console.log('All predictions processed successfully');
-        this.refreshMatches();
+      .then((results) => {
+        console.log('All predictions processed successfully:', results);
+        alert('บันทึกข้อมูลสำเร็จ!');
+        this.refreshMatches(); // เรียก refreshMatches
       })
       .catch((error) => {
         console.error('Error processing predictions:', error);
+        alert(`เกิดข้อผิดพลาด: ${error.message || 'ไม่สามารถบันทึกข้อมูลได้'}`);
       });
   }
   
@@ -402,16 +409,32 @@ export class TipsTableComponent implements OnInit {
   private refreshMatches(): void {
     this.tipsTableService.getMatches().subscribe({
       next: (response) => {
-        console.log('API Response for Matches:', response); // ตรวจสอบโครงสร้างข้อมูล
-  
         const matchesArray = this.matches;
-        matchesArray.clear(); // ลบข้อมูลเดิม
+        matchesArray.clear(); // ลบข้อมูลเดิมทั้งหมดใน FormArray
   
         response.data.forEach((match: any) => {
-          matchesArray.push(this.createMatchGroup(match)); // เพิ่ม Matches ใหม่
+          console.log('Processing Match:', match);
+  
+          const matchGroup = this.createMatchGroup(match);
+          const expertPredictionsArray = matchGroup.get('expertPredictions') as FormArray;
+  
+          // ตรวจสอบว่า Prediction มีอยู่ใน FormArray หรือไม่
+          const existingIds = new Set();
+          match.predictions.forEach((prediction: any) => {
+            if (!existingIds.has(prediction.id)) {
+              existingIds.add(prediction.id); // เพิ่ม `id` ใน Set
+              console.log('Adding Prediction:', prediction);
+              expertPredictionsArray.push(this.createExpertPredictionGroup(prediction));
+            } else {
+              console.warn('Duplicate Prediction Detected:', prediction);
+            }
+          });
+  
+          matchesArray.push(matchGroup);
         });
-        console.log('Matches refreshed:', matchesArray.value); // ตรวจสอบข้อมูลใน FormArray
-        this.cdr.detectChanges(); // บังคับให้ Angular อัปเดต UI
+  
+        console.log('Updated Matches Array:', matchesArray.value);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error refreshing matches:', err);
@@ -419,6 +442,7 @@ export class TipsTableComponent implements OnInit {
       },
     });
   }
+  
   
 
   // ฟังก์ชันช่วยติดตามการเปลี่ยนแปลงใน *ngFor

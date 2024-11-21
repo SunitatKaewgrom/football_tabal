@@ -23,7 +23,6 @@ def fetch_all_matches(limit=None):
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
     try:
-        # Query สำหรับดึงข้อมูล Matches
         query_matches = """
             SELECT m.id AS match_id, 
                    m.match_status, 
@@ -51,50 +50,40 @@ def fetch_all_matches(limit=None):
         else:
             cursor.execute(query_matches)
 
-        # ดึงข้อมูล Matches
         matches = cursor.fetchall()
 
-        # ดึง Match IDs สำหรับ Query Predictions
         match_ids = [match['match_id'] for match in matches]
         if match_ids:
-            # Query สำหรับดึงข้อมูล Predictions
             query_predictions = """
-                SELECT p.id AS prediction_id, 
-                       p.match_id, 
-                       p.expert_id, 
-                       e.name AS expert_name, 
-                       p.analysis, 
-                       p.link, 
-                       p.prediction
+                SELECT DISTINCT p.id, 
+                    p.match_id, 
+                    p.expert_id, 
+                    e.name AS expert_name, 
+                    p.analysis, 
+                    p.link, 
+                    p.prediction
                 FROM predictions p
                 JOIN experts e ON p.expert_id = e.id
                 WHERE p.match_id IN (%s)
             """ % ','.join(['%s'] * len(match_ids))
             cursor.execute(query_predictions, match_ids)
             predictions = cursor.fetchall()
+
         else:
             predictions = []
 
-        # จัดกลุ่ม Predictions ตาม Match ID
+        # Group predictions by match_id
         predictions_by_match = {}
         for prediction in predictions:
             match_id = prediction['match_id']
             if match_id not in predictions_by_match:
                 predictions_by_match[match_id] = []
-            predictions_by_match[match_id].append({
-                'prediction_id': prediction['prediction_id'],
-                'expert_id': prediction['expert_id'],
-                'expert_name': prediction['expert_name'],
-                'analysis': prediction['analysis'],
-                'link': prediction['link'],
-                'prediction': prediction['prediction'],
-            })
+            if all(p['id'] != prediction['id'] for p in predictions_by_match[match_id]):
+                predictions_by_match[match_id].append(prediction)
 
-        # รวม Predictions กับ Matches
         for match in matches:
             match_id = match['match_id']
             match['predictions'] = predictions_by_match.get(match_id, [])
-            # จัดการข้อมูลแต่ละฟิลด์
             for key, value in match.items():
                 match[key] = serialize_data(value)
 
@@ -102,6 +91,7 @@ def fetch_all_matches(limit=None):
     finally:
         cursor.close()
         connection.close()
+
 
 
 def add_match(match_data):
