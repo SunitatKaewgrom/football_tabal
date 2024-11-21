@@ -311,7 +311,7 @@ def get_matches():
         if limit:
             limit = int(limit)
         matches = fetch_all_matches(limit=limit)
-        print(f"Matches Retrieved: {matches}")
+        
         return jsonify({'status': 'success', 'data': matches}), 200
     except ValueError:
         return jsonify({'status': 'error', 'message': 'Invalid limit value'}), 400

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common'; // ใช้สำหรับ�
 import { TipsTableService } from 'src/app/core/service/api/tips-table.service';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { AbstractControl } from '@angular/forms';
 
 // ประกาศ Interface ก่อน @Component
 interface MatchData {
@@ -90,33 +91,38 @@ export class TipsTableComponent implements OnInit {
   // โหลด Matches และ Predictions จาก API
   loadMatches(): void {
     this.tipsTableService.getMatches().subscribe({
-      next: (response: any) => {
-        console.log('API Response:', response); // เพิ่มการแสดงข้อมูลเพื่อตรวจสอบโครงสร้างของข้อมูลที่ได้รับ
+      next: (response) => {
+        console.log('API Response:', response);
   
-        if (response && response.data && Array.isArray(response.data)) {
-          const matchesArray = this.matches;
-          matchesArray.clear(); // เคลียร์ข้อมูลเก่า
+        const matchesArray = this.matches;
+        matchesArray.clear(); // ล้างข้อมูลเดิมออกก่อน
   
-          response.data.forEach((match: any) => {
-            // ตรวจสอบว่า Predictions มาพร้อมกับ Match หรือไม่
-            const matchGroup = this.createMatchGroup(match);
-            if (Array.isArray(match.predictions)) {
-              const predictionsArray = matchGroup.get('expertPredictions') as FormArray;
-              match.predictions.forEach((prediction: any) => {
-                predictionsArray.push(this.createExpertPredictionGroup(prediction));
-              });
+        response.data.forEach((match: any) => {
+          console.log('Creating Match Group for:', match);
+  
+          // ระบุประเภทที่ชัดเจนสำหรับ uniquePredictions
+          const uniquePredictions: PredictionData[] = [];
+          const seenIds = new Set<number>();
+  
+          // กรอง Prediction ที่ซ้ำออก
+          match.predictions.forEach((prediction: PredictionData) => {
+            if (prediction.id !== null && !seenIds.has(prediction.id)) {
+              seenIds.add(prediction.id);
+              uniquePredictions.push(prediction);
+              console.log('Unique Prediction Added:', prediction);
             }
-            matchesArray.push(matchGroup);
           });
   
-          console.log('Matches loaded with predictions:', matchesArray.value);
-        } else {
-          console.error('Invalid response format: Expected array in response.data', response);
-          alert('ไม่สามารถโหลดข้อมูลได้');
-        }
+          // เพิ่ม Match พร้อม Prediction
+          match.predictions = uniquePredictions;
+          matchesArray.push(this.createMatchGroup(match));
+        });
+  
+        console.log('Matches loaded with predictions:', matchesArray.value);
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error fetching matches:', err);
+        console.error('Error loading matches:', err);
         alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
       },
     });
@@ -137,26 +143,6 @@ export class TipsTableComponent implements OnInit {
 
   // สร้าง Match Group
   createMatchGroup(match: any = {}): FormGroup {
-    console.log('Creating Match Group for:', match);
-  
-    const uniquePredictions: PredictionData[] = [];
-    const seenIds = new Set<number>();
-  
-    if (Array.isArray(match.predictions)) {
-      match.predictions.forEach((prediction: any) => {
-        if (!prediction.id || !seenIds.has(prediction.id)) {
-          uniquePredictions.push(prediction);
-          if (prediction.id) {
-            seenIds.add(prediction.id);
-          }
-        } else {
-          console.warn('Duplicate Prediction Detected and removed:', prediction);
-        }
-      });
-    }
-  
-    console.log('Unique Predictions after filtering:', uniquePredictions);
-  
     return this.fb.group({
       id: [match.match_id || null],
       matchStatus: [match.match_status || 'not_started', Validators.required],
@@ -170,22 +156,24 @@ export class TipsTableComponent implements OnInit {
       awayScore: [match.away_score ?? null, Validators.required],
       teamAdvantage: [match.team_advantage || '', Validators.required],
       expertPredictions: this.fb.array(
-        uniquePredictions.map((prediction: PredictionData) => this.createExpertPredictionGroup(prediction))
+        (match.predictions || []).map((prediction: any) => this.createExpertPredictionGroup(prediction))
       ),
     });
   }
   
-  createExpertPredictionGroup(prediction: any = {}): FormGroup {
-    console.log('Creating Expert Prediction Group for:', prediction);
-    return this.fb.group({
-      id: [prediction.id || null],
-      expert_id: [prediction.expert_id || '', Validators.required],
-      analysis: [prediction.analysis || '', Validators.required],
-      link: [prediction.link || '', Validators.required],
-      prediction: [prediction.prediction || 'win', Validators.required],
-      isNew: [prediction.isNew ?? !prediction.id], // ตรวจสอบว่าเป็น Prediction ใหม่
-    });
-  }
+  
+ // ปรับปรุงการสร้าง Expert Prediction Group
+createExpertPredictionGroup(prediction: any = {}): FormGroup {
+  console.log('Creating Expert Prediction Group for:', prediction);
+  return this.fb.group({
+    id: [prediction.id || null],
+    expert_id: [prediction.expert_id || '', Validators.required],
+    analysis: [prediction.analysis || '', Validators.required],
+    link: [prediction.link || '', Validators.required],
+    prediction: [prediction.prediction || 'win', Validators.required],
+    isNew: [prediction.isNew ?? !prediction.id], // ระบุว่าเป็น Prediction ใหม่หรือไม่
+  });
+}
   
   
   
@@ -327,28 +315,17 @@ export class TipsTableComponent implements OnInit {
         };
       });
   
-      const requests = matchesData.map((match: any) => {
+      matchesData.forEach((match: any) => {
         if (!match.matchDetails.id) {
-          return this.addNewMatch(match);
+          this.addNewMatch(match);
         } else {
-          return this.updateExistingMatch(match);
+          this.updateExistingMatch(match);
         }
       });
-  
-      Promise.all(requests)
-        .then(() => {
-          console.log('All matches processed successfully');
-          this.refreshMatches(); // เรียก Refresh ครั้งเดียวหลังจากบันทึก
-        })
-        .catch((err) => {
-          console.error('Error processing matches:', err);
-          alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
-        });
     } else {
       alert('กรุณากรอกข้อมูลให้ครบถ้วน');
     }
   }
-  
   
   
   
@@ -447,29 +424,46 @@ export class TipsTableComponent implements OnInit {
   refreshMatches(): void {
     this.tipsTableService.getMatches().subscribe({
       next: (response) => {
-        console.log('refreshMatches called');
         const matchesArray = this.matches;
-        matchesArray.clear(); // ลบข้อมูลเดิมทั้งหมด
+        matchesArray.clear();
   
         response.data.forEach((match: any) => {
-          matchesArray.push(this.createMatchGroup(match)); // เพิ่ม Matches ใหม่
+          const uniquePredictions: PredictionData[] = []; // กำหนดชนิดข้อมูลเป็น PredictionData[]
+          const seenIds = new Set<number>();
+  
+          match.predictions.forEach((prediction: PredictionData) => {
+            if (!seenIds.has(prediction.id!)) {
+              uniquePredictions.push(prediction);
+              seenIds.add(prediction.id!);
+            } else {
+              console.warn('Duplicate Prediction Removed:', prediction);
+            }
+          });
+  
+          match.predictions = uniquePredictions; // ใช้ข้อมูล Prediction ที่กรองแล้ว
+          matchesArray.push(this.createMatchGroup(match));
         });
   
-        console.log('Updated Matches Array:', matchesArray.value);
+        console.log('Matches after refresh:', matchesArray.value);
         this.cdr.detectChanges(); // อัปเดต UI
       },
       error: (err) => {
         console.error('Error refreshing matches:', err);
-        alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
       },
     });
   }
   
   
   
-
   // ฟังก์ชันช่วยติดตามการเปลี่ยนแปลงใน *ngFor
   trackByIndex(index: number): any {
     return index;
   }
+
+  trackById(index: number, control: AbstractControl<any, any>): any {
+    // ใช้ ID จาก FormControl หรือ Index หากไม่มี ID
+    return control.get('id')?.value || index;
+  }
+  
+  
 }
