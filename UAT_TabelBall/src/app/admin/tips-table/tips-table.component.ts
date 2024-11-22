@@ -178,35 +178,37 @@ export class TipsTableComponent implements OnInit {
   
   
 
-  addMatch(): void {
-    const matchesArray = this.matches;
-  
-    // เพิ่ม Match ใหม่ที่ตำแหน่งแรก พร้อมข้อมูลเริ่มต้นที่ว่างเปล่า
-    matchesArray.insert(
-      0,
-      this.createMatchGroup({
-        match_id: null,
-        match_status: 'not_started',
-        league_id: '',
-        home_team_id: '',
-        away_team_id: '',
-        date: '',
-        time: '',
-        odds: '',
-        home_score: null,
-        away_score: null,
-        team_advantage: '',
-        predictions: [],
-      })
-    );
-  
-    console.log('New empty Match added at the top:', matchesArray.value);
-  
-    // บังคับให้ Angular อัปเดต UI
-    this.cdr.detectChanges();
-  }
-  
-  
+// ฟังก์ชันที่ใช้เพิ่ม Match ใหม่
+addMatch(): void {
+  const matchesArray = this.matches;
+
+  // สร้าง FormGroup ใหม่ที่ไม่เชื่อมโยงกับข้อมูลเดิม
+  const newMatchGroup = this.createMatchGroup({
+    id: null,  // กำหนดค่าเริ่มต้นเป็น null
+    matchStatus: 'not_started',  // ค่าเริ่มต้นสำหรับ match ใหม่
+    league: '',
+    homeTeam: '',
+    awayTeam: '',
+    date: '',
+    time: '',
+    odds: '',
+    homeScore: null,
+    awayScore: null,
+    teamAdvantage: '',
+    predictions: [],  // ให้ค่าผลทำนายเริ่มต้นเป็นอาร์เรย์ว่าง
+    expertPredictions: [] // กำหนดให้ expertPredictions เป็นอาร์เรย์ว่างใน match ใหม่
+  });
+
+  // ลบข้อมูลเดิมใน matchesArray ก่อน
+  matchesArray.clear();
+
+  // รีเซ็ตค่า FormGroup ใหม่ที่ตำแหน่งแรก (index 0)
+  matchesArray.insert(0, newMatchGroup);
+
+  // รีเฟรชการแสดงผล
+  this.cdr.detectChanges();
+}
+
 
   
 
@@ -457,10 +459,7 @@ export class TipsTableComponent implements OnInit {
   
   
   
-  // ฟังก์ชันช่วยติดตามการเปลี่ยนแปลงใน *ngFor
-  trackByIndex(index: number): any {
-    return index;
-  }
+
 
   trackById(index: number, control: AbstractControl<any, any>): any {
     // ใช้ ID จาก FormControl หรือ Index หากไม่มี ID

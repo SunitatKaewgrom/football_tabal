@@ -17,7 +17,7 @@
   <form [formGroup]="tipsForm">
     <ng-container formArrayName="matches">
       <div 
-        *ngFor="let match of matches.controls; let i = index; trackBy: trackByIndex" 
+        *ngFor="let match of matches.controls; let i = index; trackBy: trackById" 
         [formGroupName]="i" 
         class="border-4 border-blue-300 p-6 rounded-lg mb-6">
         
