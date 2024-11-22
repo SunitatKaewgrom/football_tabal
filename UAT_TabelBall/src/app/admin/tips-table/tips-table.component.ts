@@ -262,6 +262,9 @@ addMatch(): void {
           console.log(`Prediction with id ${prediction.id} deleted successfully.`);
           expertPredictions.removeAt(predictionIndex); // ลบออกจาก UI
           alert('เซียนถูกลบออกจากฐานข้อมูลสำเร็จ!');
+  
+          // รีเฟรชข้อมูลใน UI ทันที
+          this.refreshMatch(matchIndex); // ฟังก์ชันที่ใช้รีเฟรช match นี้
           this.cdr.markForCheck(); // บังคับให้ UI อัปเดต
         },
         error: (err) => {
@@ -275,6 +278,16 @@ addMatch(): void {
       alert('เซียนถูกลบออกจากรายการ (ยังไม่ได้บันทึกในฐานข้อมูล)');
       this.cdr.markForCheck();
     }
+  }
+  
+  // ฟังก์ชันรีเฟรช match ที่ทำการลบ prediction
+  refreshMatch(matchIndex: number): void {
+    const matchFormGroup = this.matches.at(matchIndex); // เข้าถึง FormGroup ของ match
+    const updatedMatch = matchFormGroup.value; // ข้อมูลล่าสุดของ match
+  
+    // รีเฟรชข้อมูลใน FormArray (form group ที่เกี่ยวข้อง)
+    this.matches.setValue([...this.matches.value]); // หรือใช้ methods ที่คุณใช้ในการอัปเดต
+    this.cdr.detectChanges(); // บังคับให้ UI อัปเดต
   }
   
 
@@ -318,6 +331,7 @@ addMatch(): void {
     if (this.tipsForm.valid) {
       console.log('Form Submitted:', this.tipsForm.value);
   
+      // แยกข้อมูลจาก matches และ predictions
       const matchesData = this.matches.value.map((match: any) => {
         const { expertPredictions, ...matchDetails } = match;
   
@@ -336,6 +350,7 @@ addMatch(): void {
         };
       });
   
+      // ทำการบันทึกหรืออัปเดตข้อมูล
       matchesData.forEach((match: any) => {
         if (!match.matchDetails.id) {
           this.addNewMatch(match);
@@ -343,11 +358,13 @@ addMatch(): void {
           this.updateExistingMatch(match);
         }
       });
+  
+      // รีเฟรชหน้าจอหลังจากบันทึกหรืออัปเดตเสร็จ
+      this.refreshMatches();
     } else {
       alert('กรุณากรอกข้อมูลให้ครบถ้วน');
     }
   }
-  
   
   
   
