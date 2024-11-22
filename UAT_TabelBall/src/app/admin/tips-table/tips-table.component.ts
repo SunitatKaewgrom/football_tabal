@@ -65,12 +65,9 @@ export class TipsTableComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('ngOnInit called');
-    this.loadAllData(); // ตรวจสอบว่ามีการเรียก refreshMatches ที่นี่หรือไม่
+    this.loadAllData(); // โหลดข้อมูลทั้งหมดเมื่อคอมโพเนนต์เริ่มต้น
   }
   
-  
-  
-
   // โหลดข้อมูลทีม ลีก และเซียนบอลทั้งหมด
   loadAllData(): void {
     this.tipsTableService.getAllData().subscribe({
@@ -78,16 +75,37 @@ export class TipsTableComponent implements OnInit {
         this.teams = data.teams;
         this.leagues = data.leagues;
         this.experts = data.experts;
-        this.loadMatches();
+        this.loadMatches(); // โหลดข้อมูลแมตช์เพิ่มเติม
         this.dataLoaded = true;
-        this.cdr.markForCheck();
+  
+        // อัปเดต UI และแสดงรูปภาพ
+        this.updateImages(); 
+        
+        this.cdr.detectChanges(); // รีเฟรชการแสดงผล
       },
       error: (err) => {
         console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', err);
       },
     });
   }
+  
+  // อัปเดตรูปภาพทีมและเซียน
+  updateImages(): void {
+    // แสดงภาพทีม
+    this.teams.forEach(team => {
+      const teamImage = this.getTeamImage(team.id);
+      console.log('Team Image URL:', teamImage); // ตรวจสอบว่า URL ถูกต้องหรือไม่
+    });
+  
+    // แสดงภาพเซียน
+    this.experts.forEach(expert => {
+      const expertImage = this.getExpertImage(expert.id);
+      console.log('Expert Image URL:', expertImage); // ตรวจสอบว่า URL ถูกต้องหรือไม่
+    });
+  }
 
+
+  
   private getAllPredictions(): PredictionData[] {
     const allPredictions: PredictionData[] = [];
     this.matches.controls.forEach((matchGroup: any) => {
@@ -293,7 +311,7 @@ addMatch(): void {
 
   
     
-  // ฟังก์ชันช่วยโหลดรูปภาพของทีม
+ // ฟังก์ชันช่วยโหลดรูปภาพของทีม
   getTeamImage(teamId: string): string | null {
     const team = this.teams.find((t) => t.id.toString() === teamId);
     return team ? `http://127.0.0.1:5000/${team.logo_url}` : null;
