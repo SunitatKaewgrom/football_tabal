@@ -61,9 +61,10 @@ export class TipsTableService {
    */
   updatePrediction(predictionId: number, predictionData: PredictionData): Observable<any> {
     console.log(`Updating prediction with ID ${predictionId}`);
-    console.log('Prediction Data being sent:', predictionData); // Log ข้อมูลทั้งหมดก่อนส่งไป API
+    console.log('Prediction Data being sent:', predictionData);
     return this.http.put<any>(`${this.baseUrl}/predictions/${predictionId}`, predictionData);
   }
+    
   
 
   /**

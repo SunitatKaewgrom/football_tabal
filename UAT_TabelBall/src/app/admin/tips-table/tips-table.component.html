@@ -130,7 +130,7 @@
 <!-- รายการ Predictions -->
 <ng-container formArrayName="expertPredictions">
   <div 
-      *ngFor="let prediction of getExpertPredictions(i).controls; let j = index; trackBy: trackById"
+      *ngFor="let prediction of getExpertPredictions(i).controls; let j = index; trackBy: trackByPredictionId"
       [formGroupName]="j"
       class="mt-8 border-4 border-green-300 p-6 rounded-lg mb-6">
     <h3 class="text-2xl font-bold mb-4">เซียนบอลคนที่ {{ j + 1 }}</h3>

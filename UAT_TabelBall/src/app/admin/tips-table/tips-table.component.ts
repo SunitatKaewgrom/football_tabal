@@ -88,37 +88,33 @@ export class TipsTableComponent implements OnInit {
     });
   }
 
+  private getAllPredictions(): PredictionData[] {
+    const allPredictions: PredictionData[] = [];
+    this.matches.controls.forEach((matchGroup: any) => {
+      const expertPredictions = matchGroup.get('expertPredictions')?.value || [];
+      allPredictions.push(...expertPredictions);
+    });
+    return allPredictions;
+  }
+  
+  originalPredictions: PredictionData[] = [];
+
   // โหลด Matches และ Predictions จาก API
   loadMatches(): void {
     this.tipsTableService.getMatches().subscribe({
       next: (response) => {
-        console.log('API Response:', response);
-  
         const matchesArray = this.matches;
-        matchesArray.clear(); // ล้างข้อมูลเดิมออกก่อน
+        matchesArray.clear();
+  
+        // เก็บข้อมูล Original Predictions
+        this.originalPredictions = response.data.flatMap((match: any) => match.predictions || []);
+        console.log('Loaded Original Predictions:', this.originalPredictions);
   
         response.data.forEach((match: any) => {
-          console.log('Creating Match Group for:', match);
-  
-          // ระบุประเภทที่ชัดเจนสำหรับ uniquePredictions
-          const uniquePredictions: PredictionData[] = [];
-          const seenIds = new Set<number>();
-  
-          // กรอง Prediction ที่ซ้ำออก
-          match.predictions.forEach((prediction: PredictionData) => {
-            if (prediction.id !== null && !seenIds.has(prediction.id)) {
-              seenIds.add(prediction.id);
-              uniquePredictions.push(prediction);
-              console.log('Unique Prediction Added:', prediction);
-            }
-          });
-  
-          // เพิ่ม Match พร้อม Prediction
-          match.predictions = uniquePredictions;
           matchesArray.push(this.createMatchGroup(match));
         });
   
-        console.log('Matches loaded with predictions:', matchesArray.value);
+        console.log('Updated Matches Array:', matchesArray.value);
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -127,6 +123,7 @@ export class TipsTableComponent implements OnInit {
       },
     });
   }
+  
   
   
 
@@ -351,7 +348,9 @@ export class TipsTableComponent implements OnInit {
   
   
   
+  
   private updateExistingMatch(match: any): void {
+    console.log('Updating existing match:', match.matchDetails);
     this.tipsTableService.updateMatch(match.matchDetails.id, match.matchDetails).subscribe({
       next: () => {
         console.log(`Match with ID ${match.matchDetails.id} updated successfully`);
@@ -359,10 +358,10 @@ export class TipsTableComponent implements OnInit {
       },
       error: (err) => {
         console.error(`Error updating match with ID ${match.matchDetails.id}:`, err);
-        alert('เกิดข้อผิดพลาดในการอัปเดต Match');
       },
     });
   }
+  
   
   private processPredictions(
     matchId: number,
@@ -393,26 +392,27 @@ export class TipsTableComponent implements OnInit {
       });
   }
   
-  
-  
-  
+
   private isPredictionUpdated(prediction: PredictionData): boolean {
-    const originalPrediction = this.getOriginalPrediction(prediction.id!);
-    console.log('Original Prediction:', originalPrediction);
-    console.log('Current Prediction:', prediction);
+    const originalPrediction = this.originalPredictions.find((p: PredictionData) => p.id === prediction.id);
   
     if (!originalPrediction) {
-      return false; // ไม่มีข้อมูลเดิมให้เปรียบเทียบ
+      console.warn(`Original prediction not found for ID: ${prediction.id}`);
+      return false;
     }
   
-    return (
-      originalPrediction.expert_id !== prediction.expert_id ||
-      originalPrediction.analysis !== prediction.analysis ||
-      originalPrediction.link !== prediction.link ||
-      originalPrediction.prediction !== prediction.prediction
-    );
-  }
+    const isExpertIdChanged = originalPrediction.expert_id !== prediction.expert_id;
+    const isAnalysisChanged = originalPrediction.analysis !== prediction.analysis;
+    const isLinkChanged = originalPrediction.link !== prediction.link;
+    const isPredictionChanged = originalPrediction.prediction !== prediction.prediction;
   
+    console.log('Expert ID Changed:', isExpertIdChanged, { original: originalPrediction.expert_id, current: prediction.expert_id });
+    console.log('Analysis Changed:', isAnalysisChanged, { original: originalPrediction.analysis, current: prediction.analysis });
+    console.log('Link Changed:', isLinkChanged, { original: originalPrediction.link, current: prediction.link });
+    console.log('Prediction Changed:', isPredictionChanged, { original: originalPrediction.prediction, current: prediction.prediction });
+  
+    return isExpertIdChanged || isAnalysisChanged || isLinkChanged || isPredictionChanged;
+  }
   
   
   
@@ -420,10 +420,13 @@ export class TipsTableComponent implements OnInit {
     const allPredictions = this.matches.value.flatMap((match: any) =>
       match.expertPredictions || []
     );
-    console.log('All Predictions:', allPredictions);
   
-    return allPredictions.find((p: any) => p.id === predictionId) || null;
+    const originalPrediction = allPredictions.find((p: any) => p.id === predictionId) || null;
+  
+    console.log(`Fetched Original Prediction for ID ${predictionId}:`, originalPrediction);
+    return originalPrediction;
   }
+  
   
   
   
@@ -464,5 +467,8 @@ export class TipsTableComponent implements OnInit {
     return control.get('id')?.value || index;
   }
   
+  trackByPredictionId(index: number, item: any): any {
+    return item.id; // ใช้ `id` เป็นตัวระบุ
+  }
   
 }
