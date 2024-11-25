@@ -75,19 +75,20 @@ export class TipsTableComponent implements OnInit {
         this.teams = data.teams;
         this.leagues = data.leagues;
         this.experts = data.experts;
-        this.loadMatches(); // โหลดข้อมูลแมตช์เพิ่มเติม
-        this.dataLoaded = true;
   
-        // อัปเดต UI และแสดงรูปภาพ
-        this.updateImages(); 
-        
-        this.cdr.detectChanges(); // รีเฟรชการแสดงผล
+        console.log('Teams:', this.teams);
+        console.log('Experts:', this.experts);
+  
+        this.loadMatches(); // โหลดข้อมูล Matches หลังจาก Teams และ Experts พร้อม
+        this.dataLoaded = true;
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', err);
+        console.error('Error loading data:', err);
       },
     });
   }
+  
   
   // อัปเดตรูปภาพทีมและเซียน
   updateImages(): void {
@@ -124,13 +125,15 @@ export class TipsTableComponent implements OnInit {
         const matchesArray = this.matches;
         matchesArray.clear();
   
-        // เก็บข้อมูล Original Predictions
         this.originalPredictions = response.data.flatMap((match: any) => match.predictions || []);
         console.log('Loaded Original Predictions:', this.originalPredictions);
   
         response.data.forEach((match: any) => {
           matchesArray.push(this.createMatchGroup(match));
         });
+  
+        // อัปเดตรูปภาพหลังจาก Matches ถูกโหลด
+        this.updateImages();
   
         console.log('Updated Matches Array:', matchesArray.value);
         this.cdr.detectChanges();
@@ -141,6 +144,7 @@ export class TipsTableComponent implements OnInit {
       },
     });
   }
+  
   
   
   
@@ -312,10 +316,11 @@ addMatch(): void {
   
     
  // ฟังก์ชันช่วยโหลดรูปภาพของทีม
-  getTeamImage(teamId: string): string | null {
-    const team = this.teams.find((t) => t.id.toString() === teamId);
-    return team ? `http://127.0.0.1:5000/${team.logo_url}` : null;
-  }
+ getTeamImage(teamId: string | number): string | null {
+  console.log('getTeamImage called with teamId:', teamId);
+  const team = this.teams.find((t) => t.id.toString() === teamId.toString());
+  return team ? `http://127.0.0.1:5000/${team.logo_url}` : null;
+}
 
   // ฟังก์ชันช่วยโหลดรูปภาพของลีก
   getLeagueImage(leagueId: string): string | null {
@@ -324,8 +329,9 @@ addMatch(): void {
   }
 
   // ฟังก์ชันช่วยโหลดรูปภาพของเซียนบอล
-  getExpertImage(expertId: string): string | null {
-    const expert = this.experts.find((e) => e.id.toString() === expertId);
+  getExpertImage(expertId: string | number): string | null {
+    console.log('getExpertImage called with expertId:', expertId);
+    const expert = this.experts.find((e) => e.id.toString() === expertId.toString());
     return expert ? `http://127.0.0.1:5000/${expert.image_url}` : null;
   }
 
@@ -349,7 +355,6 @@ addMatch(): void {
     if (this.tipsForm.valid) {
       console.log('Form Submitted:', this.tipsForm.value);
   
-      // แยกข้อมูลจาก matches และ predictions
       const matchesData = this.matches.value.map((match: any) => {
         const { expertPredictions, ...matchDetails } = match;
   
@@ -358,31 +363,24 @@ addMatch(): void {
           prediction.id && this.isPredictionUpdated(prediction)
         );
   
-        console.log('New Predictions:', newPredictions);
-        console.log('Updated Predictions:', updatedPredictions);
-  
-        return {
-          matchDetails,
-          newPredictions,
-          updatedPredictions,
-        };
+        return { matchDetails, newPredictions, updatedPredictions };
       });
   
-      // ทำการบันทึกหรืออัปเดตข้อมูล
       matchesData.forEach((match: any) => {
         if (!match.matchDetails.id) {
-          this.addNewMatch(match);
+          this.addNewMatch(match).then(() => this.refreshMatches());
         } else {
           this.updateExistingMatch(match);
         }
       });
   
-      // รีเฟรชหน้าจอหลังจากบันทึกหรืออัปเดตเสร็จ
+      // เพิ่มการรีเฟรช Matches
       this.refreshMatches();
     } else {
       alert('กรุณากรอกข้อมูลให้ครบถ้วน');
     }
   }
+  
   
   
   
