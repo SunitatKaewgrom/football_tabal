@@ -6,6 +6,7 @@ from models.teams import get_all_teams, create_team, update_team, delete_team
 from models.experts import get_all_experts, get_expert_by_id, create_expert, update_expert, delete_expert
 from models.community_expert import get_all_community_expert, add_community_expert, update_community_expert, delete_community_expert
 from models.tips_table import fetch_all_matches,add_matches_with_predictions,update_match,delete_match,add_predictions,update_prediction,delete_prediction
+from models.selected_table import SelectedItemModel
 from werkzeug.utils import secure_filename
 from datetime import datetime ,timedelta
 from bcrypt import hashpw, gensalt
@@ -400,6 +401,57 @@ def delete_prediction_endpoint(prediction_id):
         # จัดการข้อผิดพลาดทั่วไป
         return jsonify({'status': 'error', 'message': f'Unexpected error: {str(e)}'}), 500
 
+
+selected_item_model = SelectedItemModel()
+
+@app.route('/api/selected-items', methods=['GET'])
+def get_selected_items():
+    try:
+        items = SelectedItemModel.fetch_all_selected_items()
+        return jsonify(items), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/selected-items/<int:item_id>', methods=['GET'])
+def get_selected_item(item_id):
+    """
+    ดึงรายการที่เลือกตาม ID
+    """
+    item = selected_item_model.fetch_selected_item_by_id(item_id)
+    if not item:
+        return jsonify({'error': 'ไม่พบรายการที่ต้องการ'}), 404
+    return jsonify(item), 200
+
+@app.route('/api/selected-items', methods=['POST'])
+def create_selected_item():
+    """
+    สร้างรายการที่เลือกใหม่
+    """
+    data = request.json
+    new_item_id = selected_item_model.add_new_selected_item(data)
+    return jsonify({'id': new_item_id}), 201
+
+@app.route('/api/selected-items/<int:item_id>', methods=['PUT'])
+def update_selected_item(item_id):
+    """
+    อัปเดตรายการที่เลือก
+    """
+    data = request.json
+    success = selected_item_model.update_selected_item(item_id, data)
+    if not success:
+        return jsonify({'error': 'ไม่พบรายการที่ต้องการ'}), 404
+    return jsonify({'message': 'อัปเดตรายการสำเร็จ'}), 200
+
+@app.route('/api/selected-items/<int:item_id>', methods=['DELETE'])
+def delete_selected_item(item_id):
+    """
+    ลบรายการที่เลือก
+    """
+    success = selected_item_model.delete_selected_item(item_id)
+    if not success:
+        return jsonify({'error': 'ไม่พบรายการที่ต้องการ'}), 404
+    return jsonify({'message': 'ลบรายการสำเร็จ'}), 200
 
 
 if __name__ == "__main__":
