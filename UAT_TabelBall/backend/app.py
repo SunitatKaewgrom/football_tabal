@@ -423,14 +423,30 @@ def get_selected_item(item_id):
         return jsonify({'error': 'ไม่พบรายการที่ต้องการ'}), 404
     return jsonify(item), 200
 
+
 @app.route('/api/selected-items', methods=['POST'])
 def create_selected_item():
     """
     สร้างรายการที่เลือกใหม่
     """
-    data = request.json
-    new_item_id = selected_item_model.add_new_selected_item(data)
-    return jsonify({'id': new_item_id}), 201
+    try:
+        data = request.get_json()  # รับข้อมูล JSON
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        # ตรวจสอบฟิลด์ที่จำเป็น
+        required_fields = ['league_id', 'home_team_id', 'away_team_id', 'expert_id']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Missing field: {field}'}), 400
+
+        # เรียกใช้ฟังก์ชันเพิ่มข้อมูลในฐานข้อมูล
+        new_item_id = selected_item_model.add_selected_item(data)
+        return jsonify({'id': new_item_id}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 @app.route('/api/selected-items/<int:item_id>', methods=['PUT'])
 def update_selected_item(item_id):

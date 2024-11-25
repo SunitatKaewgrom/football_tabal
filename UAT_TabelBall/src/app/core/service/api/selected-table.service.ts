@@ -50,14 +50,13 @@ export class SelectedTableService {
 
   // บันทึกข้อมูล Selected Item
   saveSelectedItem(data: any): Observable<any> {
-    return this.http.post<any>('http://127.0.0.1:5000/api/selected-item', data);
+    return this.http.post<any>('http://127.0.0.1:5000/api/selected-items', data);
   }
+  
 
   // ลบ Selected Item
   deleteSelectedItem(id: number): Observable<any> {
     return this.http.delete<any>(`http://127.0.0.1:5000/api/selected-item/${id}`);
   }
-  saveAllSelectedItems(data: any[]): Observable<any> {
-    return this.http.post('http://127.0.0.1:5000/api/selected-items/bulk-save', data);
-  }
+ 
 }

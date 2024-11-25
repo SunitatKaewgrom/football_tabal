@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { SelectedTableService } from 'src/app/core/service/api/selected-table.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { SelectedTableService } from 'src/app/core/service/api/selected-table.service';
 
 @Component({
   selector: 'app-selected-table',
@@ -30,30 +30,38 @@ export class SelectedTableComponent implements OnInit {
   }
 
   loadInitialData(): void {
-    // Load leagues, teams, and experts from the API
     this.selectedTableService.getLeagues().subscribe((leagues) => (this.leagues = leagues));
     this.selectedTableService.getTeams().subscribe((teams) => (this.teams = teams));
-    this.selectedTableService.getExperts().subscribe((experts) => (this.experts = experts));
-    // Load selected items and populate the FormArray
-    this.loadSelectedItems();
+    this.selectedTableService.getExperts().subscribe((experts) => {
+      this.experts = experts;
+      this.loadSelectedItems(); // Load selected items after experts are fetched
+    });
   }
 
   loadSelectedItems(): void {
     const selectedItemsArray = this.selectedItems;
     this.selectedTableService.getSelectedItems().subscribe((items) => {
       items.forEach((item: any) => {
-        selectedItemsArray.push(this.createSelectedItemGroup(item));
+        const group = this.createSelectedItemGroup(item);
+        selectedItemsArray.push(group);
       });
     });
   }
 
   createSelectedItemGroup(item: any = {}): FormGroup {
+    const expertId = item.expert_id || null;
+    const selectedExpert = this.experts.find((e) => e.id === expertId);
+    const imageUrl = selectedExpert
+      ? `http://127.0.0.1:5000/${selectedExpert.image_url}`
+      : 'https://via.placeholder.com/100';
+
     return this.fb.group({
       id: [item.id || null],
       league_id: [item.league_id || '', Validators.required],
       home_team_id: [item.home_team_id || '', Validators.required],
       away_team_id: [item.away_team_id || '', Validators.required],
-      expert_id: [item.expert_id || '', Validators.required],
+      expert_id: [expertId, Validators.required],
+      expert_image: [imageUrl], // Image field
       analysis_link: [item.analysis_link || '', Validators.required],
       result: [item.result || '', Validators.required],
     });
@@ -64,52 +72,66 @@ export class SelectedTableComponent implements OnInit {
   }
 
   addSelectedItem(): void {
-    this.selectedItems.push(this.createSelectedItemGroup());
+    const newItem = this.createSelectedItemGroup();
+    this.selectedItems.push(newItem);
   }
 
   removeSelectedItem(index: number): void {
     this.selectedItems.removeAt(index);
   }
 
-  saveSelectedItem(index: number): void {
-    const item = this.selectedItems.at(index).value;
-    if (item.id) {
-      this.selectedTableService.saveSelectedItem(item).subscribe(() => alert('Updated successfully'));
+  updateExpertImage(index: number): void {
+    const selectedItem = this.selectedItems.at(index);
+    const expertId = selectedItem.get('expert_id')?.value;
+
+    if (expertId) {
+      const selectedExpert = this.experts.find((e) => e.id === expertId);
+      const imageUrl = selectedExpert
+        ? `http://127.0.0.1:5000/${selectedExpert.image_url}`
+        : 'https://via.placeholder.com/100';
+
+      selectedItem.patchValue({ expert_image: imageUrl }, { emitEvent: false });
     } else {
-      this.selectedTableService.saveSelectedItem(item).subscribe((savedItem) => {
-        this.selectedItems.at(index).patchValue({ id: savedItem.id });
-        alert('Saved successfully');
-      });
+      selectedItem.patchValue({ expert_image: 'https://via.placeholder.com/100' }, { emitEvent: false });
     }
   }
 
-  getExpertName(expertId: number): string {
-    const expert = this.experts.find((e) => e.id === expertId);
-    return expert ? expert.name : 'Unknown Expert';
+  saveSelectedItem(index: number): void {
+    const item = this.selectedItems.at(index).value;
+    this.selectedTableService.saveSelectedItem(item).subscribe({
+      next: (response) => {
+        alert('Item saved successfully');
+        this.selectedItems.at(index).patchValue({ id: response.id });
+      },
+      error: (err) => {
+        console.error('Error saving item:', err);
+        alert('Error occurred while saving');
+      },
+    });
   }
+  
+
+  saveAll(): void {
+  if (this.selectedForm.valid) {
+    const formData = this.selectedForm.value.selectedItems;
+    this.selectedTableService.saveSelectedItem(formData).subscribe({
+      next: () => {
+        alert('All data saved successfully');
+        this.loadSelectedItems(); // Reload data after saving
+      },
+      error: (err: any) => {
+        console.error('Error saving data:', err);
+        alert('An error occurred while saving data');
+      },
+    });
+  } else {
+    alert('Please fill in all required fields');
+  }
+}
+
 
   getExpertImage(expertId: number | null): string {
     const expert = this.experts.find((e) => e.id === expertId);
     return expert ? `http://127.0.0.1:5000/${expert.image_url}` : 'https://via.placeholder.com/100';
   }
-  saveAll(): void {
-    if (this.selectedForm.valid) {
-      const formData = this.selectedForm.value.selectedItems;
-      this.selectedTableService.saveAllSelectedItems(formData).subscribe({
-        next: () => {
-          alert('บันทึกข้อมูลทั้งหมดสำเร็จ');
-          this.loadSelectedItems(); // Reload the data after saving
-        },
-        error: (err) => {
-          console.error('Error saving data:', err);
-          alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
-        },
-      });
-    } else {
-      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
-    }
-  }
-
-  
-  
 }

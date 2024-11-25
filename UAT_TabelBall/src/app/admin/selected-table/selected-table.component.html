@@ -6,27 +6,30 @@
   </div>
 
   <!-- Add Expert Button -->
-  <button class="bg-green-500 text-white px-4 py-2 rounded mb-4" type="button" (click)="addSelectedItem()">
-    เพิ่มเซียนบอล
-  </button>
+  <button class="bg-green-500 text-white px-4 py-2 rounded mb-4" type="button" (click)="addSelectedItem()">เพิ่มเซียนบอล</button>
 
   <!-- Loop through Selected Items -->
   <div formArrayName="selectedItems">
     <div *ngFor="let item of selectedItems.controls; let i = index" [formGroupName]="i" class="border-2 p-4 mb-4 rounded-lg">
+      <!-- Header Section -->
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold">เซียนบอล: {{ getExpertName(item.get('expert_id')?.value) }}</h2>
+        <h2 class="text-xl font-bold">เซียนบอล: {{ item.get('expert_name')?.value || 'ยังไม่ได้เลือก' }}</h2>
         <button class="bg-red-500 text-white px-4 py-2 rounded" type="button" (click)="removeSelectedItem(i)">ลบ</button>
       </div>
 
       <!-- Expert Image and Selector -->
       <div class="flex items-center mb-4">
+        <!-- Expert Image -->
         <img [src]="getExpertImage(item.get('expert_id')?.value)" alt="Expert Image" class="w-24 h-24 mr-4" />
+        <!-- Select Expert -->
         <div class="w-full">
           <label class="block mb-2">เลือกเซียนบอล</label>
-          <select formControlName="expert_id" class="border border-gray-300 p-2 rounded w-full">
+          <select formControlName="expert_id" class="border border-gray-300 p-2 rounded w-full" (change)="updateExpertImage(i)">
             <option value="">-- เลือกเซียนบอล --</option>
             <option *ngFor="let expert of experts" [value]="expert.id">{{ expert.name }}</option>
           </select>
+          
+
         </div>
       </div>
 
@@ -68,7 +71,7 @@
           </div>
         </div>
 
-        <!-- Result Prediction -->
+        <!-- Match Result -->
         <div>
           <label class="block mb-2">ผลการแข่งชัน</label>
           <select formControlName="result" class="border border-gray-300 p-2 rounded w-full">
@@ -82,7 +85,5 @@
   </div>
 
   <!-- Save Button -->
-  <button class="bg-blue-500 text-white px-4 py-2 rounded mt-4" type="button" (click)="saveAll()">
-    บันทึกข้อมูลทั้งหมด
-  </button>
+  <button class="bg-blue-500 text-white px-4 py-2 rounded mt-4" type="button" (click)="saveAll()">บันทึกข้อมูลทั้งหมด</button>
 </form>

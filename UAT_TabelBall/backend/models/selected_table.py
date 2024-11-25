@@ -49,6 +49,9 @@ class SelectedItemModel:
 
 # เพิ่มรายการใหม่ใน selected_items
 def add_selected_item(data):
+    """
+    เพิ่มรายการใหม่ลงในฐานข้อมูล
+    """
     connection = get_db_connection()
     try:
         with connection.cursor() as cursor:
@@ -68,8 +71,11 @@ def add_selected_item(data):
             ))
             connection.commit()
             return cursor.lastrowid
+    except Exception as e:
+        raise Exception(f"Database error: {e}")
     finally:
         connection.close()
+
 
 # อัปเดตรายการใน selected_items
 def update_selected_item(item_id, data):
