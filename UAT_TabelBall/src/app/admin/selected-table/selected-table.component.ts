@@ -77,8 +77,25 @@ export class SelectedTableComponent implements OnInit {
   }
 
   removeSelectedItem(index: number): void {
-    this.selectedItems.removeAt(index);
+    const item = this.selectedItems.at(index).value; // ดึงข้อมูลรายการที่ต้องการลบ
+    if (item.id) {
+      // หากรายการมี ID ในฐานข้อมูล ให้เรียก API เพื่อลบ
+      this.selectedTableService.deleteSelectedItem(item.id).subscribe({
+        next: () => {
+          alert('Deleted successfully');
+          this.selectedItems.removeAt(index); // ลบรายการออกจาก FormArray
+        },
+        error: (err) => {
+          console.error('Error deleting item:', err);
+          alert('An error occurred while deleting');
+        },
+      });
+    } else {
+      // หากไม่มี ID ลบออกจาก FormArray โดยตรง
+      this.selectedItems.removeAt(index);
+    }
   }
+  
 
   updateExpertImage(index: number): void {
     const selectedItem = this.selectedItems.at(index);
@@ -112,22 +129,28 @@ export class SelectedTableComponent implements OnInit {
   
 
   saveAll(): void {
-  if (this.selectedForm.valid) {
-    const formData = this.selectedForm.value.selectedItems;
-    this.selectedTableService.saveSelectedItem(formData).subscribe({
-      next: () => {
-        alert('All data saved successfully');
-        this.loadSelectedItems(); // Reload data after saving
-      },
-      error: (err: any) => {
-        console.error('Error saving data:', err);
-        alert('An error occurred while saving data');
-      },
-    });
-  } else {
-    alert('Please fill in all required fields');
+    if (this.selectedForm.valid) {
+      const formData = this.selectedItems.value;
+  
+      // วนลูปเพื่อบันทึกทีละรายการ
+      formData.forEach((item: any, index: number) => {
+        this.selectedTableService.saveSelectedItem(item).subscribe({
+          next: (response) => {
+            // อัปเดต id หลังบันทึกสำเร็จ
+            this.selectedItems.at(index).patchValue({ id: response.id });
+          },
+          error: (err) => {
+            console.error('Error saving item:', err);
+          },
+        });
+      });
+  
+      alert('บันทึกข้อมูลทั้งหมดสำเร็จ');
+    } else {
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+    }
   }
-}
+  
 
 
   getExpertImage(expertId: number | null): string {

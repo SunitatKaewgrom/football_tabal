@@ -448,26 +448,39 @@ def create_selected_item():
 
 
 
+
+
 @app.route('/api/selected-items/<int:item_id>', methods=['PUT'])
 def update_selected_item(item_id):
     """
     อัปเดตรายการที่เลือก
     """
-    data = request.json
-    success = selected_item_model.update_selected_item(item_id, data)
-    if not success:
-        return jsonify({'error': 'ไม่พบรายการที่ต้องการ'}), 404
-    return jsonify({'message': 'อัปเดตรายการสำเร็จ'}), 200
+    try:
+        data = request.get_json()
+        success = selected_item_model.update_selected_item(item_id, data)
+        if not success:
+            return jsonify({'error': 'Item not found'}), 404
+        return jsonify({'message': 'Item updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 @app.route('/api/selected-items/<int:item_id>', methods=['DELETE'])
 def delete_selected_item(item_id):
     """
     ลบรายการที่เลือก
     """
-    success = selected_item_model.delete_selected_item(item_id)
-    if not success:
-        return jsonify({'error': 'ไม่พบรายการที่ต้องการ'}), 404
-    return jsonify({'message': 'ลบรายการสำเร็จ'}), 200
+    try:
+        print(f"Attempting to delete item with ID: {item_id}")  # Debug Log
+        success = selected_item_model.delete_selected_item(item_id)  # เรียกใช้งานผ่านอินสแตนซ์
+        if not success:
+            return jsonify({'error': 'Item not found'}), 404
+        return jsonify({'message': 'Item deleted successfully'}), 200
+    except Exception as e:
+        print(f"Error deleting item: {e}")  # Debug Log
+        return jsonify({'error': str(e)}), 500
+
 
 
 if __name__ == "__main__":

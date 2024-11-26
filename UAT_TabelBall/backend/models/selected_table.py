@@ -12,6 +12,9 @@ class SelectedItemModel:
 
     @staticmethod
     def fetch_all_selected_items():
+        """
+        ดึงรายการทั้งหมดจาก selected_items
+        """
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         try:
@@ -46,75 +49,80 @@ class SelectedItemModel:
             cursor.close()
             connection.close()
 
+    def add_selected_item(self, data):
+        """
+        เพิ่มรายการใหม่ลงใน selected_items
+        """
+        connection = get_db_connection()
+        try:
+            with connection.cursor() as cursor:
+                query = """
+                    INSERT INTO selected_items (
+                        league_id, home_team_id, away_team_id, expert_id, 
+                        analysis_link, result
+                    ) VALUES (%s, %s, %s, %s, %s, %s)
+                """
+                cursor.execute(query, (
+                    data['league_id'],
+                    data['home_team_id'],
+                    data['away_team_id'],
+                    data['expert_id'],
+                    data.get('analysis_link', None),
+                    data.get('result', None),
+                ))
+                connection.commit()
+                return cursor.lastrowid
+        except Exception as e:
+            raise Exception(f"Database error: {e}")
+        finally:
+            connection.close()
 
-# เพิ่มรายการใหม่ใน selected_items
-def add_selected_item(data):
-    """
-    เพิ่มรายการใหม่ลงในฐานข้อมูล
-    """
-    connection = get_db_connection()
-    try:
-        with connection.cursor() as cursor:
-            query = """
-                INSERT INTO selected_items (
-                    league_id, home_team_id, away_team_id, expert_id, 
-                    analysis_link, result
-                ) VALUES (%s, %s, %s, %s, %s, %s)
-            """
-            cursor.execute(query, (
-                data['league_id'],
-                data['home_team_id'],
-                data['away_team_id'],
-                data['expert_id'],
-                data.get('analysis_link', None),
-                data.get('result', None),
-            ))
-            connection.commit()
-            return cursor.lastrowid
-    except Exception as e:
-        raise Exception(f"Database error: {e}")
-    finally:
-        connection.close()
+    def update_selected_item(self, item_id, data):
+        """
+        อัปเดตรายการใน selected_items
+        """
+        connection = get_db_connection()
+        try:
+            with connection.cursor() as cursor:
+                query = """
+                    UPDATE selected_items
+                    SET league_id = %s, 
+                        home_team_id = %s, 
+                        away_team_id = %s, 
+                        expert_id = %s, 
+                        analysis_link = %s, 
+                        result = %s,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """
+                cursor.execute(query, (
+                    data['league_id'],
+                    data['home_team_id'],
+                    data['away_team_id'],
+                    data['expert_id'],
+                    data.get('analysis_link', None),
+                    data.get('result', None),
+                    item_id,
+                ))
+                connection.commit()
+                return cursor.rowcount > 0  # คืนค่า True หากมีการอัปเดตสำเร็จ
+        except Exception as e:
+            raise Exception(f"Database error: {e}")
+        finally:
+            connection.close()
 
-
-# อัปเดตรายการใน selected_items
-def update_selected_item(item_id, data):
-    connection = get_db_connection()
-    try:
-        with connection.cursor() as cursor:
-            query = """
-                UPDATE selected_items
-                SET league_id = %s, 
-                    home_team_id = %s, 
-                    away_team_id = %s, 
-                    expert_id = %s, 
-                    analysis_link = %s, 
-                    result = %s,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE id = %s
-            """
-            cursor.execute(query, (
-                data['league_id'],
-                data['home_team_id'],
-                data['away_team_id'],
-                data['expert_id'],
-                data.get('analysis_link', None),
-                data.get('result', None),
-                item_id,
-            ))
-            connection.commit()
-            return cursor.rowcount
-    finally:
-        connection.close()
-
-# ลบรายการใน selected_items
-def delete_selected_item(item_id):
-    connection = get_db_connection()
-    try:
-        with connection.cursor() as cursor:
-            query = "DELETE FROM selected_items WHERE id = %s"
-            cursor.execute(query, (item_id,))
-            connection.commit()
-            return cursor.rowcount
-    finally:
-        connection.close()
+    def delete_selected_item(self, item_id):
+        """
+        ลบรายการใน selected_items
+        """
+        connection = get_db_connection()
+        try:
+            with connection.cursor() as cursor:
+                query = "DELETE FROM selected_items WHERE id = %s"
+                cursor.execute(query, (item_id,))
+                connection.commit()
+                return cursor.rowcount > 0  # คืนค่า True หากมีการลบสำเร็จ
+        except Exception as e:
+            raise Exception(f"Database error: {e}")
+        finally:
+            connection.close()
