@@ -26,7 +26,7 @@
       <!-- Expert Image and Selector -->
       <div class="flex items-center mb-4">
         <!-- Expert Image -->
-        <img [src]="getExpertImage(item.get('expert_id')?.value)" alt="Expert Image" class="w-24 h-24 mr-4" />
+        <img [src]="item.get('expert_image')?.value" alt="Expert Image" class="w-24 h-24 mr-4" />
         <!-- Select Expert -->
         <div class="w-full">
           <label class="block mb-2">เลือกเซียนบอล</label>
@@ -35,7 +35,6 @@
             <option *ngFor="let expert of experts" [value]="expert.id">{{ expert.name }}</option>
           </select>
           
-
         </div>
       </div>
 

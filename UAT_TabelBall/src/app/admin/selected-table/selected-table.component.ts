@@ -69,22 +69,32 @@ export class SelectedTableComponent implements OnInit {
   }
 
   createSelectedItemGroup(item: any = {}): FormGroup {
-    const expertId = item.expert_id || null;
+    const group = this.fb.group({
+      id: [item.id || null],
+      league_id: [item.league_id || '', Validators.required],
+      home_team_id: [item.home_team_id || '', Validators.required],
+      away_team_id: [item.away_team_id || '', Validators.required],
+      expert_id: [item.expert_id || null, Validators.required],
+      expert_image: [''],
+      analysis_link: [item.analysis_link || '', Validators.required],
+      result: [item.result || '', Validators.required],
+    });
+
+    // Call the function to update expert_image
+    this.updateExpertImageFromGroup(group);
+
+    return group;
+  }
+
+  updateExpertImageFromGroup(group: FormGroup): void {
+    const expertId = group.get('expert_id')?.value;
+
     const selectedExpert = this.experts.find((e) => e.id === expertId);
     const imageUrl = selectedExpert
       ? `http://127.0.0.1:5000/${selectedExpert.image_url}`
       : 'https://via.placeholder.com/100';
 
-    return this.fb.group({
-      id: [item.id || null],
-      league_id: [item.league_id || '', Validators.required],
-      home_team_id: [item.home_team_id || '', Validators.required],
-      away_team_id: [item.away_team_id || '', Validators.required],
-      expert_id: [expertId, Validators.required],
-      expert_image: [imageUrl],
-      analysis_link: [item.analysis_link || '', Validators.required],
-      result: [item.result || '', Validators.required],
-    });
+    group.patchValue({ expert_image: imageUrl }, { emitEvent: false });
   }
 
   get selectedItems(): FormArray {
@@ -144,17 +154,8 @@ export class SelectedTableComponent implements OnInit {
   updateExpertImage(index: number): void {
     const selectedItem = this.selectedItems.at(index);
     const expertId = selectedItem.get('expert_id')?.value;
-
-    if (expertId) {
-      const selectedExpert = this.experts.find((e) => e.id === expertId);
-      const imageUrl = selectedExpert
-        ? `http://127.0.0.1:5000/${selectedExpert.image_url}`
-        : 'https://via.placeholder.com/100';
-
-      selectedItem.patchValue({ expert_image: imageUrl }, { emitEvent: false });
-    } else {
-      selectedItem.patchValue({ expert_image: 'https://via.placeholder.com/100' }, { emitEvent: false });
-    }
+    const imageUrl = this.getExpertImage(expertId);
+    selectedItem.patchValue({ expert_image: imageUrl }, { emitEvent: false });
   }
 
   getExpertImage(expertId: number | null): string {
