@@ -44,9 +44,11 @@ export class SelectedTableService {
   }
 
   // โหลดข้อมูล Selected Items
-  getSelectedItems(): Observable<any[]> {
-    return this.http.get<any[]>('http://127.0.0.1:5000/api/selected-items');
+  getSelectedItemsByDate(date: string): Observable<any[]> {
+    return this.http.get<any[]>(`http://127.0.0.1:5000/api/selected-items?date=${date}`);
   }
+  
+  
 
   // บันทึกข้อมูล Selected Item
   saveSelectedItem(data: any): Observable<any> {

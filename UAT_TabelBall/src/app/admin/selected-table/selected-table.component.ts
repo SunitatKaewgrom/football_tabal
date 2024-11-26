@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { SelectedTableService } from 'src/app/core/service/api/selected-table.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { forkJoin, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-selected-table',
@@ -21,30 +22,49 @@ export class SelectedTableComponent implements OnInit {
   constructor(private fb: FormBuilder, private selectedTableService: SelectedTableService) {
     this.selectedForm = this.fb.group({
       date: [this.today, Validators.required],
-      selectedItems: this.fb.array([]), // Initialize the FormArray
+      selectedItems: this.fb.array([]),
     });
   }
 
   ngOnInit(): void {
     this.loadInitialData();
+    this.loadSelectedItemsByDate(this.today); // Load current date's data
   }
 
-  loadInitialData(): void {
-    this.selectedTableService.getLeagues().subscribe((leagues) => (this.leagues = leagues));
-    this.selectedTableService.getTeams().subscribe((teams) => (this.teams = teams));
-    this.selectedTableService.getExperts().subscribe((experts) => {
-      this.experts = experts;
-      this.loadSelectedItems(); // Load selected items after experts are fetched
+  onDateChange(event: any): void {
+    const selectedDate = event.target.value;
+    this.loadSelectedItemsByDate(selectedDate); // Load data for selected date
+  }
+
+  loadSelectedItemsByDate(date: string): void {
+    const selectedItemsArray = this.selectedItems;
+    selectedItemsArray.clear(); // Clear old data
+    this.selectedTableService.getSelectedItemsByDate(date).subscribe({
+      next: (items: any[]) => {
+        items.forEach((item: any) => {
+          selectedItemsArray.push(this.createSelectedItemGroup(item));
+        });
+      },
+      error: (err: any) => {
+        console.error('Error fetching items by date:', err);
+      },
     });
   }
 
-  loadSelectedItems(): void {
-    const selectedItemsArray = this.selectedItems;
-    this.selectedTableService.getSelectedItems().subscribe((items) => {
-      items.forEach((item: any) => {
-        const group = this.createSelectedItemGroup(item);
-        selectedItemsArray.push(group);
-      });
+  loadInitialData(): void {
+    this.selectedTableService.getLeagues().subscribe({
+      next: (leagues) => (this.leagues = leagues),
+      error: (err) => console.error('Error fetching leagues:', err),
+    });
+
+    this.selectedTableService.getTeams().subscribe({
+      next: (teams) => (this.teams = teams),
+      error: (err) => console.error('Error fetching teams:', err),
+    });
+
+    this.selectedTableService.getExperts().subscribe({
+      next: (experts) => (this.experts = experts),
+      error: (err) => console.error('Error fetching experts:', err),
     });
   }
 
@@ -61,7 +81,7 @@ export class SelectedTableComponent implements OnInit {
       home_team_id: [item.home_team_id || '', Validators.required],
       away_team_id: [item.away_team_id || '', Validators.required],
       expert_id: [expertId, Validators.required],
-      expert_image: [imageUrl], // Image field
+      expert_image: [imageUrl],
       analysis_link: [item.analysis_link || '', Validators.required],
       result: [item.result || '', Validators.required],
     });
@@ -72,18 +92,16 @@ export class SelectedTableComponent implements OnInit {
   }
 
   addSelectedItem(): void {
-    const newItem = this.createSelectedItemGroup();
-    this.selectedItems.push(newItem);
+    this.selectedItems.push(this.createSelectedItemGroup());
   }
 
   removeSelectedItem(index: number): void {
-    const item = this.selectedItems.at(index).value; // ดึงข้อมูลรายการที่ต้องการลบ
+    const item = this.selectedItems.at(index).value;
     if (item.id) {
-      // หากรายการมี ID ในฐานข้อมูล ให้เรียก API เพื่อลบ
       this.selectedTableService.deleteSelectedItem(item.id).subscribe({
         next: () => {
-          alert('Deleted successfully');
-          this.selectedItems.removeAt(index); // ลบรายการออกจาก FormArray
+          alert('Item deleted successfully');
+          this.selectedItems.removeAt(index);
         },
         error: (err) => {
           console.error('Error deleting item:', err);
@@ -91,11 +109,37 @@ export class SelectedTableComponent implements OnInit {
         },
       });
     } else {
-      // หากไม่มี ID ลบออกจาก FormArray โดยตรง
       this.selectedItems.removeAt(index);
     }
   }
-  
+
+  saveAll(): void {
+    if (this.selectedForm.valid) {
+      const formData: any[] = this.selectedItems.value;
+
+      if (formData.length === 0) {
+        alert('ไม่มีข้อมูลให้บันทึก');
+        return;
+      }
+
+      const saveRequests = formData.map((item: any) =>
+        this.selectedTableService.saveSelectedItem(item)
+      );
+
+      forkJoin(saveRequests).subscribe({
+        next: () => {
+          alert('บันทึกข้อมูลทั้งหมดสำเร็จ');
+          this.loadSelectedItemsByDate(this.selectedForm.get('date')?.value); // Reload data
+        },
+        error: (err) => {
+          console.error('เกิดข้อผิดพลาดขณะบันทึก:', err);
+          alert('เกิดข้อผิดพลาดขณะบันทึกข้อมูล');
+        },
+      });
+    } else {
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+    }
+  }
 
   updateExpertImage(index: number): void {
     const selectedItem = this.selectedItems.at(index);
@@ -112,46 +156,6 @@ export class SelectedTableComponent implements OnInit {
       selectedItem.patchValue({ expert_image: 'https://via.placeholder.com/100' }, { emitEvent: false });
     }
   }
-
-  saveSelectedItem(index: number): void {
-    const item = this.selectedItems.at(index).value;
-    this.selectedTableService.saveSelectedItem(item).subscribe({
-      next: (response) => {
-        alert('Item saved successfully');
-        this.selectedItems.at(index).patchValue({ id: response.id });
-      },
-      error: (err) => {
-        console.error('Error saving item:', err);
-        alert('Error occurred while saving');
-      },
-    });
-  }
-  
-
-  saveAll(): void {
-    if (this.selectedForm.valid) {
-      const formData = this.selectedItems.value;
-  
-      // วนลูปเพื่อบันทึกทีละรายการ
-      formData.forEach((item: any, index: number) => {
-        this.selectedTableService.saveSelectedItem(item).subscribe({
-          next: (response) => {
-            // อัปเดต id หลังบันทึกสำเร็จ
-            this.selectedItems.at(index).patchValue({ id: response.id });
-          },
-          error: (err) => {
-            console.error('Error saving item:', err);
-          },
-        });
-      });
-  
-      alert('บันทึกข้อมูลทั้งหมดสำเร็จ');
-    } else {
-      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
-    }
-  }
-  
-
 
   getExpertImage(expertId: number | null): string {
     const expert = this.experts.find((e) => e.id === expertId);

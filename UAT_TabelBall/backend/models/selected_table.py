@@ -11,10 +11,7 @@ class SelectedItemModel:
         self.result = result
 
     @staticmethod
-    def fetch_all_selected_items():
-        """
-        ดึงรายการทั้งหมดจาก selected_items
-        """
+    def fetch_selected_items_by_date(date):
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         try:
@@ -41,13 +38,17 @@ class SelectedItemModel:
                 teams at ON s.away_team_id = at.id
             JOIN 
                 experts e ON s.expert_id = e.id
+            WHERE 
+                DATE(s.created_at) = %s
             """
-            cursor.execute(query)
+            cursor.execute(query, (date,))
             results = cursor.fetchall()
             return results
         finally:
             cursor.close()
             connection.close()
+
+
 
     def add_selected_item(self, data):
         """

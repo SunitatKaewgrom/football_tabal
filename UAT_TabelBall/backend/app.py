@@ -405,12 +405,19 @@ def delete_prediction_endpoint(prediction_id):
 selected_item_model = SelectedItemModel()
 
 @app.route('/api/selected-items', methods=['GET'])
-def get_selected_items():
+def get_selected_items_by_date():
     try:
-        items = SelectedItemModel.fetch_all_selected_items()
+        # รับพารามิเตอร์ date จาก request
+        date = request.args.get('date')
+        if not date:
+            return jsonify({'error': 'Missing date parameter'}), 400
+
+        # เรียกฟังก์ชันใน Model เพื่อดึงข้อมูล
+        items = selected_item_model.fetch_selected_items_by_date(date)
         return jsonify(items), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 @app.route('/api/selected-items/<int:item_id>', methods=['GET'])
@@ -426,21 +433,17 @@ def get_selected_item(item_id):
 
 @app.route('/api/selected-items', methods=['POST'])
 def create_selected_item():
-    """
-    สร้างรายการที่เลือกใหม่
-    """
     try:
         data = request.get_json()  # รับข้อมูล JSON
+        print("Received data:", data)  # เพิ่มบรรทัดนี้
         if not data:
             return jsonify({'error': 'No data provided'}), 400
 
-        # ตรวจสอบฟิลด์ที่จำเป็น
         required_fields = ['league_id', 'home_team_id', 'away_team_id', 'expert_id']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'Missing field: {field}'}), 400
 
-        # เรียกใช้ฟังก์ชันเพิ่มข้อมูลในฐานข้อมูล
         new_item_id = selected_item_model.add_selected_item(data)
         return jsonify({'id': new_item_id}), 201
     except Exception as e:
