@@ -154,12 +154,25 @@ export class SelectedTableComponent implements OnInit {
   updateExpertImage(index: number): void {
     const selectedItem = this.selectedItems.at(index);
     const expertId = selectedItem.get('expert_id')?.value;
-    const imageUrl = this.getExpertImage(expertId);
+  
+    // ดึงรูปภาพและชื่อเซียนบอลจาก experts
+    const expert = this.experts.find((e) => e.id === expertId);
+    const imageUrl = expert
+      ? `http://127.0.0.1:5000/${expert.image_url}`
+      : 'https://via.placeholder.com/100';
+  
+    // อัปเดตรูปภาพใน FormGroup
     selectedItem.patchValue({ expert_image: imageUrl }, { emitEvent: false });
   }
+  getExpertName(expertId: number | null): string {
+    const expert = this.experts.find((e) => e.id === expertId);
+    return expert ? expert.name : 'ยังไม่ได้เลือก';
+  }
+  
 
   getExpertImage(expertId: number | null): string {
     const expert = this.experts.find((e) => e.id === expertId);
     return expert ? `http://127.0.0.1:5000/${expert.image_url}` : 'https://via.placeholder.com/100';
   }
+  
 }

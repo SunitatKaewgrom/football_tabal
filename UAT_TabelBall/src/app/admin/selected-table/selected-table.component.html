@@ -17,26 +17,29 @@
   <!-- Loop through Selected Items -->
   <div formArrayName="selectedItems">
     <div *ngFor="let item of selectedItems.controls; let i = index" [formGroupName]="i" class="border-2 p-4 mb-4 rounded-lg">
-      <!-- Header Section -->
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold">เซียนบอล: {{ item.get('expert_name')?.value || 'ยังไม่ได้เลือก' }}</h2>
-        <button class="bg-red-500 text-white px-4 py-2 rounded" type="button" (click)="removeSelectedItem(i)">ลบ</button>
-      </div>
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">
+        เซียนบอล: {{ getExpertName(item.get('expert_id')?.value) || 'ยังไม่ได้เลือก' }}
+      </h2>
+      <button class="bg-red-500 text-white px-4 py-2 rounded" type="button" (click)="removeSelectedItem(i)">ลบ</button>
+    </div>
 
-      <!-- Expert Image and Selector -->
-      <div class="flex items-center mb-4">
-        <!-- Expert Image -->
-        <img [src]="item.get('expert_image')?.value" alt="Expert Image" class="w-24 h-24 mr-4" />
-        <!-- Select Expert -->
-        <div class="w-full">
-          <label class="block mb-2">เลือกเซียนบอล</label>
-          <select formControlName="expert_id" class="border border-gray-300 p-2 rounded w-full" (change)="updateExpertImage(i)">
-            <option value="">-- เลือกเซียนบอล --</option>
-            <option *ngFor="let expert of experts" [value]="expert.id">{{ expert.name }}</option>
-          </select>
-          
-        </div>
+    <!-- Expert Image and Selector -->
+    <div class="flex items-center mb-4">
+      <!-- Expert Image -->
+      <img [src]="item.get('expert_image')?.value" alt="Expert Image" class="w-24 h-24 mr-4" />
+      
+      <!-- Select Expert -->
+      <div class="w-full">
+        <label class="block mb-2">เลือกเซียนบอล</label>
+        <select formControlName="expert_id" class="border border-gray-300 p-2 rounded w-full" (change)="updateExpertImage(i)">
+          <option value="">-- เลือกเซียนบอล --</option>
+          <option *ngFor="let expert of experts" [value]="expert.id">{{ expert.name }}</option>
+        </select>
       </div>
+    </div>
+
 
       <!-- Analysis Link -->
       <div class="mb-4">
@@ -47,7 +50,7 @@
       <!-- Match Analysis Section -->
       <div class="border-t-2 border-gray-200 pt-4">
         <h3 class="text-lg font-bold mb-4">คู่แข่งขันที่วิเคราะห์</h3>
-        <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="grid grid-cols-1 gap-4 mb-4">
           <!-- Select League -->
           <div>
             <label class="block mb-2">เลือกลีก</label>
@@ -56,7 +59,10 @@
               <option *ngFor="let league of leagues" [value]="league.id">{{ league.name }}</option>
             </select>
           </div>
-
+        </div>
+        
+        <!-- Select Home Team and Away Team in the same row -->
+        <div class="grid grid-cols-2 gap-4 mb-4">
           <!-- Select Home Team -->
           <div>
             <label class="block mb-2">ทีมเหย้า</label>
@@ -65,7 +71,7 @@
               <option *ngFor="let team of teams" [value]="team.id">{{ team.team_name }}</option>
             </select>
           </div>
-
+        
           <!-- Select Away Team -->
           <div>
             <label class="block mb-2">ทีมเยือน</label>
@@ -75,6 +81,7 @@
             </select>
           </div>
         </div>
+        
 
         <!-- Match Result -->
         <div>
