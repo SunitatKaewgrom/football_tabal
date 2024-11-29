@@ -4,6 +4,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { TeamService } from 'src/app/core/service/api/team.service';
 import { TipsTableService } from 'src/app/core/service/api/tips-table.service';
 import { HeaderMessageService } from 'src/app/core/service/api/header-message.service';
+import { ExpertService } from 'src/app/core/service/api/experts.service';
+
+interface Prediction {
+  expert_id: number;
+  prediction: string;
+  status: 'WIN' | 'LOSE' | 'DRAW';
+}
 
 @Component({
   selector: 'app-table1',
@@ -15,48 +22,40 @@ import { HeaderMessageService } from 'src/app/core/service/api/header-message.se
 export class Table1Component implements OnInit {
   matches: any[] = [];
   teams: any[] = [];
-  headerMessage: any = null; // เก็บข้อความ Header Message จาก API
+  experts: any[] = [];
+  headerMessage: any = null;
 
   constructor(
     private headerMessageService: HeaderMessageService,
     private teamService: TeamService,
-    private tipsTableService: TipsTableService
+    private tipsTableService: TipsTableService,
+    private expertService: ExpertService
   ) {}
 
   ngOnInit(): void {
-    this.loadHeaderMessage(); // โหลดข้อความ Header Message
-    this.loadTeams();         // โหลดข้อมูลทีม
-    this.loadMatches();       // โหลดข้อมูลการแข่งขัน
+    this.loadHeaderMessage();
+    this.loadTeams();
+    this.loadMatches();
+    this.loadExperts();
   }
 
   // โหลดข้อความ Header Message
   loadHeaderMessage(): void {
     this.headerMessageService.getMessages().subscribe({
       next: (response) => {
-        console.log('Header messages API response:', response);
-        if (response && response.description) {
-          this.headerMessage = response; // ใช้ response ทั้ง object
-          console.log('Header message loaded:', this.headerMessage);
-        } else {
-          console.warn('No header messages found.');
-          this.headerMessage = null;
-        }
+        this.headerMessage = response || null;
       },
       error: (error) => {
         console.error('Error fetching header messages:', error);
-        this.headerMessage = null;
       },
     });
   }
-  
-  
 
   // โหลดข้อมูลทีม
   loadTeams(): void {
     this.teamService.getTeams().subscribe({
       next: (response) => {
         this.teams = response || [];
-        console.log('Teams loaded:', this.teams);
       },
       error: (error) => {
         console.error('Error fetching teams:', error);
@@ -69,10 +68,30 @@ export class Table1Component implements OnInit {
     this.tipsTableService.getMatches().subscribe({
       next: (response) => {
         this.matches = response?.data || [];
-        console.log('Matches loaded:', this.matches);
+        this.matches.forEach((match) => {
+          match.predictions = match.predictions || [];
+        });
       },
       error: (error) => {
         console.error('Error fetching matches:', error);
+      },
+    });
+  }
+
+  // โหลดข้อมูลเซียน
+  loadExperts(): void {
+    this.expertService.getExperts().subscribe({
+      next: (response: any) => {
+        this.experts = response.map((expert: any) => ({
+          ...expert,
+          image_url: expert.image_url
+            ? `${expert.image_url}`
+            : 'https://via.placeholder.com/50',
+        }));
+        console.log('Experts loaded:', this.experts);
+      },
+      error: (error: any) => {
+        console.error('Error fetching experts:', error);
       },
     });
   }
@@ -86,12 +105,20 @@ export class Table1Component implements OnInit {
   // ดึง URL โลโก้ทีมจาก teamId
   getTeamImage(teamId: number): string {
     const team = this.teams.find((t) => t.id === teamId);
-    return team && team.logo_url ? `http://127.0.0.1:5000/${team.logo_url}` : 'https://via.placeholder.com/50';
+    return team && team.logo_url
+      ? `http://127.0.0.1:5000/${team.logo_url}`
+      : 'https://via.placeholder.com/50';
   }
 
   // ฟอร์แมตวันที่และเวลา
   formatDate(date: string, time: string): string {
     const formattedDate = new Date(date);
     return `${formattedDate.toLocaleDateString()} ${time}`;
+  }
+
+  // ดึงข้อมูลการทำนายผลการแข่งขันจาก matchId และ expertId
+  getPrediction(matchId: number, expertId: number): Prediction | null {
+    const match = this.matches.find((m: any) => m.id === matchId);
+    return match?.predictions?.find((p: Prediction) => p.expert_id === expertId) || null;
   }
 }

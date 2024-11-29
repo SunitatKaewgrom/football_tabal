@@ -1,12 +1,9 @@
 <div class="container mx-auto p-4">
-  <!-- ส่วนข้อความ Header -->
+  <!-- Header Section -->
   <div class="header-section mb-6 text-center">
-    <!-- แสดงข้อความ -->
     <h1 *ngIf="headerMessage?.description" class="text-2xl font-bold mb-4">
       {{ headerMessage.description }}
     </h1>
-  
-    <!-- ลิงก์ครอบรูปภาพ -->
     <a
       *ngIf="headerMessage?.link_url"
       [href]="headerMessage.link_url"
@@ -21,23 +18,28 @@
       />
     </a>
   </div>
-  
-  
 
-  <!-- ตารางข้อมูลการแข่งขัน -->
-  <table class="min-w-full bg-white text-center rounded-lg shadow-lg">
+  <!-- Match Table -->
+  <table class="min-w-full bg-blue-900 text-center rounded-lg shadow-lg text-white">
     <thead>
-      <tr class="bg-gray-200">
+      <tr>
         <th class="py-2 px-4">ทีมเหย้า</th>
         <th class="py-2 px-4">คะแนน</th>
         <th class="py-2 px-4">ทีมเยือน</th>
+        <th *ngFor="let expert of experts" class="py-2 px-4">
+          <img
+            [src]="'http://127.0.0.1:5000/' + expert.image_url"
+            alt="{{ expert.name }}"
+            class="h-12 w-12 mx-auto rounded-full"
+          />
+          <p>{{ expert.name }}</p>
+        </th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let match of matches">
         <td class="py-4 px-6">
           <img
-            *ngIf="match.home_team_id"
             [src]="getTeamImage(match.home_team_id)"
             alt="Home Team"
             class="rounded-full h-12 w-12 mx-auto"
@@ -51,12 +53,23 @@
         </td>
         <td class="py-4 px-6">
           <img
-            *ngIf="match.away_team_id"
             [src]="getTeamImage(match.away_team_id)"
             alt="Away Team"
             class="rounded-full h-12 w-12 mx-auto"
           />
           <p>{{ getTeamName(match.away_team_id) }}</p>
+        </td>
+        <td *ngFor="let expert of experts" class="py-4 px-6">
+          <p>{{ getPrediction(match.id, expert.id)?.prediction || 'N/A' }}</p>
+          <p
+            [ngClass]="{
+              'text-green-500': getPrediction(match.id, expert.id)?.status === 'WIN',
+              'text-red-500': getPrediction(match.id, expert.id)?.status === 'LOSE',
+              'text-gray-500': getPrediction(match.id, expert.id)?.status === 'DRAW'
+            }"
+          >
+            {{ getPrediction(match.id, expert.id)?.status || '' }}
+          </p>
         </td>
       </tr>
     </tbody>
